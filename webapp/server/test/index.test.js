@@ -11,7 +11,10 @@ const lanzar = env => spawn(process.execPath, [ENTRY], { env: { ...process.env, 
 // Los directorios temporales se borran al terminar el fichero (misma higiene que db.test.js y panel.test.js).
 const dirsTmp = [];
 const dbTmp = () => { const d = fs.mkdtempSync(path.join(os.tmpdir(), 'finanzas-idx-')); dirsTmp.push(d); return path.join(d, 'x.sqlite'); };
-after(() => dirsTmp.forEach(d => fs.rmSync(d, { recursive: true, force: true })));
+// maxRetries: en Windows un fichero abierto no se puede borrar (EBUSY) y el antivirus puede tardar en soltarlo.
+after(() => dirsTmp.forEach(d => fs.rmSync(d, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 })));
+// Mata el proceso y ESPERA a que salga: si no, en Windows su SQLite sigue abierto cuando after() borra el directorio.
+const parar = hijo => new Promise(res => { if (hijo.exitCode !== null || hijo.signalCode !== null) return res(); hijo.once('exit', () => res()); hijo.kill(); });
 
 test('AUTH_MODE=dev sin NODE_ENV=development está prohibido: el proceso sale con código != 0 y avisa por stderr', async () => {
   const hijo = lanzar({ NODE_ENV: '', AUTH_MODE: 'dev', PORT: '0', DB_PATH: dbTmp() });
@@ -24,7 +27,7 @@ test('AUTH_MODE=dev sin NODE_ENV=development está prohibido: el proceso sale co
 
 test('con NODE_ENV=development, AUTH_MODE=dev arranca y escucha solo en 127.0.0.1', async (t) => {
   const hijo = lanzar({ NODE_ENV: 'development', AUTH_MODE: 'dev', PORT: '0', DB_PATH: dbTmp(), AUTH_DEV_EMAIL: 'ana@local' });
-  t.after(() => { hijo.kill(); });
+  t.after(() => parar(hijo));
   let stdout = '';
   const puerto = await new Promise((res, rej) => {
     hijo.stdout.on('data', d => {
