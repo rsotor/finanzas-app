@@ -2,6 +2,8 @@ name: Versiones
 
 # release-please mantiene abierto un PR «chore: versión X.Y.Z» con el CHANGELOG al día.
 # Al mergearlo se crea la etiqueta vX.Y.Z y la versión (Release) en GitHub con sus notas.
+# Su CI queda en pausa hasta que un mantenedor pulsa «Approve workflows and run» en el PR
+# (GitHub trata al bot como colaborador externo). Ver CONTRIBUTING.md.
 on:
   push:
     branches: [main]
@@ -9,7 +11,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  actions: write
 
 jobs:
   release-please:
@@ -19,15 +20,3 @@ jobs:
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
-      # Un PR creado con el token de Actions no lanza la CI por sí solo, y la protección de main la exige.
-      # workflow_dispatch sí se puede lanzar con ese token: se pasa la CI a mano a la rama del PR de versión.
-      - name: Pasar la CI (y la comprobación del título) al PR de versión
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-        run: |
-          for rama in $(gh api "repos/$REPO/branches?per_page=100" --jq '.[].name | select(startswith("release-please--"))'); do
-            echo "CI para $rama"
-            gh workflow run ci.yml --repo "$REPO" --ref "$rama"
-            gh workflow run titulo-pr.yml --repo "$REPO" --ref "$rama"
-          done

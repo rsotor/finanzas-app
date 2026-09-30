@@ -39,7 +39,12 @@ El número de versión lo decide el tipo más importante desde la última: un `f
 Opcionalmente, entre paréntesis, la parte afectada: `feat(plan): banda pesimista en la proyección`,
 `fix(instalación): npm install en Windows`.
 
-**Publicar una versión:** cuando hay cambios nuevos en `main`, aparece solo un PR llamado «chore: versión X.Y.Z» con el changelog al día (se actualiza con cada merge).
+**Publicar una versión:** cuando hay cambios nuevos en `main`, aparece solo un PR llamado «chore: versión X.Y.Z»
+con el changelog al día (se actualiza con cada merge). Para publicar:
+
+1. En ese PR, pulsa **«Approve workflows and run»**: GitHub trata al robot que lo abre como colaborador externo y
+   deja su CI en pausa hasta que un mantenedor la aprueba.
+2. Cuando la CI esté en verde, **mergéalo**. Se crean solas la etiqueta `vX.Y.Z` y la *Release* con sus notas.
 Cuando quieras publicar, se mergea: se crea la versión en *Releases* con sus notas.
 
 ## Dónde está cada cosa
