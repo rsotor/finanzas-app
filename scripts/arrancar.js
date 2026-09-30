@@ -15,8 +15,8 @@ const modo = process.argv[2];
 const arg = (n, d) => { const i = process.argv.indexOf(n); return i > 0 ? process.argv[i + 1] : d; };
 if (!['demo', 'empezar'].includes(modo)) { console.error('uso: node scripts/arrancar.js demo|empezar [--puerto N] [--compilar]'); process.exit(2); }
 
-const mayor = Number(process.versions.node.split('.')[0]);
-if (mayor < 22) { console.error(`✖ Necesitas Node 22 o superior (tienes ${process.versions.node}). Ver docs/instalacion.md`); process.exit(1); }
+const [mayor, menor] = process.versions.node.split('.').map(Number);
+if (mayor < 22 || (mayor === 22 && menor < 12)) { console.error(`✖ Necesitas Node 22.12 o superior (tienes ${process.versions.node}). Ver docs/instalacion.md`); process.exit(1); }
 for (const [dir, nombre] of [[SERVIDOR, 'servidor'], [WEB, 'interfaz']]) {
   if (!fs.existsSync(path.join(dir, 'node_modules'))) { console.error(`✖ Faltan las dependencias del ${nombre}. Ejecuta primero: npm install`); process.exit(1); }
 }

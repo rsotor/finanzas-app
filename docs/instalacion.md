@@ -5,7 +5,7 @@ Tiempo estimado: 10 minutos. Si algo falla, mira [Problemas frecuentes](#problem
 
 ## 1. Requisitos
 
-- **Node.js 22 o superior** (la versión LTS). Compruébalo con `node --version`.
+- **Node.js 22.12 o superior** (la versión LTS). Compruébalo con `node --version`.
   - Si no lo tienes: descárgalo de <https://nodejs.org/> (versión LTS), o usa un gestor de versiones:
     [nvm](https://github.com/nvm-sh/nvm) en Mac/Linux, [nvm-windows](https://github.com/coreybutler/nvm-windows) en Windows.
     El repo trae un `.nvmrc`: con nvm basta `nvm install && nvm use` dentro de la carpeta.
@@ -108,7 +108,7 @@ cp input/situation.example.md input/situation.md   # y edítalo con tus datos
 
 ## Problemas frecuentes
 
-**`Necesitas Node 22 o superior`** — actualiza Node (paso 1).
+**`Necesitas Node 22.12 o superior`** — actualiza Node (paso 1).
 
 **Error al instalar `better-sqlite3`** (mensajes con `node-gyp`, `gyp ERR!`, `prebuild-install`) —
 `better-sqlite3` trae binarios precompilados para las versiones LTS de Node; si tu versión no los tiene,
