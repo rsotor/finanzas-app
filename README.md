@@ -39,7 +39,7 @@ importa: **¿llegas?** Y si no llegas, te dice qué objetivo falla, cuándo y cu
 
 ## Pruébalo en 2 minutos
 
-Necesitas [Node.js](https://nodejs.org/) 22 o superior y git.
+Necesitas [Node.js](https://nodejs.org/) 22.12 o superior y git.
 
 ```bash
 git clone https://github.com/rsotor/finanzas-app.git

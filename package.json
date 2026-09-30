@@ -5,7 +5,7 @@
   "description": "App de finanzas familiares y planificación por objetivos. Datos de ejemplo; no es asesoramiento financiero.",
   "license": "MIT",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.12"
   },
   "scripts": {
     "postinstall": "node scripts/npm-en.js webapp/server install --no-audit --no-fund && node scripts/npm-en.js webapp/web install --no-audit --no-fund",
