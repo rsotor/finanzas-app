@@ -17,8 +17,8 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
       - name: Instalar (igual que en docs/instalacion.md)
@@ -26,7 +26,7 @@ jobs:
       - name: Tests del motor y del servidor
         run: npm test
       - name: Compilar la interfaz
-        run: npm run build --prefix webapp/web
+        run: node scripts/npm-en.js webapp/web run build
       - name: La demo arranca y responde
         shell: bash
         run: |
@@ -38,8 +38,8 @@ jobs:
     name: Tests de interfaz (Playwright)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
       - run: npm install
@@ -51,10 +51,10 @@ jobs:
     name: Imagen Docker
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: docker build -t finanzas-app .
       - name: El contenedor arranca y responde
         run: |
-          docker run -d --name f -p 127.0.0.1:3000:3000 finanzas-app
+          docker run -d --name finanzas -p 127.0.0.1:3000:3000 finanzas-app
           for i in $(seq 1 30); do curl -sf http://127.0.0.1:3000/salud && break; sleep 1; done
           curl -sf http://127.0.0.1:3000/api/config
