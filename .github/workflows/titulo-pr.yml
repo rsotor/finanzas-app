@@ -1,0 +1,26 @@
+name: Título del PR
+
+# El CHANGELOG se construye con los títulos de los PR (se mergean con squash: el título es el commit).
+# Formato: tipo(ámbito opcional): descripción. Ej.: «feat(plan): banda pesimista en la proyección».
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  titulo:
+    name: Título del PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comprobar el formato
+        env:
+          TITULO: ${{ github.event.pull_request.title }}
+        run: |
+          if printf '%s' "$TITULO" | grep -qE '^(feat|fix|perf|docs|build|ci|test|refactor|chore|revert)(\([^)]+\))?!?: .+'; then
+            echo "✔ $TITULO"
+          else
+            echo "::error::El título debe empezar por un tipo: feat, fix, perf, docs, build, ci, test, refactor, chore o revert. Ej.: «fix(instalación): npm install en Windows». Ver CONTRIBUTING.md"
+            exit 1
+          fi

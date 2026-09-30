@@ -18,6 +18,30 @@ Gracias por querer mejorar la app. Tres reglas y un flujo.
 3. Pasa los tests. La CI los repite en Linux, Mac y Windows.
 4. Abre el pull request con la plantilla.
 
+## Títulos de los pull requests
+
+El [CHANGELOG](CHANGELOG.md) y las versiones se generan solos a partir del **título** de cada PR (se mergean
+con *squash*: el título acaba siendo el commit). Por eso el título lleva un tipo delante, y la CI lo comprueba:
+
+| Empieza por | Cuándo | En el changelog |
+|---|---|---|
+| `feat:` | Algo nuevo que ve quien usa la app | Mejoras |
+| `fix:` | Arregla algo que fallaba | Arreglos |
+| `perf:` | Más rápido, mismo resultado | Rendimiento |
+| `docs:` | Solo documentación | Documentación |
+| `build:` | Dependencias, Docker, compilación | Dependencias y mantenimiento |
+| `ci:`, `test:`, `refactor:`, `chore:` | Cosas internas | (no aparece) |
+
+El número de versión lo decide el tipo más importante desde la última: un `feat:` sube el del medio
+(0.1.0 → 0.**2**.0) y un `fix:` o `perf:` sube el último (0.1.0 → 0.1.**1**). Mientras la versión empiece por
+`0.`, el proyecto se considera en maduración.
+
+Opcionalmente, entre paréntesis, la parte afectada: `feat(plan): banda pesimista en la proyección`,
+`fix(instalación): npm install en Windows`.
+
+**Publicar una versión:** cuando hay cambios nuevos en `main`, aparece solo un PR llamado «chore: versión X.Y.Z» con el changelog al día (se actualiza con cada merge).
+Cuando quieras publicar, se mergea: se crea la versión en *Releases* con sus notas.
+
 ## Dónde está cada cosa
 
 - **Cálculos** → `app/engine-*.js`, con sus tests en `app/tests/`. Si cambias un cálculo que también hace el

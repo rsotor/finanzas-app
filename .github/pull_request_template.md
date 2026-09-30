@@ -1,3 +1,5 @@
+<!-- Título: «tipo: descripción» (feat, fix, docs, build…). Es la línea que saldrá en el CHANGELOG. Ver CONTRIBUTING.md -->
+
 ## Qué cambia y por qué
 
 ## Cómo lo he probado
