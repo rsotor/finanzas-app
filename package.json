@@ -11,7 +11,7 @@
     "postinstall": "node scripts/npm-en.js webapp/server install --no-audit --no-fund && node scripts/npm-en.js webapp/web install --no-audit --no-fund",
     "demo": "node scripts/arrancar.js demo",
     "empezar": "node scripts/arrancar.js empezar",
-    "test": "npm run test:motor && npm run test:servidor",
+    "test": "node scripts/comprobar-versiones.js && npm run test:motor && npm run test:servidor",
     "test:motor": "node --test \"app/tests/*.test.js\"",
     "test:servidor": "node scripts/npm-en.js webapp/server test",
     "test:web": "node scripts/npm-en.js webapp/web run build && node scripts/npm-en.js webapp/web test"

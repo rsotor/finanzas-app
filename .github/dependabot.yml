@@ -1,0 +1,30 @@
+# Actualizaciones de dependencias.
+# - Una vez por semana, un solo PR por carpeta con todas las subidas MENORES y de PARCHE (compatibles).
+# - Las versiones MAYORES no llegan como PR automático: pueden romper cosas y se hacen a mano, probadas
+#   (como Vite 5 → 8). Las alertas de seguridad siguen apareciendo en la pestaña Security.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /webapp/server
+    schedule: { interval: weekly }
+    groups:
+      servidor-menores:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: npm
+    directory: /webapp/web
+    schedule: { interval: weekly }
+    groups:
+      interfaz-menores:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+    groups:
+      acciones:
+        patterns: ["*"]
