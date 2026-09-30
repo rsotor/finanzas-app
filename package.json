@@ -1,6 +1,6 @@
 {
   "name": "finanzas-app",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "App de finanzas familiares y planificación por objetivos. Datos de ejemplo; no es asesoramiento financiero.",
   "license": "MIT",

@@ -3,6 +3,13 @@
 Qué cambia en cada versión. Se escribe solo a partir de los títulos de los pull requests
 (ver [CONTRIBUTING.md](CONTRIBUTING.md#títulos-de-los-pull-requests)).
 
+## [0.1.1](https://github.com/rsotor/finanzas-app/compare/v0.1.0...v0.1.1) (2026-09-30)
+
+
+### Dependencias y mantenimiento
+
+* **deps:** bump the acciones group with 2 updates ([#9](https://github.com/rsotor/finanzas-app/issues/9)) ([4c85f39](https://github.com/rsotor/finanzas-app/commit/4c85f3990a1da6fea0d00413297d643a52acc40d))
+
 ## 0.1.0 (2026-09-30)
 
 Primera versión pública.
