@@ -1,0 +1,131 @@
+{
+  "name": "DIY ACWI clases S (iShares World S + EM S) — coste 0,07%",
+  "description": "Cartera self-directed que replica el MSCI ACWI a pesos de mercado (World 88% + Emergentes 12%) con las clases S más baratas del catálogo MyInvestor. Mismo índice y rentabilidad esperada que la 'Cartera ACWI de referencia'; difiere solo en coste (0,07% vs 0,20%).",
+  "type": "product",
+  "provider": "Autogestionada (fondos contratables en MyInvestor)",
+  "mandate": "self-directed",
+  "dataAsOf": "2026-06-18",
+  "params": {
+    "initial": 10000,
+    "monthly": 300,
+    "horizon": 16,
+    "inflation": 2
+  },
+  "groupCosts": [],
+  "funds": [
+    {
+      "name": "iShares Developed World Index (IE) Acc EUR clase S",
+      "isin": "IE000ZYRH0Q7",
+      "weight": 88,
+      "category": "rv",
+      "structure": "passive-index",
+      "aum": 25789607181,
+      "categoryMorningstar": "RV Global Cap. Grande Blend",
+      "ter": 0.06,
+      "alloc": {
+        "equity": 99.69,
+        "bond": 0,
+        "cash": 0.2,
+        "other": 0.11
+      },
+      "topSectors": [
+        {
+          "name": "Tecnología",
+          "pct": 26.5
+        },
+        {
+          "name": "Servicios Financieros",
+          "pct": 16.03
+        },
+        {
+          "name": "Industria",
+          "pct": 11.41
+        },
+        {
+          "name": "Salud",
+          "pct": 9.67
+        },
+        {
+          "name": "Consumo Cíclico",
+          "pct": 9.24
+        },
+        {
+          "name": "Servicios de Comunicación",
+          "pct": 8.71
+        }
+      ],
+      "dataSource": "MyInvestor MCP get_funds 2026-06-18 (ISIN IE000ZYRH0Q7, TER 0,06%, AUM 25,8B€, mín. 0€, inception 2010). Sin serie de NAV propia en el MCP; mismo índice MSCI World que la clase estándar (serie en cartera-acwi-referencia).",
+      "costs": [
+        {
+          "name": "TER",
+          "value": 0.06,
+          "unit": "pct",
+          "type": "annual"
+        }
+      ]
+    },
+    {
+      "name": "iShares Emerging Markets Index Fund (IE) Acc EUR clase S",
+      "isin": "IE000QAZP7L2",
+      "weight": 12,
+      "category": "rv",
+      "structure": "passive-index",
+      "aum": 8748250064,
+      "categoryMorningstar": "RV Global Emergente",
+      "ter": 0.16,
+      "alloc": {
+        "equity": 99.74,
+        "bond": 0,
+        "cash": 0.23,
+        "other": 0.04
+      },
+      "topSectors": [
+        {
+          "name": "Tecnología",
+          "pct": 36.84
+        },
+        {
+          "name": "Servicios Financieros",
+          "pct": 19.46
+        },
+        {
+          "name": "Consumo Cíclico",
+          "pct": 9.56
+        },
+        {
+          "name": "Industria",
+          "pct": 7.53
+        },
+        {
+          "name": "Servicios de Comunicación",
+          "pct": 6.93
+        },
+        {
+          "name": "Materiales Básicos",
+          "pct": 6.51
+        }
+      ],
+      "dataSource": "MyInvestor MCP get_funds 2026-06-18 (ISIN IE000QAZP7L2, TER 0,16%, AUM 8,7B€, mín. 0€, inception 2009). El propio MCP la marca como la clase de menor coste del índice MSCI EM (warning_text). Misma exposición que la clase D IE00BYWYCC39.",
+      "costs": [
+        {
+          "name": "TER",
+          "value": 0.16,
+          "unit": "pct",
+          "type": "annual"
+        }
+      ]
+    }
+  ],
+  "historicalReturns": {
+    "source": "MyInvestor MCP return_past_* del índice vía clases equivalentes con histórico (Amundi MSCI World LU0996181599 y iShares EM D IE00BYWYCC39), 2026-06-18. Las clases S replican el mismo índice.",
+    "currency": "EUR",
+    "annual": {},
+    "note": "Por año natural — World: 2021 30.95 / 2022 -13.05 / 2023 19.62 / 2024 26.4 / 2025 6.62. Emergentes: 2021 5.14 / 2022 -14.94 / 2023 4.77 / 2024 15.6 / 2025 17.74. La rentabilidad de la cartera la agrega el engine."
+  },
+  "scorecardData": {
+    "volatilidadCorrelacion": {
+      "status": "no-data",
+      "reason": "Las clases S no exponen serie de NAV propia en el MCP. Misma exposición/índice que 'Cartera ACWI de referencia', que sí lleva la serie (Amundi World + iShares EM D)."
+    }
+  }
+}

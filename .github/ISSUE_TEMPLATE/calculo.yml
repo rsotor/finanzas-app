@@ -1,0 +1,27 @@
+name: Error de cálculo
+description: Un número que no cuadra.
+title: "[cálculo] "
+labels: ["cálculo"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > ⚠ **Nunca pegues datos financieros reales** (sueldos, saldos, cuentas, capturas con tus cifras).
+        > Si hace falta un ejemplo, reprodúcelo con la demo (`npm run demo`), que usa una familia inventada.
+  - type: textarea
+    id: pasos
+    attributes:
+      label: Cómo reproducirlo con la demo
+      description: Parte de `npm run demo` y di qué cambias (qué campo, qué valor).
+    validations: { required: true }
+  - type: textarea
+    id: esperado
+    attributes:
+      label: Qué esperabas y por qué
+      description: Si tienes la cuenta hecha a mano o una fuente (p. ej. la normativa del IRPF), ponla.
+    validations: { required: true }
+  - type: textarea
+    id: obtenido
+    attributes:
+      label: Qué sale en la app
+    validations: { required: true }

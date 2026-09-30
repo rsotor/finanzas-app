@@ -1,0 +1,69 @@
+{
+  "name": "MyInvestor Cartera Permanente",
+  "description": "Fondo mixto basado en la Cartera Permanente de Harry Browne: ~23% RV / ~36% RF / ~38% oro y alternativos / ~3% liquidez. Gestionado por Rafael Ortega y Carlos Santiso. Volatilidad moderada (~7% a 5a) con proteccion contra inflacion via oro.",
+  "isin_ref": "ES0156572002",
+  "type": "product",
+  "dataAsOf": "2026-07-09",
+  "provider": "MyInvestor",
+  "entity": {
+    "name": "MyInvestor",
+    "score": null,
+    "category": null
+  },
+  "params": {
+    "initial": 10000,
+    "monthly": 300,
+    "horizon": 5,
+    "rent": 4.08,
+    "inflation": 2
+  },
+  "rentByFund": false,
+  "groupCosts": [],
+  "funds": [
+    {
+      "name": "MyInvestor Cartera Permanente FI",
+      "isin": "ES0156572002",
+      "weight": 100,
+      "category": "mixto-conservador",
+      "alloc": {
+        "equity": 23,
+        "bond": 36,
+        "cash": 3,
+        "other": 38
+      },
+      "rent": 4.08,
+      "vol": 7.37,
+      "maxDD": null,
+      "numHoldings": null,
+      "structure": "active-balanced",
+      "costs": [
+        {
+          "name": "Comision de gestion",
+          "value": 0.5,
+          "unit": "pct",
+          "type": "annual"
+        },
+        {
+          "name": "Comision depositaria",
+          "value": 0.1,
+          "unit": "pct",
+          "type": "annual"
+        }
+      ]
+    }
+  ],
+  "historicalReturns": {
+    "source": "MyInvestor MCP get_funds ES0156572002, 2026-07-09 (anuales aprox. desde return_past_Ny, no calendario exacto). Vol 5a 7,37%. Rating Morningstar 5*.",
+    "currency": "EUR",
+    "annual": {
+      "2021": 5.11,
+      "2022": -12.76,
+      "2023": 7.48,
+      "2024": 10.7,
+      "2025": 11.39,
+      "2026_ytd": 2.02
+    },
+    "annualized_5y": 4.08,
+    "annualized_3y": 10.15
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "name": "Cartesio X FI",
+  "description": "Fondo mixto defensivo de gestion activa. Track record de +20 anos. Premio Morningstar 2025 al mejor mixto euro. Volatilidad inferior al 2%. Composicion variable con maximo 40% RV.",
+  "isin_ref": "ES0116567035",
+  "type": "product",
+  "dataAsOf": "2026-03-31",
+  "provider": "Cartesio Inversiones",
+  "entity": {
+    "name": "Cartesio Inversiones",
+    "score": null,
+    "category": null
+  },
+  "params": {
+    "initial": 10000,
+    "monthly": 300,
+    "horizon": 5,
+    "rent": 5.2,
+    "inflation": 2
+  },
+  "rentByFund": false,
+  "groupCosts": [],
+  "funds": [
+    {
+      "name": "Cartesio X FI",
+      "isin": "ES0116567035",
+      "weight": 100,
+      "category": "mixto-defensivo",
+      "rent": 5.2,
+      "vol": 2.0,
+      "maxDD": null,
+      "numHoldings": null,
+      "structure": "active-defensive",
+      "costs": [
+        {
+          "name": "Comision de gestion fija",
+          "value": 0.65,
+          "unit": "pct",
+          "type": "annual"
+        },
+        {
+          "name": "Comision variable (sobre ganancias)",
+          "value": 7.5,
+          "unit": "pct-profit",
+          "type": "annual"
+        },
+        {
+          "name": "TER efectivo estimado (ano bueno)",
+          "value": 1.25,
+          "unit": "pct",
+          "type": "annual",
+          "note": "El TER real varia: 0,75% en anos malos, hasta ~1,5% en anos buenos"
+        }
+      ]
+    }
+  ],
+  "historicalReturns": {
+    "source": "Morningstar / quefondos.com (marzo 2026)",
+    "currency": "EUR",
+    "annual": {
+      "2019": null,
+      "2020": null,
+      "2021": null,
+      "2022": null,
+      "2023": null,
+      "2024": null,
+      "2025": 6.69,
+      "2026_ytd": null
+    },
+    "annualized_5y": 5.2,
+    "annualized_3y": 9.2
+  }
+}

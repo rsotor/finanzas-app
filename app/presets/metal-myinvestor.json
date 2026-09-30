@@ -1,0 +1,187 @@
+{
+  "name": "Cartera Metal (MyInvestor)",
+  "description": "Robo-advisor indexado 100% RV (7 fondos). Datos reales del MCP de MyInvestor (search_portfolios, name_id METAL). Coste total ~0,40% (TER ~0,10% + custodia 0,15% + gestión 0,15%).",
+  "type": "product",
+  "provider": "MyInvestor",
+  "mandate": "discretionary",
+  "dataAsOf": "2026-06-18",
+  "entity": {
+    "name": "MyInvestor",
+    "score": null,
+    "category": null
+  },
+  "params": {
+    "initial": 10000,
+    "monthly": 300,
+    "horizon": 16,
+    "rent": 6,
+    "inflation": 2
+  },
+  "rentByFund": false,
+  "groupCosts": [
+    {
+      "name": "Comisión de gestión",
+      "value": 0.15,
+      "unit": "pct",
+      "type": "annual"
+    },
+    {
+      "name": "Comisión de custodia",
+      "value": 0.15,
+      "unit": "pct",
+      "type": "annual"
+    },
+    {
+      "name": "TER medio fondos subyacentes",
+      "value": 0.1,
+      "unit": "pct",
+      "type": "annual"
+    }
+  ],
+  "composition": [
+    {
+      "type": "RV",
+      "asset": "Renta variable EEUU",
+      "percentage": 43
+    },
+    {
+      "type": "RV",
+      "asset": "Renta variable Global socialmente responsable",
+      "percentage": 20
+    },
+    {
+      "type": "RV",
+      "asset": "Renta variable países emergentes",
+      "percentage": 14
+    },
+    {
+      "type": "RV",
+      "asset": "Renta variable Japón",
+      "percentage": 12
+    },
+    {
+      "type": "RV",
+      "asset": "Renta variable Europa",
+      "percentage": 8
+    },
+    {
+      "type": "RV",
+      "asset": "Renta variable Asia excluyendo Japón",
+      "percentage": 3
+    }
+  ],
+  "funds": [
+    {
+      "name": "iShares US Equity Index Fund clase S",
+      "isin": "IE000N4ZYX28",
+      "weight": 39,
+      "category": "rv",
+      "structure": "passive-index",
+      "alloc": {
+        "equity": 100,
+        "bond": 0,
+        "cash": 0,
+        "other": 0
+      },
+      "dataSource": "MCP search_portfolios METAL 2026-06-18"
+    },
+    {
+      "name": "iShares Developed World ESG Screened Index Fund (IE) D Acc EUR",
+      "isin": "IE000N51F726",
+      "weight": 20,
+      "category": "rv",
+      "structure": "passive-index",
+      "alloc": {
+        "equity": 100,
+        "bond": 0,
+        "cash": 0,
+        "other": 0
+      },
+      "dataSource": "MCP search_portfolios METAL 2026-06-18"
+    },
+    {
+      "name": "iShares Emerging Markets Index Fund (IE) Acc EUR clase S",
+      "isin": "IE000QAZP7L2",
+      "weight": 14,
+      "category": "rv",
+      "structure": "passive-index",
+      "alloc": {
+        "equity": 100,
+        "bond": 0,
+        "cash": 0,
+        "other": 0
+      },
+      "dataSource": "MCP search_portfolios METAL 2026-06-18"
+    },
+    {
+      "name": "Fidelity MSCI Japan Index Fund P-ACC-EUR",
+      "isin": "IE00BYX5N771",
+      "weight": 12,
+      "category": "rv",
+      "structure": "passive-index",
+      "alloc": {
+        "equity": 100,
+        "bond": 0,
+        "cash": 0,
+        "other": 0
+      },
+      "dataSource": "MCP search_portfolios METAL 2026-06-18"
+    },
+    {
+      "name": "Fidelity MSCI Europe Index Fund P-ACC-EUR",
+      "isin": "IE00BYX5MD61",
+      "weight": 8,
+      "category": "rv",
+      "structure": "passive-index",
+      "alloc": {
+        "equity": 100,
+        "bond": 0,
+        "cash": 0,
+        "other": 0
+      },
+      "dataSource": "MCP search_portfolios METAL 2026-06-18"
+    },
+    {
+      "name": "Vanguard US Equity Index Fund EUR Hedged",
+      "isin": "IE00B1G3DH73",
+      "weight": 4,
+      "category": "rv",
+      "structure": "passive-index",
+      "alloc": {
+        "equity": 100,
+        "bond": 0,
+        "cash": 0,
+        "other": 0
+      },
+      "dataSource": "MCP search_portfolios METAL 2026-06-18"
+    },
+    {
+      "name": "Fidelity MSCI Pacific ex-Japan Index Fund P-ACC-USD",
+      "isin": "IE00BDZVHT63",
+      "weight": 3,
+      "category": "rv",
+      "structure": "passive-index",
+      "alloc": {
+        "equity": 100,
+        "bond": 0,
+        "cash": 0,
+        "other": 0
+      },
+      "dataSource": "MCP search_portfolios METAL 2026-06-18"
+    }
+  ],
+  "historicalReturns": {
+    "source": "MyInvestor MCP search_portfolios historic_yearly (name_id METAL), consultado 2026-06-18",
+    "currency": "EUR",
+    "annual": {
+      "2020": 8.1,
+      "2021": 27.2,
+      "2022": -12.4,
+      "2023": 16.9,
+      "2024": 24.22,
+      "2025": 9.25
+    },
+    "annualized_since_2020_11": 15.3,
+    "note": "Rentabilidad real de la cartera (histórica, no estimada). 100% RV indexada global. 2026 YTD a 31-may: +13,62%. *Pasado ≠ futuro: la proyección usa el supuesto forward por composición (~6%), no este histórico."
+  }
+}

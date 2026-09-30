@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "descripcion": "Cuestionario de perfil de inversor (MiFID II adaptado) para /cartera. La lógica de salto y la captura conversacional las ejecuta el comando del Plan 5; este archivo es la definición declarativa.",
+  "dimensiones": [
+    {
+      "id": "capacidad_financiera",
+      "nombre": "Capacidad financiera",
+      "pregunta": "¿Cuánto puedes destinar a inversión al mes sin tocar tu día a día, y cuál es tu patrimonio líquido actual?",
+      "mapeoSituation": "Flujo mensual; Patrimonio actual",
+      "volatilidad": "volatil"
+    },
+    {
+      "id": "horizonte",
+      "nombre": "Horizonte por objetivo",
+      "pregunta": "Para este bloque, ¿para cuándo necesitas el dinero? (en años)",
+      "mapeoSituation": "Objetivos por horizonte",
+      "volatilidad": "estable"
+    },
+    {
+      "id": "tolerancia",
+      "nombre": "Tolerancia al riesgo (psicológica)",
+      "pregunta": "Si esta inversión cayera un 30% en un año malo, ¿qué harías: vender, aguantar, o comprar más?",
+      "mapeoSituation": "Perfil inversor → tolerancia",
+      "volatilidad": "estable"
+    },
+    {
+      "id": "capacidad_perdida",
+      "nombre": "Capacidad de pérdida (objetiva)",
+      "pregunta": "¿Este objetivo es flexible (puedes retrasarlo) o crítico y con fecha fija?",
+      "mapeoSituation": "Objetivos por horizonte (criticidad)",
+      "volatilidad": "calculada"
+    },
+    {
+      "id": "conocimiento",
+      "nombre": "Conocimiento / experiencia",
+      "pregunta": "¿Cómo de cómodo te sientes con productos de inversión: nada, básico, o con soltura?",
+      "mapeoSituation": "Perfil inversor → conocimiento",
+      "volatilidad": "estable"
+    },
+    {
+      "id": "restricciones",
+      "nombre": "Restricciones y comodidad",
+      "pregunta": "¿Hay algo que NO quieras (clases de activo, plataformas) y cuántos productos como máximo quieres gestionar?",
+      "mapeoSituation": "Restricciones; Perfil inversor → dedicación",
+      "volatilidad": "estable"
+    },
+    {
+      "id": "fiscalidad",
+      "nombre": "Fiscalidad",
+      "pregunta": "¿Tienes plan de pensiones y hay algo fiscal relevante (situación de Luis, traspasos)?",
+      "mapeoSituation": "Plan de pensiones; unidad familiar",
+      "volatilidad": "semi-estable"
+    }
+  ],
+  "logicaSalto": {
+    "estable_presente": "No repreguntar. Mostrar agrupado para confirmar de un vistazo.",
+    "estable_confirmacion_antigua": "Si la confirmación tiene más de 12 meses, sacar a reconfirmar.",
+    "volatil_o_antiguo": "Pedir confirmación rápida del valor.",
+    "ausente": "Preguntar.",
+    "ramificacion": "Si se excluye una clase de activo o se cierra una decisión, no volver a sacarla."
+  }
+}

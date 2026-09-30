@@ -1,0 +1,124 @@
+{
+  "name": "Finanbest Grey (Cartera Gris)",
+  "description": "Cartera automatizada (robo-advisor) de Finanbest, perfil moderado (riesgo 2/5). 29% RV global / 71% RF corta-diversificada. Distribuida vía el catálogo de MyInvestor. Rebalanceo automático supervisado por comité mensual.",
+  "isin_ref": null,
+  "type": "product",
+  "provider": "Finanbest (via MyInvestor)",
+  "mandate": "discretionary",
+  "dataAsOf": "2026-06-30",
+  "entity": {
+    "name": "MyInvestor",
+    "score": null,
+    "category": null
+  },
+  "composition": [
+    {
+      "type": "RV",
+      "asset": "Renta variable mercados desarrollados",
+      "percentage": 22
+    },
+    {
+      "type": "RV",
+      "asset": "Renta variable paises emergentes",
+      "percentage": 7
+    },
+    {
+      "type": "RF",
+      "asset": "Renta fija paises emergentes",
+      "percentage": 17
+    },
+    {
+      "type": "RF",
+      "asset": "Deuda publica USA",
+      "percentage": 15
+    },
+    {
+      "type": "RF",
+      "asset": "Deuda publica Europa largo plazo",
+      "percentage": 15
+    },
+    {
+      "type": "RF",
+      "asset": "Deuda publica Europa corto plazo",
+      "percentage": 6
+    },
+    {
+      "type": "RF",
+      "asset": "Renta fija corporativa grado inversion (corto)",
+      "percentage": 9
+    },
+    {
+      "type": "RF",
+      "asset": "Monetario Japon (JPY, sin cubrir)",
+      "percentage": 5
+    },
+    {
+      "type": "RF",
+      "asset": "Deuda publica USA con divisa cubierta",
+      "percentage": 4
+    }
+  ],
+  "params": {
+    "initial": 10000,
+    "monthly": 300,
+    "horizon": 5,
+    "inflation": 2
+  },
+  "rentByFund": false,
+  "groupCosts": [
+    {
+      "name": "TER fondos subyacentes",
+      "value": 0.3,
+      "unit": "pct",
+      "type": "annual"
+    },
+    {
+      "name": "Custodia",
+      "value": 0.15,
+      "unit": "pct",
+      "type": "annual"
+    },
+    {
+      "name": "Gestion (capa robo)",
+      "value": 0.37,
+      "unit": "pct",
+      "type": "annual"
+    }
+  ],
+  "funds": [
+    {
+      "name": "Finanbest Grey (cartera 29/71)",
+      "isin": "FINANBEST-GREY",
+      "weight": 100,
+      "category": "mixto-moderado",
+      "alloc": {
+        "equity": 29,
+        "bond": 71,
+        "cash": 0,
+        "other": 0
+      },
+      "vol": null,
+      "maxDD": null,
+      "numHoldings": 10,
+      "structure": "robo-passive-mixed",
+      "costs": []
+    }
+  ],
+  "historicalReturns": {
+    "source": "MyInvestor MCP search_portfolios (Finanbest Grey, name_id GREY), verificado 2026-06-30. Rentabilidad anualizada desde 2017-03-31: 3,82%.",
+    "currency": "EUR",
+    "annual": {
+      "2017": 1.2,
+      "2018": -2.8,
+      "2019": 10.1,
+      "2020": 4.5,
+      "2021": 7.4,
+      "2022": -8.1,
+      "2023": 7.6,
+      "2024": 8.99,
+      "2025": 2.72,
+      "2026_ytd": 5.15
+    },
+    "annualized_since_2017": 3.82
+  }
+}

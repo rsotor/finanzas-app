@@ -1,0 +1,18 @@
+{
+  "name": "finanzas-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Servidor de la app de finanzas: API + SQLite + motor de app/",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/dev.js",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "engines": { "node": ">=22" },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "express": "^4.19.2",
+    "jose": "^5.9.3"
+  }
+}

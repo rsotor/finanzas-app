@@ -1,0 +1,49 @@
+name: Problema de instalación
+description: No consigues instalar o arrancar la app.
+title: "[instalación] "
+labels: ["instalación"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > ⚠ **Nunca pegues datos financieros reales** (sueldos, saldos, cuentas, capturas con tus cifras).
+        > Si hace falta un ejemplo, reprodúcelo con la demo (`npm run demo`), que usa una familia inventada.
+  - type: dropdown
+    id: sistema
+    attributes:
+      label: Sistema operativo
+      options: [Windows, macOS, Linux, Otro]
+    validations: { required: true }
+  - type: input
+    id: node
+    attributes:
+      label: Versión de Node
+      description: La salida de `node --version`
+      placeholder: v22.x.x
+    validations: { required: true }
+  - type: dropdown
+    id: forma
+    attributes:
+      label: ¿Cómo lo instalaste?
+      options: [npm install + npm run demo/empezar, Docker, Otra]
+    validations: { required: true }
+  - type: textarea
+    id: pasos
+    attributes:
+      label: Qué hiciste
+      description: Los comandos, en orden.
+    validations: { required: true }
+  - type: textarea
+    id: error
+    attributes:
+      label: Qué salió
+      description: El error completo, copiado de la terminal.
+      render: shell
+    validations: { required: true }
+  - type: checkboxes
+    id: guia
+    attributes:
+      label: Comprobaciones
+      options:
+        - label: He mirado «Problemas frecuentes» en docs/instalacion.md
+          required: true

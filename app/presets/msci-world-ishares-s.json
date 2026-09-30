@@ -1,0 +1,84 @@
+{
+  "name": "iShares Developed World Index clase S (MSCI World)",
+  "type": "product",
+  "provider": "MyInvestor / BlackRock",
+  "mandate": "self-directed",
+  "dataAsOf": "2026-06-17",
+  "entity": {
+    "name": "MyInvestor",
+    "score": null,
+    "category": null
+  },
+  "params": {
+    "initial": 10000,
+    "monthly": 300,
+    "horizon": 16,
+    "rent": 12.6,
+    "inflation": 2
+  },
+  "groupCosts": [],
+  "funds": [
+    {
+      "id": "ishares-dw-s",
+      "name": "iShares Developed World Index (IE) Acc EUR clase S",
+      "isin": "IE000ZYRH0Q7",
+      "weight": 100,
+      "structure": "passive-index",
+      "ter": 0.06,
+      "categoryMorningstar": "RV Global Cap. Grande Blend",
+      "alloc": {
+        "equity": 99.69,
+        "bond": 0,
+        "cash": 0.2,
+        "other": 0.11
+      },
+      "costs": [
+        {
+          "id": "ter",
+          "name": "TER (gestión 0,04% + costes)",
+          "type": "annual",
+          "unit": "pct",
+          "value": 0.06
+        }
+      ],
+      "topSectors": [
+        {
+          "name": "Tecnología",
+          "pct": 26.5
+        },
+        {
+          "name": "Servicios Financieros",
+          "pct": 16.03
+        },
+        {
+          "name": "Industria",
+          "pct": 11.41
+        },
+        {
+          "name": "Salud",
+          "pct": 9.67
+        },
+        {
+          "name": "Consumo Cíclico",
+          "pct": 9.24
+        },
+        {
+          "name": "Servicios de Comunicación",
+          "pct": 8.71
+        }
+      ],
+      "dataSource": "MyInvestor MCP search_funds, 2026-06-17 (ISIN IE000ZYRH0Q7, clase S TER 0,06%)"
+    }
+  ],
+  "historicalReturns": {
+    "source": "MyInvestor MCP (return_past_* del índice MSCI World, clase estándar IE00BD0NCM55, mismo índice que la clase S), consultado 2026-06-17",
+    "currency": "EUR",
+    "annual": {
+      "2021": 32.68,
+      "2022": -12.84,
+      "2023": 18.82,
+      "2024": 26.93,
+      "2025": 7.22
+    }
+  }
+}

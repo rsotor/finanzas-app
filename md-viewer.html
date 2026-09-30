@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visor Markdown — Financial Advisor</title>
+<link rel="stylesheet" href="styles/theme.css">
+<script src="lib/marked.min.js"></script>
+<script src="lib/purify.min.js"></script>
+<style>
+  body { background: var(--bg, #0b0d10); color: var(--text, #e6e6e6); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; margin: 0; }
+  .wrap { max-width: 840px; margin: 0 auto; padding: 24px 24px 80px; }
+  .topbar { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border, #2a2f37); flex-wrap: wrap; }
+  .topbar a.back { color: var(--accent, #3b82f6); text-decoration: none; font-size: 0.9rem; }
+  .topbar a.back:hover { text-decoration: underline; }
+  .topbar .fname { color: var(--text-muted, #9aa3ad); font-size: 0.82rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .md { font-size: 0.95rem; }
+  .md h1, .md h2, .md h3, .md h4 { color: #fff; line-height: 1.3; margin: 1.6em 0 0.6em; }
+  .md h1 { font-size: 1.7rem; border-bottom: 1px solid var(--border, #2a2f37); padding-bottom: .3em; }
+  .md h2 { font-size: 1.3rem; border-bottom: 1px solid var(--border, #2a2f37); padding-bottom: .25em; }
+  .md h3 { font-size: 1.1rem; }
+  .md p { margin: 0.7em 0; }
+  .md a { color: var(--accent, #3b82f6); }
+  .md strong { color: #fff; }
+  .md ul, .md ol { padding-left: 1.4em; margin: 0.6em 0; }
+  .md li { margin: 0.3em 0; }
+  .md code { background: rgba(255,255,255,0.08); padding: 0.15em 0.4em; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88em; }
+  .md pre { background: rgba(0,0,0,0.45); border: 1px solid var(--border, #2a2f37); border-radius: 8px; padding: 14px; overflow-x: auto; }
+  .md pre code { background: none; padding: 0; }
+  .md blockquote { border-left: 3px solid var(--accent, #3b82f6); margin: 0.8em 0; padding: 0.2em 1em; color: var(--text-muted, #9aa3ad); background: rgba(255,255,255,0.03); border-radius: 0 6px 6px 0; }
+  .md table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.88rem; display: block; overflow-x: auto; }
+  .md th, .md td { border: 1px solid var(--border, #2a2f37); padding: 8px 10px; text-align: left; vertical-align: top; }
+  .md th { background: rgba(255,255,255,0.05); color: #fff; font-weight: 600; }
+  .md tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  .md hr { border: none; border-top: 1px solid var(--border, #2a2f37); margin: 1.6em 0; }
+  .notice { background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.5); border-radius: 8px; padding: 16px; font-size: 0.92rem; line-height: 1.7; }
+  .notice code { background: rgba(0,0,0,0.3); padding: 0.15em 0.4em; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <a class="back" href="index.html">&larr; Portada</a>
+    <span class="fname" id="fname"></span>
+  </div>
+  <article class="md" id="md"></article>
+</div>
+<script>
+  var file = new URLSearchParams(location.search).get('file');
+  var mdEl = document.getElementById('md');
+  var fnameEl = document.getElementById('fname');
+
+  // Solo rutas relativas a archivos .md del propio proyecto.
+  // Bloquea esquemas (javascript:, http:), protocol-relative (//), absolutas (/) y traversal (..).
+  function isSafePath(p) {
+    return typeof p === 'string'
+      && /^[A-Za-z0-9._/-]+\.md$/.test(p)   // solo estos caracteres y termina en .md (los ':' quedan fuera)
+      && p.indexOf('..') === -1
+      && p.charAt(0) !== '/';
+  }
+
+  if (!file) {
+    mdEl.innerHTML = '<div class="notice">Falta el parámetro <code>?file=</code>. Ejemplo: <code>md-viewer.html?file=input/situation.md</code></div>';
+  } else if (!isSafePath(file)) {
+    mdEl.textContent = '';
+    var w = document.createElement('div'); w.className = 'notice';
+    w.textContent = 'Ruta no permitida. El visor solo abre archivos .md del proyecto (rutas relativas, sin esquema ni "..").';
+    mdEl.appendChild(w);
+  } else {
+    document.title = file + ' — Visor';
+    fnameEl.textContent = file;
+    fetch(file)
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(function (t) {
+        marked.setOptions({ gfm: true, breaks: false });
+        var clean = window.DOMPurify ? DOMPurify.sanitize(marked.parse(t)) : '';
+        mdEl.innerHTML = clean;
+      })
+      .catch(function () {
+        // 'file' ya está validado; aun así no lo metemos en ningún href: solo como texto.
+        mdEl.textContent = '';
+        var box = document.createElement('div'); box.className = 'notice';
+        var p1 = document.createElement('p');
+        p1.innerHTML = '<strong>No se ha podido cargar el archivo directamente.</strong> El navegador bloquea la lectura con <code>file://</code>.';
+        var p2 = document.createElement('p');
+        p2.textContent = 'Ábrelo por el servidor local (arráncalo desde la portada): http://localhost:8000/md-viewer.html?file=' + file;
+        var p3 = document.createElement('p');
+        var a = document.createElement('a'); a.href = 'index.html'; a.textContent = '← Volver a la portada';
+        p3.appendChild(a);
+        box.appendChild(p1); box.appendChild(p2); box.appendChild(p3);
+        mdEl.appendChild(box);
+      });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+{
+  "name": "Indexa Capital — Cartera 10/10 (100% RV)",
+  "description": "Cartera de fondos más agresiva de Indexa Capital (robo-advisor independiente), 100% RV con 5 fondos Vanguard clase Institucional Plus.",
+  "type": "product",
+  "provider": "Indexa Capital",
+  "mandate": "discretionary",
+  "dataAsOf": "2026-06-16",
+  "entity": {
+    "name": "Indexa Capital",
+    "score": null,
+    "category": null
+  },
+  "params": {
+    "initial": 10000,
+    "monthly": 300,
+    "horizon": 16,
+    "inflation": 2
+  },
+  "groupCosts": [
+    {
+      "name": "Comisión de gestión Indexa (tramo 10-100k€)",
+      "value": 0.38,
+      "unit": "pct",
+      "type": "annual"
+    },
+    {
+      "name": "Comisión de custodia (depositario)",
+      "value": 0.103,
+      "unit": "pct",
+      "type": "annual"
+    }
+  ],
+  "composition": [
+    {
+      "type": "RV",
+      "asset": "Acciones EEUU (S&P 500)",
+      "percentage": 44
+    },
+    {
+      "type": "RV",
+      "asset": "Acciones Europa (MSCI Europe)",
+      "percentage": 27
+    },
+    {
+      "type": "RV",
+      "asset": "Acciones Emergentes (MSCI EM)",
+      "percentage": 11
+    },
+    {
+      "type": "RV",
+      "asset": "Small Cap global (MSCI Small Caps)",
+      "percentage": 10
+    },
+    {
+      "type": "RV",
+      "asset": "Acciones Japón (MSCI Japan)",
+      "percentage": 8
+    }
+  ],
+  "funds": [
+    {
+      "name": "Vanguard US 500 Stock Index Ins Plus",
+      "isin": "IE00BFPM9V94",
+      "weight": 44,
+      "category": "rv",
+      "structure": "passive-index",
+      "ter": 0.1,
+      "dataSource": "indexacapital.com/es/esp/model (composición 2025-06-30) + carlosgalan.net. ⚠ pesos/ISIN a verificar en ficha en vivo (varían por importe y rebalanceos)."
+    },
+    {
+      "name": "Vanguard European Stock Index Ins Plus",
+      "isin": "IE00BFPM9L96",
+      "weight": 27,
+      "category": "rv",
+      "structure": "passive-index",
+      "ter": 0.1,
+      "dataSource": "indexacapital.com/es/esp/model (2025-06-30)"
+    },
+    {
+      "name": "Vanguard Emerging Markets Stock Index Ins Plus",
+      "isin": "IE00BFPM9J74",
+      "weight": 11,
+      "category": "rv",
+      "structure": "passive-index",
+      "ter": 0.1,
+      "dataSource": "indexacapital.com/es/esp/model (2025-06-30)"
+    },
+    {
+      "name": "Vanguard Global Small Cap Index Ins Plus",
+      "isin": "IE00BFRTDD83",
+      "weight": 10,
+      "category": "rv",
+      "structure": "passive-index",
+      "ter": 0.1,
+      "dataSource": "indexacapital.com/es/esp/model (2025-06-30)"
+    },
+    {
+      "name": "Vanguard Japan Stock Index Ins Plus",
+      "isin": "IE00BFPM9P35",
+      "weight": 8,
+      "category": "rv",
+      "structure": "passive-index",
+      "ter": 0.1,
+      "dataSource": "indexacapital.com/es/esp/model (2025-06-30)"
+    }
+  ],
+  "historicalReturns": {
+    "source": "indexacapital.com/es/esp/stats + blog.indexacapital.com (rentabilidad 2025), consultado 2026-06-16. Cartera 10.",
+    "currency": "EUR",
+    "annual": {
+      "2022": -13.1,
+      "2023": 13.4,
+      "2024": 15.4,
+      "2025": 10.4
+    },
+    "annualized_since_inception": 8.3,
+    "note": "Vol anualizada ~10,0%; máx drawdown -24,8% (feb-mar 2020). Rentabilidad aislada a 3y/5y no publicada por separado por Indexa (⚠ FALTA INFO). TER medio de fondos subyacentes ~0,10% (oficial). Costes por tramo de fuente secundaria (carlosgalan.net), la web oficial remite al área privada."
+  },
+  "scorecardData": {
+    "volatilidadCorrelacion": {
+      "status": "no-data",
+      "reason": "Indexa no está en el MCP MyInvestor; sin serie de NAV por fondo. Solo rentabilidad anual y métricas agregadas de su web."
+    }
+  }
+}

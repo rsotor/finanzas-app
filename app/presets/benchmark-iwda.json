@@ -1,0 +1,54 @@
+{
+  "name": "Fondo indexado MSCI World (Benchmark)",
+  "description": "Benchmark generico: fondo indexado que replica el MSCI World. Datos de rentabilidad reales del indice (via IWDA). TER ~0,20% representa tanto ETFs (IWDA) como fondos indexados (Vanguard Global Stock). En Espana, un fondo indexado es preferible por traspaso sin tributar.",
+  "isin_ref": "IE00B4L5Y983 (IWDA) / IE00B03HD191 (Vanguard Global Stock)",
+  "ticker_ref": "IWDA.AS",
+  "type": "benchmark",
+  "dataAsOf": "2026-02-28",
+  "params": {
+    "initial": 10000,
+    "monthly": 300,
+    "horizon": 15,
+    "rent": 11.9,
+    "inflation": 2
+  },
+  "rentByFund": false,
+  "groupCosts": [],
+  "funds": [
+    {
+      "name": "MSCI World (23 paises desarrollados)",
+      "isin": "IE00B4L5Y983",
+      "weight": 100,
+      "category": "rv",
+      "rent": 11.9,
+      "vol": 14.35,
+      "maxDD": -13.54,
+      "numHoldings": 1319,
+      "structure": "passive-index",
+      "costs": [
+        {
+          "name": "TER",
+          "value": 0.2,
+          "unit": "pct",
+          "type": "annual"
+        }
+      ]
+    }
+  ],
+  "historicalReturns": {
+    "source": "iShares IWDA.AS en EUR via Alphacubator + MSCI factsheet oficial (feb 2026)",
+    "currency": "EUR",
+    "annual": {
+      "2019": 29.58,
+      "2020": 6.2,
+      "2021": 32.54,
+      "2022": -13.54,
+      "2023": 19.89,
+      "2024": 27.23,
+      "2025": 7.08,
+      "2026_ytd": 0.78
+    },
+    "annualized_5y": 12.98,
+    "annualized_10y": 13.85
+  }
+}

@@ -1,0 +1,137 @@
+[
+  {
+    "file": "benchmark-iwda.json",
+    "label": "Fondo indexado MSCI World (Benchmark)",
+    "type": "benchmark",
+    "objetivo": "referencia",
+    "relevante": true,
+    "color": "#4f9cf7",
+    "entity": null
+  },
+  {
+    "file": "cartera-acwi-clases-s.json",
+    "label": "DIY ACWI clases S (World S + EM S, 0,07%)",
+    "type": "product",
+    "objetivo": "largo",
+    "relevante": true,
+    "color": "#e879f9",
+    "entity": {
+      "name": "MyInvestor",
+      "score": null,
+      "category": null
+    }
+  },
+  {
+    "file": "metal-myinvestor.json",
+    "label": "Cartera Metal (MyInvestor)",
+    "type": "product",
+    "objetivo": "largo",
+    "relevante": true,
+    "color": "#34d399",
+    "entity": {
+      "name": "MyInvestor",
+      "score": null,
+      "category": null
+    }
+  },
+  {
+    "file": "grey-finanbest.json",
+    "label": "Finanbest Grey (29% RV)",
+    "type": "product",
+    "objetivo": "medio",
+    "relevante": true,
+    "color": "#94a3b8",
+    "entity": {
+      "name": "MyInvestor",
+      "score": null,
+      "category": null
+    }
+  },
+  {
+    "file": "cartera-acwi-referencia.json",
+    "label": "Cartera ACWI de referencia (World + Emergentes, 0,20%)",
+    "type": "product",
+    "objetivo": "largo",
+    "relevante": false,
+    "color": "#60a5fa",
+    "entity": null
+  },
+  {
+    "file": "msci-world-ishares-s.json",
+    "label": "iShares Developed World clase S (MSCI World, 0,06%)",
+    "type": "product",
+    "objetivo": "largo",
+    "relevante": false,
+    "color": "#818cf8",
+    "entity": {
+      "name": "MyInvestor",
+      "score": null,
+      "category": null
+    }
+  },
+  {
+    "file": "indexa-cartera-10.json",
+    "label": "Indexa Capital — Cartera 10 (100% RV)",
+    "type": "product",
+    "objetivo": "largo",
+    "relevante": false,
+    "color": "#f59e0b",
+    "entity": {
+      "name": "Indexa Capital",
+      "score": null,
+      "category": null
+    }
+  },
+  {
+    "file": "trade-republic-ftse-all-world.json",
+    "label": "Vanguard FTSE All-World ETF (Trade Republic)",
+    "type": "product",
+    "objetivo": "largo",
+    "relevante": false,
+    "color": "#ef4444",
+    "entity": {
+      "name": "Trade Republic",
+      "score": null,
+      "category": null
+    }
+  },
+  {
+    "file": "myinvestor-pop.json",
+    "label": "MyInvestor Cartera Pop (Roboadvisor)",
+    "type": "product",
+    "objetivo": "largo",
+    "relevante": false,
+    "color": "#2dd4bf",
+    "entity": {
+      "name": "MyInvestor",
+      "score": null,
+      "category": null
+    }
+  },
+  {
+    "file": "cartera-permanente-myinvestor.json",
+    "label": "MyInvestor Cartera Permanente",
+    "type": "product",
+    "objetivo": "medio",
+    "relevante": false,
+    "color": "#f472b6",
+    "entity": {
+      "name": "MyInvestor",
+      "score": null,
+      "category": null
+    }
+  },
+  {
+    "file": "cartesio-x.json",
+    "label": "Cartesio X FI",
+    "type": "product",
+    "objetivo": "medio",
+    "relevante": false,
+    "color": "#fb923c",
+    "entity": {
+      "name": "Cartesio Inversiones",
+      "score": null,
+      "category": null
+    }
+  }
+]

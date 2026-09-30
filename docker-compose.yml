@@ -1,0 +1,12 @@
+# Opcional: docker compose up -d  ->  http://127.0.0.1:3000
+# El puerto se publica SOLO en 127.0.0.1: la app no tiene login en modo local y no debe verse desde tu red.
+services:
+  finanzas:
+    build: .
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      PERSONAS: "${PERSONAS:-ana:Ana,luis:Luis}"
+    volumes:
+      - ./webapp/server/datos:/datos
+    restart: unless-stopped

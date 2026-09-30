@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Dudas y conversación
+    url: https://github.com/rsotor/finanzas-app/discussions
+    about: Preguntas que no son un fallo ni una propuesta concreta.

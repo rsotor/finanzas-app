@@ -1,0 +1,25 @@
+{
+  "name": "finanzas-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interfaz de la app de finanzas (React + Vite). El motor se carga desde /motor (app/ del repo).",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "playwright test"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.8"
+  },
+  "type": "module"
+}

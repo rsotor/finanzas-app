@@ -1,0 +1,4 @@
+**/node_modules
+**/dist
+webapp/server/datos
+.git

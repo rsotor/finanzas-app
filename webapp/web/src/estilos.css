@@ -1,0 +1,534 @@
+@import './tema.css';
+
+/* ============================================================================
+   Componentes. Tres materiales y nada más (ver tema.css):
+   papel = calculado · metal = editable · semáforo = estado · violeta = escenario.
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- estructura */
+.contenedor {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 26px 22px 90px;
+}
+
+/* Las secciones son BANDAS, no tarjetas: se separan por aire y un filete, no por
+   una caja dentro de otra caja. Sólo las superficies con las que se trabaja
+   (panel de edición, escenario, modal) se levantan del papel. */
+section {
+  margin: 0 0 34px;
+  overflow-x: auto;      /* lo ancho se desplaza aquí dentro; la página nunca (I8) */
+}
+section:last-child { margin-bottom: 0; }
+/* La barra de desplazamiento se ve siempre en lo que se desplaza (la tabla de objetivos en móvil):
+   con la barra flotante de macOS no había forma de saber que quedaba tabla a la derecha. */
+section::-webkit-scrollbar { height: 9px; }
+section::-webkit-scrollbar-track { background: transparent; }
+section::-webkit-scrollbar-thumb { background: var(--metal-linea); border-radius: 5px; }
+section::-webkit-scrollbar-thumb:hover { background: var(--frio-2); }
+
+section > h2 {
+  font-size: 1.32rem;
+  padding-bottom: 9px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--linea);
+}
+.filtros, .fila-h {
+  border-bottom: 1px solid var(--linea);
+  padding-bottom: 9px;
+  margin-bottom: 12px;
+}
+.filtros h2, .fila-h h2 { font-size: 1.32rem; border: 0; padding: 0; margin: 0; }
+
+.filtros { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+.fila-h { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+
+.dos, .dos-fin { display: grid; grid-template-columns: 1fr; gap: 34px; }
+.dos > *, .dos-fin > * { min-width: 0; }   /* I8: sin esto una tabla ancha empuja el grid */
+@media (min-width: 1000px) {
+  .dos { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .dos-fin { grid-template-columns: minmax(0, 1fr) 370px; }
+}
+
+.silencio { color: var(--tinta-3); font-size: 0.875rem; }
+.alerta { color: var(--ojo); }
+.rojo { color: var(--mal); } .verde { color: var(--bien); } .ambar { color: var(--ojo); }
+.comparado { color: var(--violeta); font-size: 0.85rem; margin-left: 7px; white-space: nowrap; }
+.aviso-ico { color: var(--ojo); }
+.ayuda-wrap { position: relative; display: inline-block; }
+.ayuda { color: var(--tinta-3); cursor: help; font-size: 0.85rem; background: none; border: 0; padding: 0 2px; font: inherit; }
+.ayuda:hover, .ayuda:focus-visible, .ayuda-wrap.abierta .ayuda { color: var(--frio); }
+.ayuda-pop { display: none; position: absolute; left: 0; top: 1.5em; z-index: 6; width: 260px; max-width: 70vw; padding: 8px 10px; background: var(--papel-2); border: 1px solid var(--linea); border-radius: var(--r-s); color: var(--tinta); font-size: 0.85rem; font-weight: 400; line-height: 1.4; white-space: normal; box-shadow: 0 6px 20px rgba(0,0,0,.4); }
+.ayuda-wrap:hover .ayuda-pop, .ayuda-wrap:focus-within .ayuda-pop, .ayuda-wrap.abierta .ayuda-pop { display: block; }
+.num { text-align: right; }
+
+/* ------------------------------------------------------------- barra superior */
+.barra {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center;
+  padding: 10px 22px;
+  background: rgba(28, 23, 19, .92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--linea);
+}
+/* Un escenario NO es lo real: cambia el ambiente de toda la barra, no un detalle. */
+.barra-escenario {
+  background: rgba(38, 30, 48, .93);
+  border-bottom: 1px solid var(--violeta-2);
+  box-shadow: inset 0 -3px 0 -1px var(--violeta-fondo);
+}
+
+.pestanas { display: flex; gap: 3px; padding: 3px; background: var(--metal); border: 1px solid var(--metal-linea); border-radius: 999px; }
+.pestanas button {
+  font: inherit; font-weight: 500;
+  background: none; border: 0; color: var(--tinta-2);
+  padding: 5px 17px; border-radius: 999px; cursor: pointer;
+  transition: color .12s, background .12s;
+}
+.pestanas button:hover { color: var(--tinta); background: var(--metal-2); }
+.pestanas button.activa { background: var(--frio); color: #12161d; font-weight: 600; }
+
+.escenarios { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; margin-left: auto; }
+.escenarios > .silencio { font-family: var(--titulo); font-size: 0.9rem; color: var(--tinta-3); }
+.escenarios label { display: inline-flex; gap: 6px; align-items: center; color: var(--tinta-3); font-size: 0.875rem; }
+
+.pildora {
+  font: inherit; font-size: 0.9rem;
+  background: var(--metal); color: var(--tinta-2);
+  border: 1px solid var(--metal-linea); border-radius: 999px;
+  padding: 4px 13px; cursor: pointer;
+  transition: color .12s, background .12s, border-color .12s;
+}
+.pildora:hover { background: var(--metal-2); color: var(--tinta); }
+.pildora.activa { background: var(--frio); color: #12161d; border-color: var(--frio); font-weight: 600; }
+.barra-escenario .pildora.activa { background: var(--violeta); border-color: var(--violeta); color: #1a1424; }
+
+/* ------------------------------------------------------------------- controles
+   Todo lo editable vive sobre METAL frío. Si está sobre papel cálido, no se toca.  */
+.campo, select {
+  font: inherit;
+  background: var(--metal); color: var(--tinta);
+  border: 1px solid var(--metal-linea); border-radius: var(--r-s);
+  padding: 5px 8px;
+  transition: border-color .12s, background .12s;
+}
+.campo::placeholder { color: #5d6472; }
+.campo:hover, select:hover { background: var(--metal-2); border-color: var(--frio-2); }
+.campo:focus, select:focus { outline: 2px solid var(--frio); outline-offset: -1px; border-color: var(--frio); }
+.campo.num { text-align: right; width: 7em; }
+textarea.campo { resize: vertical; line-height: 1.45; }
+select { cursor: pointer; padding-right: 4px; }
+
+input[type=checkbox] { accent-color: var(--frio); width: 15px; height: 15px; cursor: pointer; flex: none; }
+
+/* El nativo con accent-color rellena la parte recorrida: se ve cuánto llevas puesto sin dibujar nada. */
+input[type=range] { accent-color: var(--frio); height: 22px; cursor: pointer; margin: 0; }
+
+button.primario, button.peligro, button.suave { font: inherit; cursor: pointer; border-radius: var(--r-s); transition: background .12s, border-color .12s, color .12s; }
+button.primario { background: var(--frio); color: #12161d; border: 1px solid var(--frio); font-weight: 600; padding: 6px 14px; }
+button.primario:hover { background: #a9c6ea; }
+button.primario:disabled { background: var(--metal); color: var(--tinta-3); border-color: var(--metal-linea); cursor: not-allowed; font-weight: 400; }
+button.peligro { background: none; color: var(--mal); border: 1px solid rgba(244, 121, 106, .4); padding: 6px 13px; }
+button.peligro:hover { background: var(--mal-fondo); border-color: var(--mal); }
+button.suave { background: var(--metal); color: var(--tinta-2); border: 1px solid var(--metal-linea); padding: 4px 11px; }
+button.suave:hover { background: var(--metal-2); color: var(--tinta); border-color: var(--frio-2); }
+
+.botones { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; margin: 12px 0 0; }
+
+/* --------------------------------------------------- resumen de Finanzas
+   La fila de arriba no es una rejilla de KPIs: es la CUENTA. Ingresos − gastos =
+   ahorro, con los signos dibujados en los huecos. Lo demás es el estado de hoy. */
+.resumen { display: grid; gap: 18px 44px; }
+.resumen-cuenta { display: grid; gap: 14px; align-content: start; min-width: 0; }
+.resumen > .reparto { min-width: 0; }
+@media (min-width: 1000px) { .resumen { grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); align-items: start; } }
+section[aria-label="Resumen"] { margin-bottom: 22px; }
+
+.ecuacion { display: grid; grid-template-columns: 1fr; gap: 4px 34px; max-width: 800px; }
+.ecuacion .dato { position: relative; }
+.ecuacion .dato:nth-child(2)::before,
+.ecuacion .dato:nth-child(3)::before {
+  content: '−';
+  position: absolute; left: -20px; top: 20px;
+  font-family: var(--titulo); font-size: 1.1rem; color: var(--tinta-3);
+}
+.ecuacion .dato:nth-child(3)::before { content: '='; }
+.ecuacion .dato:nth-child(3) b { font-size: 1.7rem; color: var(--tinta); }
+@media (max-width: 719px) {
+  .ecuacion { padding-left: 22px; }
+  .ecuacion .dato:nth-child(2)::before, .ecuacion .dato:nth-child(3)::before { top: 14px; }
+}
+@media (min-width: 720px) { .ecuacion { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+.estado-hoy { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1px; max-width: 940px; background: var(--linea-suave); border: 1px solid var(--linea-suave); border-radius: var(--r-m); overflow: hidden; }
+.estado-hoy .dato { background: var(--papel-1); padding: 7px 12px; }
+
+.dato small { display: block; color: var(--tinta-3); font-size: 0.82rem; line-height: 1.4; }
+.dato small:first-child { margin-bottom: 1px; }
+.dato b { display: block; font-size: 1.3rem; font-weight: 600; line-height: 1.15; letter-spacing: -0.01em; }
+.dato .comparado { display: inline-block; margin: 0; font-size: 0.82rem; }
+.dato-boton { cursor: pointer; }
+.dato-boton:hover { background: var(--papel-2); }
+.dato-boton:focus-visible { outline: 2px solid var(--frio); outline-offset: -2px; }
+
+/* Medidor del colchón: meses que aguantáis frente al objetivo, de un vistazo. */
+.medidor { display: block; height: 4px; border-radius: 2px; background: var(--papel-3); margin-top: 7px; overflow: hidden; }
+.medidor i { display: block; height: 100%; width: calc(var(--llenado, 0) * 100%); background: currentColor; border-radius: 2px; transition: width .25s ease; }
+.medidor.verde { color: var(--bien); } .medidor.rojo { color: var(--mal); } .medidor.ambar { color: var(--ojo); }
+
+/* ------------------------------------------------------------- listas (Finanzas)
+   Un grupo = una tira de papel con su total a la derecha; debajo, sus filas. */
+.lista { margin-top: 2px; }
+.lista .grupo-h {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  background: var(--papel-2);
+  border-top: 1px solid var(--linea);
+  padding: 7px 11px; margin-top: 16px;
+  border-radius: var(--r-s) var(--r-s) 0 0;
+  position: sticky; top: var(--barra-alto, 60px); z-index: 2;
+}
+/* sticky necesita que ningún ancestro sea contenedor de scroll: estas dos listas caben a lo ancho (I8), así que
+   recortan en vez de desplazarse. */
+section[aria-label="Ingresos y gastos"], section[aria-label="Patrimonio"] { overflow-x: clip; overflow-y: visible; }
+.lista .grupo-h:first-child { margin-top: 0; }
+.lista .grupo-h .h { font-family: var(--titulo); font-size: 1rem; font-weight: 600; }
+.lista .grupo-h > span.silencio { margin: 0 auto 0 4px; font-variant-numeric: tabular-nums; }
+.lista .grupo-h label { display: inline-flex; gap: 6px; align-items: center; }
+.lista .grupo-h select { font-size: 0.85rem; padding: 2px 4px; }
+/* Plegar no toca datos: es papel, no metal. Un grupo plegado es una tira cerrada con su total. */
+.lista .grupo-h .plegar { display: inline-flex; gap: 7px; align-items: baseline; background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+.lista .grupo-h .plegar > span[aria-hidden] { color: var(--tinta-2); width: 1em; font-size: 1.15rem; line-height: 1; }
+.lista .grupo-h .plegar:focus-visible { outline: 2px solid var(--frio); outline-offset: 2px; border-radius: 3px; }
+.lista .grupo-h.plegado { border-radius: var(--r-s); border-bottom: 1px solid var(--linea-suave); }
+
+.lista .fila {
+  display: grid; gap: 4px 10px; align-items: baseline;
+  padding: 7px 11px;
+  border-bottom: 1px solid var(--linea-suave);
+  cursor: pointer;
+  transition: background .1s;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'nombre importe' 'origen resto';
+}
+.lista .fila > :nth-child(1) { grid-area: nombre; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lista .fila > :nth-child(2) { grid-area: importe; font-size: 1rem; }
+.lista .fila > :nth-child(3) { grid-area: resto; }
+.lista .fila > :nth-child(4) { grid-area: resto; }
+.lista .fila > :nth-child(5) { grid-area: resto; }
+.lista .fila > :nth-child(6) { grid-area: origen; }
+.lista .fila .origen { color: var(--tinta-3); font-size: 0.82rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.lista .fila:hover { background: var(--papel-2); }
+.lista .fila.sel { background: var(--papel-3); box-shadow: inset 3px 0 0 var(--frio); }
+.lista .fila:focus-visible { outline: 2px solid var(--frio); outline-offset: -2px; }
+
+/* Ancho de sobra: cada dato en su columna, el importe grande a la derecha. */
+@media (min-width: 620px) {
+  .lista .fila {
+    grid-template-columns: minmax(0, 1.25fr) 115px 44px 125px 22px minmax(0, 0.75fr);
+    grid-template-areas: 'nombre importe per mes marca origen';
+    align-items: center;
+  }
+  .lista .fila > :nth-child(3) { grid-area: per; }
+  .lista .fila > :nth-child(4) { grid-area: mes; }
+  .lista .fila > :nth-child(5) { grid-area: marca; text-align: center; }
+}
+/* Patrimonio: mismas filas, otras columnas (rol/cartera a la izquierda, saldo a la derecha). */
+@media (min-width: 620px) {
+  .lista-cuentas .fila { grid-template-columns: minmax(0, 1fr) 160px 0 140px 0 minmax(0, 0.9fr); }
+}
+.lista-cuentas .fila > :nth-child(2) { color: var(--tinta-3); font-size: 0.875rem; }
+.lista-cuentas .fila > :nth-child(4) { font-size: 1rem; font-variant-numeric: tabular-nums; }
+
+/* ----------------------------------------------------- panel de edición (metal) */
+.panel-edicion {
+  background: var(--papel-1);
+  border: 1px solid var(--linea);
+  border-radius: var(--r-l);
+  padding: 15px 17px;
+  position: sticky; top: calc(var(--barra-alto, 60px) + 12px);
+}
+.panel-cab { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 9px; border-bottom: 1px solid var(--linea); }
+.panel-cab h2 { flex: 1; margin: 0; font-size: 1.15rem; border: 0; padding: 0; }
+.panel-cab h2 .silencio { font-family: var(--texto); }
+.panel-edicion .campo-fila { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; align-items: center; margin-bottom: 9px; }
+/* Nada se sale del panel: un desplegable con opciones largas (p. ej. «vinculado a») lo desbordaría. */
+.panel-edicion .campo-fila > div { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; min-width: 0; }
+.panel-edicion .campo-fila select, .panel-edicion .campo-fila .campo { max-width: 100%; min-width: 0; }
+.panel-edicion .campo-fila > div > select:only-child, .panel-edicion .campo-fila > div > .campo:only-child { flex: 1; }
+.panel-edicion .campo-fila > .silencio { font-size: 0.85rem; }
+.panel-edicion .campo-fila label { display: inline-flex; gap: 7px; align-items: center; font-size: 0.875rem; color: var(--tinta-2); }
+.panel-edicion .botones { border-top: 1px solid var(--linea); padding-top: 12px; }
+
+/* ---------------------------------------------------------------------- tablas */
+table.filas { width: 100%; border-collapse: collapse; }
+table.filas th {
+  text-align: left; color: var(--tinta-3); font-weight: 500; font-size: 0.82rem;
+  padding: 0 7px 7px; border-bottom: 1px solid var(--linea); white-space: nowrap;
+}
+table.filas td { padding: 5px 7px; border-bottom: 1px solid var(--linea-suave); vertical-align: middle; }
+table.filas tr:last-child td { border-bottom: 0; }
+table.filas td.num, table.filas th.num { text-align: right; }
+table.filas tbody tr:hover td { background: var(--papel-1); }
+
+/* Donde TODO es editable (la tabla de objetivos, el detalle de una cartera, los supuestos), el pozo de
+   metal a plena caña se convierte en una pared de cajas. Ahí el metal se insinúa —fondo tenue y un solo
+   filete abajo— y sale entero al pasar por encima o al enfocar. La regla no cambia: metal = se toca. */
+.tabla-obj .campo, .tabla-obj select,
+.detalle-cartera .campo, .detalle-cartera select,
+.rejilla-supuestos .campo, .rejilla-supuestos select {
+  background: rgba(26, 29, 36, .5);
+  border-color: transparent; border-bottom-color: var(--metal-linea);
+  border-radius: 4px 4px 0 0;
+}
+.tabla-obj .campo:hover, .tabla-obj select:hover, .tabla-obj .campo:focus, .tabla-obj select:focus,
+.detalle-cartera .campo:hover, .detalle-cartera select:hover, .detalle-cartera .campo:focus, .detalle-cartera select:focus,
+.rejilla-supuestos .campo:hover, .rejilla-supuestos select:hover, .rejilla-supuestos .campo:focus, .rejilla-supuestos select:focus {
+  background: var(--metal-2); border-color: var(--frio-2);
+}
+
+/* Anchos fijos por columna: sin ellos «Importe hoy» (que lleva dos campos y su texto) se come la mitad
+   de la tabla y las notas quedan en un dedal. */
+.tabla-obj { min-width: 860px; }
+.tabla-obj th:nth-child(1) { width: 15%; }
+.tabla-obj th:nth-child(2) { width: 145px; }
+.tabla-obj th:nth-child(3) { width: 105px; }
+.tabla-obj th:nth-child(4) { width: 82px; }
+.tabla-obj th:nth-child(5) { width: 250px; }
+.tabla-obj th:nth-child(7) { width: 120px; }
+.tabla-obj th:nth-child(8) { width: 44px; }
+.tabla-obj td, .tabla-obj th { padding: 4px 6px; }
+.tabla-obj .campo, .tabla-obj select { width: 100%; padding: 4px 6px; }
+.tabla-obj .campo.num { width: 100%; }
+.tabla-obj td.importe { text-align: left; white-space: nowrap; display: flex; gap: 5px; align-items: center; }
+.tabla-obj td.importe .campo { width: 6.5em; }
+.tabla-obj td.importe .silencio { white-space: nowrap; }
+.tabla-obj button.suave { padding: 2px 8px; }
+
+/* Reparto: la última fila es la conclusión, se separa con un filete. */
+[aria-label='Reparto del ahorro'] table.filas td { font-size: 0.95rem; }
+[aria-label='Reparto del ahorro'] tr:last-child td { border-top: 1px solid var(--linea); padding-top: 9px; }
+[aria-label='Reparto del ahorro'] tr:last-child b { font-size: 1.08rem; }
+
+/* ---------------------------------------------------------- veredicto (Plan)
+   Es el titular de la vista: la frase que responde a «¿llegamos?». Todo lo demás
+   de la página está para justificarla. */
+.veredicto-fila { display: flex; gap: 26px; align-items: stretch; flex-wrap: wrap; }
+.veredicto {
+  font-family: var(--titulo);
+  font-size: 1.55rem; line-height: 1.3; letter-spacing: -0.012em;
+  padding: 20px 24px;
+  border-radius: var(--r-m);
+  border-left: 4px solid;
+  flex: 1 1 380px;
+  max-width: 30em;   /* la frase se lee de un vistazo; estirada a 1200px habría que barrerla con la vista */
+}
+.veredicto.ok { background: var(--bien-fondo); border-left-color: var(--bien); color: var(--bien); }
+.veredicto.no { background: var(--mal-fondo); border-left-color: var(--mal); color: var(--mal); }
+/* El «vs» de una cifra no se parte (es corto); el veredicto comparado es una frase entera y sí se parte:
+   con nowrap desbordaba la pantalla en móvil. */
+.veredicto .comparado { display: block; margin: 11px 0 0; font-family: var(--texto); font-size: 0.92rem; white-space: normal; margin-left: 0; }
+.veredicto-fila .lado {
+  text-align: left; font-size: 1rem; color: var(--tinta-2); line-height: 1.8;
+  padding: 20px 0 20px 22px; border-left: 1px solid var(--linea);
+  white-space: normal;
+}
+.veredicto-fila .lado b { color: var(--tinta); }
+.veredicto-fila .lado .alerta { color: var(--ojo); }
+[aria-label='Veredicto'] > p { margin-top: 14px; }
+@media (max-width: 719px) {
+  .veredicto { font-size: 1.28rem; padding: 16px 18px; }
+  .veredicto-fila .lado { border-left: 0; border-top: 1px solid var(--linea); padding: 12px 0 0; }
+}
+
+.reparto h3 { font-size: 1rem; margin: 0 0 4px; }
+.reparto tr.sub td { font-size: 0.875rem; color: var(--tinta-2); padding-top: 3px; padding-bottom: 3px; }
+.reparto tr.sub td:first-child { padding-left: 22px; }
+/* Regla de aportación en el panel: una fila por concepto de la base (selector ancho, parte, quitar). */
+/* minmax(0, 1fr) y min-width 0: sin ellos el nombre largo de un concepto ensancha el selector y saca del panel la parte y la ×. */
+.base-regla { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; width: 100%; min-width: 0; }
+/* Cada concepto ocupa su línea entera (el nombre se lee) y debajo van su parte y la ×. */
+.base-regla li { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-width: 0; padding-bottom: 6px; border-bottom: 1px solid var(--linea-suave); }
+.base-regla li select { flex: 1 1 100%; min-width: 0; width: 100%; }
+.base-regla li .campo.num, .base-regla li button { flex: none; }
+.base-regla li button { margin-left: auto; }
+.regla-cuenta { margin: -2px 0 10px; line-height: 1.5; }
+.regla-cuenta b { color: var(--tinta); }
+.carteras-total { display: flex; flex-wrap: wrap; gap: 4px 18px; align-items: baseline; padding: 10px 8px 4px; border-top: 2px solid var(--linea); margin-top: 2px; }
+.carteras-total > span:first-child { font-family: var(--titulo); font-size: 1.05rem; }
+.carteras-total b { color: var(--tinta); }
+/* ---------------------------------------------------------------- carteras */
+.carteras-grid {
+  display: grid;
+  gap: 6px 14px;
+  align-items: center;
+  padding: 11px 8px;
+  border-bottom: 1px solid var(--linea-suave);
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  grid-template-areas: 'abrir nombre estado' '. rent rent' '. aporta aporta' '. necesita necesita';
+}
+.carteras-grid > :nth-child(1) { grid-area: abrir; }
+.carteras-grid > :nth-child(2) { grid-area: nombre; }
+.carteras-grid > :nth-child(3) { grid-area: rent; }
+.carteras-grid > :nth-child(4) { grid-area: aporta; }
+.carteras-grid > :nth-child(5) { grid-area: necesita; }
+.carteras-grid > :nth-child(6) { grid-area: estado; }
+.carteras-grid .abrir { padding: 1px 7px; line-height: 1.3; }
+.carteras-grid .cartera-nombre { display: flex; gap: 9px; align-items: baseline; min-width: 0; }
+.carteras-grid .cartera-nombre b { font-family: var(--titulo); font-size: 1.08rem; font-weight: 600; }
+.carteras-grid .punto { font-size: 0.7rem; line-height: 1; }
+.carteras-grid .aporta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.carteras-grid .aporta input[type=range] { flex: 1; min-width: 80px; }
+.carteras-grid .aporta .campo.num { width: 92px; flex: none; }
+.carteras-grid .importe-enlazado b { font-size: 1rem; }
+.carteras-grid .importe-enlazado small { display: block; font-size: 0.8rem; line-height: 1.35; }
+.carteras-grid .necesita b { color: var(--tinta); font-size: 1rem; }
+.carteras-grid .estado { text-align: right; font-size: 0.9rem; font-weight: 600; white-space: nowrap; padding: 3px 10px; border-radius: 999px; }
+.carteras-grid .estado.verde { background: var(--bien-fondo); color: var(--bien); }
+.carteras-grid .estado.rojo  { background: var(--mal-fondo);  color: var(--mal); }
+.carteras-grid .estado.ambar { background: var(--ojo-fondo);  color: var(--ojo); }
+.carteras-grid.cab { display: none; }
+
+@media (min-width: 900px) {
+  .carteras-grid {
+    grid-template-columns: 30px minmax(150px, 1fr) 160px 210px 165px 175px;
+    grid-template-areas: 'abrir nombre rent aporta necesita estado';
+    padding: 9px 8px;
+  }
+  .carteras-grid.cab {
+    display: grid;
+    color: var(--tinta-3); font-size: 0.82rem;
+    border-bottom: 1px solid var(--linea); padding: 0 8px 7px;
+  }
+  .carteras-grid.cab .estado { padding: 0; background: none; font-weight: 500; }
+}
+.carteras-grid:hover:not(.cab) { background: var(--papel-1); }
+
+.detalle-cartera {
+  margin: 0 0 12px 30px; padding: 13px 15px;
+  background: var(--papel-1); border: 1px solid var(--linea);
+  border-radius: var(--r-m);
+  display: flex; flex-wrap: wrap; gap: 9px 13px; align-items: center;
+}
+.detalle-cartera .par { display: inline-flex; gap: 7px; align-items: center; }
+.detalle-cartera .par > .silencio { font-size: 0.82rem; white-space: nowrap; }
+.detalle-cartera select.campo { width: auto; max-width: 14em; }
+.detalle-cartera > .campo[placeholder] { flex: 1 1 100%; min-width: 200px; }
+.detalle-cartera > .silencio { flex-basis: 100%; font-size: 0.85rem; }
+.detalle-cartera button.peligro { margin-left: auto; }
+
+/* ------------------------------------------------------------------- gráfico */
+.grafico { position: relative; }   /* el tooltip se posiciona respecto al canvas */
+.grafico-lienzo { width: 100%; }
+.grafico-leyenda { display: flex; flex-wrap: wrap; gap: 9px 16px; font-size: 0.85rem; color: var(--tinta-2); margin-top: 10px; }
+.legend-item { display: inline-flex; align-items: center; cursor: pointer; user-select: none; border-radius: var(--r-s); padding: 2px 4px; }
+.legend-item:hover { background: var(--papel-2); }
+.legend-item:focus-visible { outline: 2px solid var(--frio); outline-offset: 1px; }
+.legend-item.oculta { text-decoration: line-through; }
+.legend-line { display: inline-block; width: 17px; height: 3px; border-radius: 2px; margin-right: 7px; }
+.legend-dashed { display: inline-block; width: 17px; height: 0; border-top: 2px dashed var(--tinta-3); margin-right: 7px; }
+.grafico-tooltip {
+  position: absolute; display: none; z-index: 2;
+  background: var(--papel-1); border: 1px solid var(--linea);
+  box-shadow: var(--sombra);
+  padding: 9px 11px; border-radius: var(--r-s); font-size: 0.85rem; pointer-events: none;
+  min-width: 190px;
+}
+.grafico-tooltip.visible { display: block; }
+.tt-year { font-family: var(--titulo); font-weight: 600; margin-bottom: 5px; }
+.tt-row { display: flex; align-items: center; gap: 7px; color: var(--tinta-2); line-height: 1.7; }
+.tt-val { margin-left: auto; color: var(--tinta); font-variant-numeric: tabular-nums; }
+.tt-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+
+/* -------------------------------------------------------- acciones pendientes */
+.acciones li { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid var(--linea-suave); line-height: 1.5; }
+.acciones li:last-child { border-bottom: 0; }
+.acciones li input[type=checkbox] { margin-top: 3px; }
+.acciones li.hecha { color: var(--tinta-3); text-decoration: line-through; }
+.acciones li small { display: block; color: var(--tinta-3); font-size: 0.82rem; }
+
+/* -------------------------------------------------------------- lo plegado
+   Supuestos y el año a año son consulta, no lectura: se pliegan a una banda. */
+details > summary {
+  cursor: pointer; list-style: none;
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px;
+  background: var(--papel-1); border: 1px solid var(--linea); border-radius: var(--r-m);
+  color: var(--tinta-2); font-size: 0.92rem;
+  transition: background .12s, border-color .12s;
+}
+details > summary::-webkit-details-marker { display: none; }
+details > summary::before {
+  content: '›'; font-size: 1.2rem; line-height: 1; color: var(--tinta-3);
+  transition: transform .15s; transform-origin: 45% 50%; flex: none;
+}
+details[open] > summary::before { transform: rotate(90deg); }
+details > summary:hover { background: var(--papel-2); border-color: var(--frio-2); color: var(--tinta); }
+details[open] > summary { border-radius: var(--r-m) var(--r-m) 0 0; border-bottom-color: transparent; }
+details[open] > :not(summary) { border: 1px solid var(--linea); border-top: 0; border-radius: 0 0 var(--r-m) var(--r-m); padding: 15px; }
+details table.filas { max-height: 460px; }
+
+.rejilla-supuestos { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 14px 20px; }
+.rejilla-supuestos .dato small { margin-bottom: 5px; }
+.rejilla-supuestos .dato .campo, .rejilla-supuestos .dato select { max-width: 100%; }
+.rejilla-supuestos .dato .campo.num { width: 5.5em; }
+[aria-label='Supuestos'] details > :not(summary) > p:last-child { margin-top: 14px; }
+[aria-label='Supuestos'] .campo[aria-label='notas de los supuestos'] { width: 100%; }
+
+/* --------------------------------------------------------------- escenarios */
+.que-cambia {
+  background: var(--violeta-fondo);
+  border: 1px solid var(--violeta-2);
+  border-radius: var(--r-l);
+  padding: 15px 17px;
+}
+.que-cambia .fila-h { border-bottom-color: var(--violeta-2); }
+/* La acción que vive dentro del escenario se pinta del escenario: aplicar es «llevar esto a lo real». */
+.que-cambia button.primario, .dialogo button.primario { background: var(--violeta); border-color: var(--violeta); color: #1a1424; }
+.que-cambia button.primario:hover, .dialogo button.primario:hover { background: #cbb7f5; }
+.que-cambia button.primario:disabled { background: var(--metal); color: var(--tinta-3); border-color: var(--metal-linea); }
+.que-cambia h2 { font-size: 1.15rem; }
+.cambios { margin: 10px 0 0; }
+.cambios li { padding: 7px 0; border-bottom: 1px solid rgba(185, 160, 240, .16); }
+.cambios li:last-child { border-bottom: 0; }
+.cambios label { display: flex; gap: 9px; align-items: flex-start; cursor: pointer; line-height: 1.5; }
+.cambios label input { margin-top: 3px; }
+
+.dialogo {
+  width: 100%; background: var(--papel-1); border: 1px solid var(--violeta-2);
+  border-radius: var(--r-m); padding: 15px 17px; margin-top: 14px;
+}
+.dialogo h3 { font-size: 1rem; margin-bottom: 9px; }
+.dialogo ul { margin: 9px 0 13px; }
+.dialogo li { padding: 5px 0; }
+.dialogo label { display: flex; gap: 9px; align-items: flex-start; line-height: 1.5; }
+.dialogo code { background: var(--metal); border-radius: 3px; padding: 1px 5px; font-size: 0.9em; }
+.dialogo button + button { margin-left: 9px; background: none; border: 1px solid var(--metal-linea); color: var(--tinta-2); border-radius: var(--r-s); padding: 6px 13px; cursor: pointer; font: inherit; }
+
+/* ------------------------------------------------------------- modal y aviso */
+.modal-fondo { position: fixed; inset: 0; background: rgba(8, 6, 4, .7); z-index: 20; display: flex; align-items: center; justify-content: center; padding: 18px; }
+.modal {
+  background: var(--papel-1); border: 1px solid var(--linea); border-radius: var(--r-l);
+  box-shadow: var(--sombra);
+  padding: 20px 22px; max-width: 660px; width: 100%; max-height: 90vh; overflow-y: auto;
+}
+.modal .panel-cab h2 { font-size: 1.3rem; }
+.modal h3 { font-size: 0.95rem; margin: 18px 0 6px; color: var(--tinta-3); font-weight: 600; }
+.modal p { margin: 8px 0; line-height: 1.65; }
+.modal label { display: inline; }
+.modal-lista { margin: 6px 0; }
+.modal-lista li { padding: 3px 0 3px 15px; position: relative; color: var(--tinta-2); }
+.modal-lista li::before { content: '·'; position: absolute; left: 3px; color: var(--tinta-3); }
+
+.toast {
+  position: fixed; right: 20px; bottom: 20px; z-index: 30;   /* por encima del modal (20) */
+  max-width: min(420px, calc(100vw - 40px));
+  background: var(--papel-1); border: 1px solid var(--linea); border-left: 3px solid var(--frio);
+  box-shadow: var(--sombra);
+  padding: 11px 15px; border-radius: var(--r-s); line-height: 1.5;
+}
+
+/* Avisos en línea: un filete ámbar a la izquierda, no una caja más. */
+p.alerta { border-left: 3px solid var(--ojo); padding: 7px 0 7px 12px; background: var(--ojo-fondo); border-radius: 0 var(--r-s) var(--r-s) 0; }
+p.alerta.silencio { font-size: 0.875rem; color: var(--tinta-2); }
+
+.slider { display: flex; gap: 10px; align-items: center; }

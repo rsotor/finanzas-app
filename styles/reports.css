@@ -1,0 +1,221 @@
+/* ==============================
+   Financial Advisor — Report Styles
+   For plan summaries, analyses, evaluations
+   ============================== */
+
+/* --- Verdict grid --- */
+.verdict-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.verdict-card {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.verdict-card .label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+
+.verdict-card .value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* --- Risk meter --- */
+.risk-meter {
+  display: flex;
+  gap: 3px;
+  margin: 8px 0;
+}
+
+.risk-bar {
+  height: 8px;
+  border-radius: 4px;
+  flex: 1;
+}
+
+.risk-bar.active-green { background: var(--green); }
+.risk-bar.active-amber { background: var(--amber); }
+.risk-bar.active-red   { background: var(--red); }
+.risk-bar.inactive     { background: var(--surface-raised); }
+
+/* --- Compare rows --- */
+.compare-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(42, 46, 56, 0.5);
+  font-size: 0.88rem;
+}
+
+.compare-row:last-child { border-bottom: none; }
+.compare-label { flex: 1; color: var(--text-muted); }
+.compare-val { font-weight: 600; min-width: 80px; text-align: right; }
+
+/* --- Steps (action checklist) --- */
+.step {
+  display: flex;
+  gap: 12px;
+  margin: 10px 0;
+}
+
+.step-num {
+  background: var(--accent);
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.step-text {
+  font-size: 0.88rem;
+}
+
+/* --- Platform tags --- */
+.platform-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tag-tr { background: rgba(79, 156, 247, 0.15); color: var(--accent); }
+.tag-mi { background: rgba(167, 139, 250, 0.15); color: var(--purple); }
+
+/* --- Highlight boxes (report-specific bordered variant) --- */
+.highlight-box {
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 12px 0;
+  font-size: 0.9rem;
+  border-left: 4px solid;
+}
+
+.highlight-blue  { background: rgba(79, 156, 247, 0.06); border-color: var(--accent); }
+.highlight-green { background: rgba(52, 211, 153, 0.06); border-color: var(--green); }
+.highlight-amber { background: rgba(251, 191, 36, 0.06); border-color: var(--amber); }
+.highlight-red   { background: rgba(248, 113, 113, 0.06); border-color: var(--red); }
+
+/* --- Fiscal compare cards --- */
+.fiscal-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.25rem 0;
+}
+
+.fiscal-card {
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.fiscal-card .fc-icon  { font-size: 2rem; margin-bottom: 0.5rem; }
+.fiscal-card .fc-title { font-weight: 700; margin-bottom: 0.5rem; }
+.fiscal-card .fc-desc  { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* --- Print styles --- */
+@media print {
+  :root {
+    --bg: #fff;
+    --surface: #fff;
+    --surface-2: #f5f7fa;
+    --surface-raised: #f5f7fa;
+    --border: #e5e7eb;
+    --text: #1a1a2e;
+    --text-muted: #6b7280;
+    --accent: #2563eb;
+    --green: #059669;
+    --red: #dc2626;
+    --amber: #d97706;
+  }
+
+  body {
+    background: #fff;
+    color: #1a1a2e;
+    font-size: 11pt;
+    line-height: 1.5;
+    padding: 0;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  .page-header h1 {
+    background: none;
+    -webkit-text-fill-color: #1a1a2e;
+    color: #1a1a2e;
+  }
+
+  .page-header h1.gradient {
+    background: none;
+    -webkit-text-fill-color: #1a1a2e;
+  }
+
+  .card, .section {
+    border: 1px solid #e5e7eb;
+    box-shadow: none;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .page-header .badge {
+    border: 1px solid #ccc;
+    color: #333;
+    background: #f0f0f0;
+  }
+
+  thead th {
+    background: #f5f7fa;
+    color: #374151;
+  }
+
+  .badge, .pill, .label, .platform-tag {
+    border: 1px solid #ccc;
+  }
+
+  .info-box, .warn-box, .example-box, .callout,
+  .highlight-box, .def-block, .note-callout {
+    border-width: 2px;
+  }
+
+  strong { color: #1a1a2e; }
+  h2 { color: #1a1a2e; }
+
+  .page-footer, .footer {
+    font-size: 9pt;
+    color: #999;
+  }
+
+  a { color: var(--accent); text-decoration: none; }
+}
+
+/* --- Responsive --- */
+@media (max-width: 600px) {
+  .verdict-grid { grid-template-columns: 1fr; }
+  .fiscal-compare { grid-template-columns: 1fr; }
+}

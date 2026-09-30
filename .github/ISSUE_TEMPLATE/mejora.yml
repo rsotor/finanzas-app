@@ -1,0 +1,25 @@
+name: Propuesta de mejora
+description: Algo que echas en falta o que funcionaría mejor de otra forma.
+title: "[mejora] "
+labels: ["mejora"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        > ⚠ **Nunca pegues datos financieros reales** (sueldos, saldos, cuentas, capturas con tus cifras).
+        > Si hace falta un ejemplo, reprodúcelo con la demo (`npm run demo`), que usa una familia inventada.
+  - type: textarea
+    id: problema
+    attributes:
+      label: Qué problema quieres resolver
+      description: Cuéntalo desde tu uso, no desde la solución. Ej. «no sé cuánto me cuesta al año el coche».
+    validations: { required: true }
+  - type: textarea
+    id: propuesta
+    attributes:
+      label: Cómo te lo imaginas
+  - type: dropdown
+    id: parte
+    attributes:
+      label: Parte de la app
+      options: [Plan, Finanzas, Escenarios, Instalación, Plantilla Excel, Comandos de Claude, Otra]

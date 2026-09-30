@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guía de Costes de Inversión</title>
+  <link rel="stylesheet" href="../styles/theme.css">
+  <link rel="stylesheet" href="../styles/reports.css">
+  <style>
+    /* Cost range bars */
+    .cost-range {
+      margin: 1.25rem 0;
+    }
+
+    .range-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .range-track {
+      background: var(--surface-2);
+      border-radius: 4px;
+      height: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .range-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    .range-fill.green { background: linear-gradient(90deg, var(--green), #10b981); }
+    .range-fill.amber { background: linear-gradient(90deg, var(--amber), #f59e0b); }
+    .range-fill.red { background: linear-gradient(90deg, var(--red), #ef4444); }
+
+    .range-items {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-top: 1rem;
+    }
+
+    .range-item {
+      display: grid;
+      grid-template-columns: 160px 1fr 70px;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .range-item .ri-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .range-item .ri-value {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    /* DCA impact */
+    .dca-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.25rem 0;
+    }
+
+    .dca-card {
+      background: var(--surface-2);
+      border-radius: var(--radius-sm);
+      padding: 1.1rem;
+      border: 1px solid var(--border);
+    }
+
+    .dca-card .dca-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .dca-card .dca-value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+
+    .dca-card .dca-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* Compound effect bars */
+    .compound-section {
+      margin: 1.5rem 0;
+    }
+
+    .compound-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 130px;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .compound-row .cr-label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .compound-row .cr-bar-wrap {
+      background: var(--surface-2);
+      border-radius: 4px;
+      height: 28px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .compound-row .cr-bar {
+      height: 100%;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      padding-left: 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: rgba(0,0,0,0.7);
+      transition: width 0.6s ease;
+    }
+
+    .compound-row .cr-value {
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* No-cost section */
+    .no-cost-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.25rem 0;
+    }
+
+    .no-cost-item {
+      background: var(--surface-2);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.25rem;
+      border: 1px solid var(--border);
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .no-cost-item .nci-icon {
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .no-cost-item .nci-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .no-cost-item .nci-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Tooltip */
+    .tooltip-wrap {
+      position: relative;
+      display: inline-block;
+      cursor: help;
+    }
+
+    .tooltip-wrap .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      background: #1a1f2e;
+      color: var(--text);
+      font-size: 0.78rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.6rem 0.9rem;
+      position: absolute;
+      z-index: 100;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 220px;
+      line-height: 1.5;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .tooltip-wrap:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .tooltip-anchor {
+      border-bottom: 1px dashed var(--text-muted);
+      color: var(--text);
+    }
+
+    /* Spread comparison */
+    .spread-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin: 1.25rem 0;
+    }
+
+    .spread-item {
+      display: grid;
+      grid-template-columns: 180px 1fr 80px;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .spread-item .si-name {
+      font-size: 0.82rem;
+      color: var(--text);
+    }
+
+    .spread-item .si-val {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* Divider */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.5rem 0;
+    }
+
+    /* Page-specific card override */
+    .card {
+      scroll-margin-top: 1rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .dca-grid { grid-template-columns: 1fr; }
+      .no-cost-grid { grid-template-columns: 1fr; }
+      .compound-row { grid-template-columns: 90px 1fr 110px; }
+      .range-item { grid-template-columns: 120px 1fr 60px; }
+      .spread-item { grid-template-columns: 140px 1fr 70px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <header class="page-header">
+    <div class="badge">Referencia personal</div>
+    <h1>Guía de Costes de Inversión</h1>
+    <p>Qué significa cada coste, cómo se aplica en tu cartera y por qué cada décima de porcentaje importa a largo plazo.</p>
+  </header>
+
+  <!-- TOC -->
+  <nav class="toc">
+    <h3>Contenido</h3>
+    <ol>
+      <li><a href="#ter"><span class="toc-num">1.</span> TER (Total Expense Ratio)</a></li>
+      <li><a href="#gestion"><span class="toc-num">2.</span> Comisión de gestión</a></li>
+      <li><a href="#custodia"><span class="toc-num">3.</span> Comisión de custodia</a></li>
+      <li><a href="#spread"><span class="toc-num">4.</span> Spread (diferencial)</a></li>
+      <li><a href="#operacion"><span class="toc-num">5.</span> Comisión por operación</a></li>
+      <li><a href="#total"><span class="toc-num">6.</span> Coste total (all-in)</a></li>
+      <li><a href="#no-tienes"><span class="toc-num">7.</span> Costes que no tienes</a></li>
+      <li><a href="#compuesto"><span class="toc-num">8.</span> Efecto compuesto de los costes</a></li>
+      <li><a href="#fiscal"><span class="toc-num">9.</span> Ventaja fiscal de los fondos</a></li>
+      <li><a href="#diy-robo"><span class="toc-num">10.</span> ¿Quién gestiona? DIY vs robo vs asesor</a></li>
+      <li><a href="#decidir"><span class="toc-num">11.</span> ¿Cómo decido? El coste de tu tiempo</a></li>
+      <li><a href="#riesgo-horizonte"><span class="toc-num">12.</span> ¿Cuánto riesgo? 100% RV y el glide path</a></li>
+      <li><a href="#rentabilidad-estimada"><span class="toc-num">13.</span> ¿De dónde sale la rentabilidad estimada?</a></li>
+    </ol>
+  </nav>
+
+
+  <!-- 1. TER -->
+  <section class="card" id="ter">
+    <div class="card-header">
+      <div class="card-icon">📊</div>
+      <div class="card-title-group">
+        <h2>TER — Total Expense Ratio</h2>
+        <div class="subtitle">El coste interno del fondo o ETF</div>
+      </div>
+    </div>
+
+    <span class="label label-blue">Definición</span>
+    <div class="def-block">
+      <p>El TER es el coste anual interno del fondo o ETF. Lo cobra el gestor del fondo (p.ej. BlackRock o Vanguard) por administrar los activos. <strong>Se descuenta automáticamente del valor del fondo</strong> — nunca lo ves como un cargo en tu cuenta. El precio del fondo ya lo lleva incorporado.</p>
+    </div>
+
+    <span class="label label-green">Ejemplo práctico</span>
+    <div class="example-box">
+      <div class="ex-label">Situación real</div>
+      <p>Un fondo tiene TER <span class="highlight">0,12%</span> y tienes <span class="highlight">10.000€</span> invertidos. El coste anual es <span class="highlight">12€</span>. Pero no ves ningún cargo de 12€ en tu cuenta: el valor liquidativo del fondo ya incluye ese descuento. Es invisible en tu extracto.</p>
+    </div>
+
+    <span class="label label-blue">Rango típico</span>
+    <div class="cost-range">
+      <div class="range-items">
+        <div class="range-item">
+          <span class="ri-label">Vanguard S&P500 / MSCI World</span>
+          <div class="range-track"><div class="range-fill green" style="width: 4%"></div></div>
+          <span class="ri-value td-green">0,07%</span>
+        </div>
+        <div class="range-item">
+          <span class="ri-label">ETFs / fondos índice típicos</span>
+          <div class="range-track"><div class="range-fill green" style="width: 12%"></div></div>
+          <span class="ri-value td-green">0,10–0,20%</span>
+        </div>
+        <div class="range-item">
+          <span class="ri-label">Fondos activos internacionales</span>
+          <div class="range-track"><div class="range-fill amber" style="width: 55%"></div></div>
+          <span class="ri-value td-amber">0,70–0,90%</span>
+        </div>
+        <div class="range-item">
+          <span class="ri-label">Fondos activos España (típicos)</span>
+          <div class="range-track"><div class="range-fill red" style="width: 100%"></div></div>
+          <span class="ri-value td-red">1,20–1,50%</span>
+        </div>
+      </div>
+    </div>
+
+    <span class="label label-amber">En tu cartera</span>
+    <div class="info-box">
+      <p><strong>Oro ETC:</strong> 0,12% — nivel excelente para un ETC de materias primas.<br>
+      <strong>Fondos Cartera Rock (MyInvestor):</strong> ~0,10–0,12% — fondos índice de bajo coste.</p>
+    </div>
+  </section>
+
+
+  <!-- 2. Comisión de gestión -->
+  <section class="card" id="gestion">
+    <div class="card-header">
+      <div class="card-icon">🧑‍💼</div>
+      <div class="card-title-group">
+        <h2>Comisión de gestión</h2>
+        <div class="subtitle">Lo que cobra el robo-advisor o gestor de cartera</div>
+      </div>
+    </div>
+
+    <span class="label label-blue">Definición</span>
+    <div class="def-block">
+      <p>Es la comisión que cobra el gestor o robo-advisor por tomar decisiones de inversión en tu nombre: qué fondos comprar, cuándo rebalancear, cómo ajustar la cartera. Es un coste separado del TER del fondo subyacente.</p>
+    </div>
+
+    <span class="label label-green">Ejemplo práctico</span>
+    <div class="example-box">
+      <div class="ex-label">MyInvestor — Cartera Rock</div>
+      <p>MyInvestor cobra <span class="highlight">0,15%</span> de gestión anual. Sobre <span class="highlight">7.300€</span> = <span class="highlight">10,95€/año</span>. Este cargo sí puede aparecer como una pequeña deducción en el valor de tu posición.</p>
+    </div>
+
+    <span class="label label-amber">Diferencia clave con el TER</span>
+    <div class="warn-box">
+      <p>El TER lo cobra <strong>BlackRock o Vanguard</strong> (el creador del fondo). La comisión de gestión la cobra <strong>MyInvestor</strong> (quien gestiona tu cartera). Son capas distintas y se suman. Un fondo de Vanguard dentro de una cartera gestionada tiene ambos costes al mismo tiempo.</p>
+    </div>
+  </section>
+
+
+  <!-- 3. Custodia -->
+  <section class="card" id="custodia">
+    <div class="card-header">
+      <div class="card-icon">🏦</div>
+      <div class="card-title-group">
+        <h2>Comisión de custodia</h2>
+        <div class="subtitle">El "alquiler" por guardar tus valores</div>
+      </div>
+    </div>
+
+    <span class="label label-blue">Definición</span>
+    <div class="def-block">
+      <p>La custodia es lo que cobra la entidad financiera por <em>tener</em> tus activos en su plataforma — mantener el registro de que X participaciones te pertenecen, garantizar la seguridad y la segregación de activos.</p>
+    </div>
+
+    <div class="info-box">
+      <p><strong>Analogía:</strong> Es como pagar el alquiler de una taquilla de seguridad en un banco. No inviertes en esa taquilla, simplemente pagas por tenerla.</p>
+    </div>
+
+    <span class="label label-green">Ejemplos reales</span>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Plataforma</th>
+            <th>Custodia anual</th>
+            <th>Impacto en 7.300€</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-asset">MyInvestor (Cartera Rock)</td>
+            <td class="td-amber">0,15%</td>
+            <td class="td-amber">10,95€/año</td>
+          </tr>
+          <tr>
+            <td class="td-asset">Trade Republic</td>
+            <td class="td-green">0%</td>
+            <td class="td-green">0€</td>
+          </tr>
+          <tr>
+            <td class="td-asset">BBVA / Santander (típico)</td>
+            <td class="td-red">0,25–0,30%</td>
+            <td class="td-red">18–22€/año</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="warn-box">
+      <p><strong>Nota:</strong> Trade Republic no cobra custodia, que fue una de sus ventajas competitivas clave. Esta política puede cambiar con las nuevas regulaciones sobre PFOF (ver sección 7).</p>
+    </div>
+  </section>
+
+
+  <!-- 4. Spread -->
+  <section class="card" id="spread">
+    <div class="card-header">
+      <div class="card-icon">↔️</div>
+      <div class="card-title-group">
+        <h2>Spread — Diferencial compra/venta</h2>
+        <div class="subtitle">El coste oculto de cada operación</div>
+      </div>
+    </div>
+
+    <span class="label label-blue">Definición</span>
+    <div class="def-block">
+      <p>El spread es la diferencia entre el precio al que puedes <strong>comprar</strong> un activo (ask) y el precio al que puedes <strong>venderlo</strong> (bid). Es un coste que no aparece en ninguna línea de tu extracto, pero se paga cada vez que operas.</p>
+    </div>
+
+    <span class="label label-amber">Cómo funciona en la práctica</span>
+    <div class="example-box">
+      <div class="ex-label">Ejemplo — Bitcoin en Trade Republic</div>
+      <p>Bitcoin "vale" 60.000€ en el mercado.<br>
+      Trade Republic te lo <span class="highlight">vende a 60.480€</span> (precio ask).<br>
+      Si quisieras venderlo inmediatamente, lo harías a 59.520€ (precio bid).<br>
+      <span class="highlight">Diferencia: ~0,8% de spread</span>. Esa diferencia es un coste real, aunque nunca veas un cargo explícito.</p>
+    </div>
+
+    <hr class="divider">
+
+    <span class="label label-green">Comparativa de spreads — activos de tu cartera</span>
+    <div class="spread-grid">
+      <div class="spread-item">
+        <span class="si-name">Oro ETC (XETRA)</span>
+        <div class="range-track"><div class="range-fill green" style="width: 2%"></div></div>
+        <span class="si-val td-green">~0,03%</span>
+      </div>
+      <div class="spread-item">
+        <span class="si-name">Fondos índice (NAV)</span>
+        <div class="range-track"><div class="range-fill green" style="width: 0%"></div></div>
+        <span class="si-val td-green">0% (precio exacto)</span>
+      </div>
+      <div class="spread-item">
+        <span class="si-name">BTC en Kraken Pro</span>
+        <div class="range-track"><div class="range-fill amber" style="width: 22%"></div></div>
+        <span class="si-val td-amber">~0,3%</span>
+      </div>
+      <div class="spread-item">
+        <span class="si-name">BTC en Trade Republic</span>
+        <div class="range-track"><div class="range-fill red" style="width: 60%"></div></div>
+        <span class="si-val td-red">~0,8%</span>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <p><strong>Regla general:</strong> cuanto más líquido es un activo y más competida es la plataforma, menor el spread. Los fondos de inversión se compran y venden al valor liquidativo exacto — spread cero. El oro en un ETC líquido tiene spread casi irrelevante. Las criptos en plataformas retail tienen spread significativo.</p>
+    </div>
+
+    <div class="warn-box">
+      <p><strong>El spread no es anual</strong> — se paga una sola vez al comprar (y otra al vender). Para calcular su impacto real hay que amortizarlo sobre el tiempo que mantienes el activo. Un spread de 0,8% sobre una posición mantenida 5 años equivale a ~0,16%/año.</p>
+    </div>
+  </section>
+
+
+  <!-- 5. Comisión por operación -->
+  <section class="card" id="operacion">
+    <div class="card-header">
+      <div class="card-icon">🖱️</div>
+      <div class="card-title-group">
+        <h2>Comisión por operación</h2>
+        <div class="subtitle">El cargo fijo al comprar o vender</div>
+      </div>
+    </div>
+
+    <span class="label label-blue">Definición</span>
+    <div class="def-block">
+      <p>Muchas plataformas cobran un importe fijo cada vez que ejecutas una orden de compra o venta, independientemente del importe de la operación.</p>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Plataforma / Modo</th>
+            <th>Comisión por operación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-asset">Trade Republic — plan automático</td>
+            <td class="td-green">0€</td>
+          </tr>
+          <tr>
+            <td class="td-asset">Trade Republic — orden manual</td>
+            <td class="td-amber">1€</td>
+          </tr>
+          <tr>
+            <td class="td-asset">MyInvestor — Cartera Rock</td>
+            <td class="td-green">0€ (incluido en gestión)</td>
+          </tr>
+          <tr>
+            <td class="td-asset">Brokers bancarios tradicionales</td>
+            <td class="td-red">5–15€</td>
+          </tr>
+          <tr>
+            <td class="td-asset">Degiro (ETFs seleccionados)</td>
+            <td class="td-green">0€ / 1€</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <span class="label label-amber">Impacto en aportaciones pequeñas (DCA)</span>
+    <div class="dca-grid">
+      <div class="dca-card">
+        <div class="dca-label">Aportación mensual</div>
+        <div class="dca-value" style="color: var(--accent)">60€</div>
+        <div class="dca-sub">con comisión 1€ = <strong style="color: var(--red)">1,67% solo de comisión</strong></div>
+      </div>
+      <div class="dca-card">
+        <div class="dca-label">Aportación mensual</div>
+        <div class="dca-value" style="color: var(--accent)">60€</div>
+        <div class="dca-sub">plan automático 0€ = <strong style="color: var(--green)">0% de comisión</strong></div>
+      </div>
+    </div>
+
+    <div class="warn-box">
+      <p><strong>Clave para DCA:</strong> cuando aportas importes pequeños mensualmente, la comisión por operación tiene un impacto porcentual enorme. 1€ sobre 60€ es más caro que el TER anual de muchos fondos. Los planes automáticos de Trade Republic a 0€ resuelven esto por completo.</p>
+    </div>
+  </section>
+
+
+  <!-- 6. Coste total -->
+  <section class="card" id="total">
+    <div class="card-header">
+      <div class="card-icon">🧮</div>
+      <div class="card-title-group">
+        <h2>Coste total — All-in</h2>
+        <div class="subtitle">La suma de todos los costes reales de cada posición</div>
+      </div>
+    </div>
+
+    <span class="label label-blue">Cómo se calcula</span>
+    <div class="def-block">
+      <p><strong>Coste total = TER + comisión de gestión + custodia + spread (amortizado)</strong><br>
+      Todos los costes recurrentes se suman en porcentaje anual. El spread se amortiza dividiendo entre los años que mantienes el activo.</p>
+    </div>
+
+    <span class="label label-amber">Desglose por activo — tu cartera</span>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Activo</th>
+            <th>TER</th>
+            <th>Gestión</th>
+            <th>Custodia</th>
+            <th>Spread</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-asset">Cartera Rock (MyInvestor)</td>
+            <td class="td-muted">~0,12%</td>
+            <td class="td-muted">0,15%</td>
+            <td class="td-muted">0,15%</td>
+            <td class="td-muted">—</td>
+            <td class="td-total">~0,42%</td>
+          </tr>
+          <tr>
+            <td class="td-asset">Oro ETC (Trade Republic)</td>
+            <td class="td-muted">0,12%</td>
+            <td class="td-muted">—</td>
+            <td class="td-muted">0%</td>
+            <td class="td-muted">~0,03%</td>
+            <td class="td-total">~0,15%</td>
+          </tr>
+          <tr>
+            <td class="td-asset">BTC (Trade Republic)</td>
+            <td class="td-muted">—</td>
+            <td class="td-muted">—</td>
+            <td class="td-muted">0%</td>
+            <td class="td-muted">~0,8% (al comprar)</td>
+            <td class="td-total">~0,8% entrada</td>
+          </tr>
+          <tr>
+            <td class="td-asset">Colchón (MyInvestor)</td>
+            <td class="td-muted">—</td>
+            <td class="td-muted">—</td>
+            <td class="td-muted">—</td>
+            <td class="td-muted">—</td>
+            <td class="td-green">0% (+2,02% TAE)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note-callout">
+      <div class="nc-label">Nota importante — cifra del 0,95%</div>
+      <p>Muchas fuentes citan <strong>0,95%</strong> para la Cartera Rock. Ese número corresponde a un desglose anterior con una estructura diferente. El desglose actualizado suma <strong>~0,42%</strong>. La diferencia no es trivial: sobre <strong>100.000€ a 20 años</strong> al 7%, la diferencia entre 0,42% y 0,95% de costes equivale a más de <strong>25.000€</strong> de patrimonio final.</p>
+    </div>
+  </section>
+
+
+  <!-- 7. Costes que no tienes -->
+  <section class="card" id="no-tienes">
+    <div class="card-header">
+      <div class="card-icon">✅</div>
+      <div class="card-title-group">
+        <h2>Costes que no tienes</h2>
+        <div class="subtitle">Y por qué importa saberlo</div>
+      </div>
+    </div>
+
+    <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem;">Conocer los costes que <em>no</em> pagas es tan importante como los que sí. Algunos productos los incluyen sin que el inversor lo sepa.</p>
+
+    <div class="no-cost-grid">
+      <div class="no-cost-item">
+        <div class="nci-icon">🏆</div>
+        <div>
+          <div class="nci-title">Comisión de éxito</div>
+          <div class="nci-desc">Algunos fondos cobran un % de las ganancias si superan un benchmark. Cartera Rock: <span class="pill pill-green">NO tiene</span></div>
+        </div>
+      </div>
+      <div class="no-cost-item">
+        <div class="nci-icon">🚪</div>
+        <div>
+          <div class="nci-title">Comisión de reembolso</div>
+          <div class="nci-desc">Cargo por retirar tu dinero del fondo. Frecuente en seguros de ahorro y algunos fondos. Cartera Rock: <span class="pill pill-green">NO tiene</span></div>
+        </div>
+      </div>
+      <div class="no-cost-item">
+        <div class="nci-icon">🎟️</div>
+        <div>
+          <div class="nci-title">Comisión de suscripción</div>
+          <div class="nci-desc">Cargo por entrar al fondo — típico en fondos de banca privada. Puede ser hasta un 3% inicial. Cartera Rock: <span class="pill pill-green">NO tiene</span></div>
+        </div>
+      </div>
+      <div class="no-cost-item">
+        <div class="nci-icon">🔄</div>
+        <div>
+          <div class="nci-title">PFOF (Payment for Order Flow)</div>
+          <div class="nci-desc">Cómo Trade Republic ganaba dinero enviando órdenes a terceros. <span class="pill pill-amber">Prohibido desde junio 2026 en la UE</span> — posible impacto en spreads futuros.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-top: 1.25rem;">
+      <p><strong>Sobre el PFOF:</strong> Trade Republic dirigía tus órdenes a un market maker que pagaba por recibirlas. El broker te daba precio 0 pero cobraba indirectamente. Con la prohibición en la UE, los brokers de precio cero tendrán que monetizar de otra forma — posiblemente vía spreads mayores o comisiones explícitas. Aún no está claro el impacto final en Trade Republic.</p>
+    </div>
+  </section>
+
+
+  <!-- 8. Efecto compuesto -->
+  <section class="card" id="compuesto">
+    <div class="card-header">
+      <div class="card-icon">📈</div>
+      <div class="card-title-group">
+        <h2>El efecto compuesto de los costes</h2>
+        <div class="subtitle">Por qué cada décima de porcentaje importa a largo plazo</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <p><strong>Escenario base:</strong> 8.100€ de patrimonio inicial + 500€/mes de aportación, rentabilidad media anual del <strong>7%</strong> antes de costes, horizonte de <strong>20 años</strong>.</p>
+    </div>
+
+    <span class="label label-amber">Comparativa de patrimonio final a 20 años</span>
+
+    <div class="compound-section">
+      <div class="compound-row">
+        <div class="cr-label">Coste 0,20%<br><small style="color: var(--text-muted); font-size: 0.7rem;">ETF puro en broker free</small></div>
+        <div class="cr-bar-wrap">
+          <div class="cr-bar" style="width: 100%; background: linear-gradient(90deg, var(--green), #10b981);">332.000€</div>
+        </div>
+        <div class="cr-value td-green">332.000€</div>
+      </div>
+      <div class="compound-row">
+        <div class="cr-label">Coste 0,42%<br><small style="color: var(--text-muted); font-size: 0.7rem;">Cartera Rock real</small></div>
+        <div class="cr-bar-wrap">
+          <div class="cr-bar" style="width: 96.7%; background: linear-gradient(90deg, var(--accent), #3b82f6);">321.000€</div>
+        </div>
+        <div class="cr-value" style="color: var(--accent);">321.000€</div>
+      </div>
+      <div class="compound-row">
+        <div class="cr-label">Coste 0,95%<br><small style="color: var(--text-muted); font-size: 0.7rem;">Cifra citada anterior</small></div>
+        <div class="cr-bar-wrap">
+          <div class="cr-bar" style="width: 89.2%; background: linear-gradient(90deg, var(--amber), #f59e0b);">296.000€</div>
+        </div>
+        <div class="cr-value td-amber">296.000€</div>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Comparación</th>
+            <th>Diferencia de patrimonio</th>
+            <th>Interpretación</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0,42% vs 0,95%</td>
+            <td class="td-amber">~25.000€</td>
+            <td class="td-muted">El motivo por el que importa saber el coste real</td>
+          </tr>
+          <tr>
+            <td>0,20% vs 0,42%</td>
+            <td class="td-muted">~11.000€</td>
+            <td class="td-muted">Coste de usar robo-advisor vs ETF directo</td>
+          </tr>
+          <tr>
+            <td>0,20% vs 0,95%</td>
+            <td class="td-red">~36.000€</td>
+            <td class="td-red">Diferencia total entre extremos</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note-callout">
+      <div class="nc-label">Conclusión clave</div>
+      <p>La diferencia entre 0,42% y 0,95% a 20 años es <strong>~25.000€</strong>. No es un dato menor. El coste exacto de tu cartera es una palanca real sobre tu patrimonio final — no solo un detalle técnico.</p>
+    </div>
+  </section>
+
+
+  <!-- 9. Ventaja fiscal -->
+  <section class="card" id="fiscal">
+    <div class="card-header">
+      <div class="card-icon">🇪🇸</div>
+      <div class="card-title-group">
+        <h2>Ventaja fiscal de los fondos (bonus)</h2>
+        <div class="subtitle">Por qué el coste real de un fondo puede ser menor que el de un ETF equivalente</div>
+      </div>
+    </div>
+
+    <div class="fiscal-compare">
+      <div class="fiscal-card">
+        <div class="fc-icon">🏛️</div>
+        <div class="fc-title">Fondos de inversión</div>
+        <div class="fc-desc">Acogidos al régimen español de diferimiento fiscal</div>
+        <span class="pill pill-green">Traspaso sin tributar</span>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem;">Puedes mover tu dinero de un fondo a otro sin que Hacienda lo considere una venta. No pagas IRPF hasta que retiras el dinero definitivamente.</p>
+      </div>
+      <div class="fiscal-card">
+        <div class="fc-icon">📑</div>
+        <div class="fc-title">ETFs</div>
+        <div class="fc-desc">Tratados como acciones a efectos fiscales</div>
+        <span class="pill pill-red">Tributan al vender</span>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem;">Cada vez que vendes un ETF — aunque sea para reinvertir en otro — genera un hecho imponible. Pagas entre un 19% y 28% sobre las ganancias en ese momento.</p>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <p><strong>Ejemplo concreto:</strong> tienes 50.000€ en el fondo A con una plusvalía latente de 15.000€ y decides cambiar a un fondo B con mejor composición. Con un fondo de inversión: el traspaso es a 0€ de coste fiscal. Con un ETF equivalente: pagarías hasta <strong>~3.000–4.000€ en IRPF</strong> antes de poder reinvertir.</p>
+    </div>
+
+    <div class="warn-box">
+      <p><strong>Implicación práctica:</strong> un fondo índice con TER ligeramente mayor que un ETF puede ser más rentable neto a largo plazo gracias al diferimiento fiscal. El "coste real" de un fondo incluye el valor del diferimiento, que puede superar varias veces la diferencia de TER.</p>
+    </div>
+
+    <div class="example-box">
+      <div class="ex-label">Tu situación — Cartera Rock</div>
+      <p>La Cartera Rock de MyInvestor usa fondos de inversión, no ETFs. Esto activa la ventaja del traspaso sin tributar. Si en el futuro quisieras cambiar a otra cartera gestionada dentro de MyInvestor, el cambio sería sin peaje fiscal. <span class="highlight">Esta ventaja no está contabilizada en los números de TER, pero tiene un valor real.</span></p>
+    </div>
+  </section>
+
+
+  <!-- 10. DIY vs Robo vs Asesor -->
+  <section class="card" id="diy-robo">
+    <div class="card-header">
+      <div class="card-icon">🤝</div>
+      <div class="card-title-group">
+        <h2>¿Quién gestiona? — Tú (DIY) vs Robo-advisor vs Asesor</h2>
+        <div class="subtitle">El mismo fondo, en distintas manos, cuesta cosas muy distintas</div>
+      </div>
+    </div>
+
+    <span class="label label-blue">La idea clave</span>
+    <div class="def-block">
+      <p>Puedes invertir en <strong>exactamente los mismos índices</strong> (el mundo entero) de tres formas. Lo que cambia no es la rentabilidad esperada — es <strong>quién aprieta los botones y cuánto te cobra por ello</strong>:</p>
+      <ul>
+        <li><strong>DIY (tú mismo):</strong> contratas los fondos indexados directamente y rebalanceas una vez al año. Coste ~0,08–0,20%.</li>
+        <li><strong>Robo-advisor</strong> (MyInvestor Metal, Indexa…): una máquina elige los fondos y rebalancea sola. Coste ~0,42–0,54%.</li>
+        <li><strong>Asesor</strong> (banca privada, agentes de entidades y similares): una persona te vende y gestiona, normalmente con fondos activos caros. Coste ~1,3% o más.</li>
+      </ul>
+    </div>
+
+    <span class="label label-amber">El impacto real — mismo dinero, mismos 16 años</span>
+    <div class="info-box">
+      <p>Caso real: <strong>33.500€ iniciales + 700€/mes</strong>, cartera global con emergentes, 6% antes de costes, 16 años. Lo único que cambia entre filas es la comisión.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Quién gestiona</th><th>Coste/año</th><th>Patrimonio a 16 años</th><th>Comisiones pagadas</th><th>Pierdes vs hacerlo tú</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="td-asset">Tú + Claude (DIY)</td><td class="td-green">0,20%</td><td class="td-total">301.255€</td><td class="td-muted">4.739€</td><td class="td-green">—</td></tr>
+          <tr><td class="td-asset">Robo MyInvestor (Metal)</td><td class="td-muted">0,42%</td><td class="td-muted">294.399€</td><td class="td-muted">9.791€</td><td class="td-amber">−6.856€</td></tr>
+          <tr><td class="td-asset">Robo Indexa (máx. RV)</td><td class="td-muted">0,54%</td><td class="td-muted">290.733€</td><td class="td-muted">12.478€</td><td class="td-amber">−10.522€</td></tr>
+          <tr><td class="td-asset">Asesor (fondos activos)</td><td class="td-red">1,30%</td><td class="td-muted">268.658€</td><td class="td-muted">28.415€</td><td class="td-red">−32.597€</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:0.8rem;color:var(--text-muted);">Cálculo determinista con los engines del proyecto (<code>cartera-cli.js</code>), junio 2026. La rentabilidad esperada (6%) es idéntica en las cuatro filas: la diferencia es 100% coste. Si los fondos activos del asesor rinden menos que el índice (lo habitual a largo plazo), la diferencia real es aún mayor.</p>
+
+    <span class="label label-green">¿Qué pagas exactamente con cada uno?</span>
+    <div class="no-cost-grid">
+      <div class="no-cost-item">
+        <div class="nci-icon">🛠️</div>
+        <div>
+          <div class="nci-title">Con el DIY</div>
+          <div class="nci-desc">Solo el TER de los fondos (~0,08–0,20%). A cambio, montas tú la cartera (un par de horas, una vez) y rebalanceas ~15 min/año.</div>
+        </div>
+      </div>
+      <div class="no-cost-item">
+        <div class="nci-icon">🤖</div>
+        <div>
+          <div class="nci-title">Con el robo</div>
+          <div class="nci-desc">El sobrecoste (~0,22–0,34% extra) es <strong>literalmente el precio del rebalanceo automático y de tener un solo producto</strong>. No compras más rentabilidad ni más seguridad.</div>
+        </div>
+      </div>
+      <div class="no-cost-item">
+        <div class="nci-icon">👔</div>
+        <div>
+          <div class="nci-title">Con el asesor</div>
+          <div class="nci-desc">Pagas trato humano y "que alguien se ocupe", pero a 1,3%+ y con frecuencia fondos activos que rinden peor que el índice. El peor ratio coste/valor.</div>
+        </div>
+      </div>
+      <div class="no-cost-item">
+        <div class="nci-icon">🔁</div>
+        <div>
+          <div class="nci-title">No es para siempre</div>
+          <div class="nci-desc">Cambiar de robo a DIY (o al revés) es un <strong>traspaso entre fondos: 0€ de coste fiscal</strong> en España. Puedes empezar de una forma y migrar sin penalización.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note-callout">
+      <div class="nc-label">Cuándo compensa cada uno</div>
+      <p>El coste del robo es <strong>pequeño en absoluto cuando el capital es pequeño</strong> (sobre 33.500€, el 0,22% extra ≈ 74€/año) y crece con el patrimonio (sobre 200.000€ ≈ 440€/año). Estrategia sensata: el robo puede tener sentido <strong>al principio</strong>, mientras aprendes y ganas confianza; el DIY gana claramente <strong>cuando el capital crece</strong> y el ahorro pasa de decenas a miles de euros. Como migrar es gratis fiscalmente, no hay que acertar a la primera.</p>
+    </div>
+
+    <div class="warn-box">
+      <p><strong>Nota MyInvestor (junio 2026):</strong> no existe ahí un fondo indexado <em>único</em> y barato que combine desarrollados + emergentes (un "all-world"). Los "All Cap" disponibles son solo de mercados desarrollados (sin China ni emergentes) o solo de emergentes. Por tanto, para tener el mundo entero con bajo coste hay dos caminos: <strong>DIY con 2 fondos</strong> (World + Emergentes) o un <strong>robo</strong> (1 producto, más caro). El "1 solo fondo barato con todo" no está disponible.</p>
+    </div>
+  </section>
+
+
+  <!-- 11. Cómo decido — el coste de tu tiempo -->
+  <section class="card" id="decidir">
+    <div class="card-header">
+      <div class="card-icon">⏱️</div>
+      <div class="card-title-group">
+        <h2>¿Cómo decido? — El coste de tu tiempo</h2>
+        <div class="subtitle">Lo que de verdad hace un robo y cuánto pagas por evitarte ese trabajo</div>
+      </div>
+    </div>
+
+    <span class="label label-blue">Qué hace REALMENTE un robo-advisor</span>
+    <div class="def-block">
+      <p>Conviene desmitificarlo: un robo-advisor hace <strong>una sola cosa de forma continua: rebalancear automáticamente</strong>. Cuando la bolsa sube y descuadra los pesos de tu cartera (p.ej. tu 88/12 se va a 90/10), vende un poco de lo que más subió y compra de lo que se quedó atrás para volver a tu objetivo.</p>
+      <p><strong>Lo que un robo NO hace:</strong> no analiza tu vida, no ajusta la estrategia a tus circunstancias, no "vigila el mercado" para protegerte de caídas. El "planteamiento" (qué cartera te toca) lo decide <em>una vez</em>, al contratar, con un test de perfil. A partir de ahí, es rebalanceo automático y poco más.</p>
+    </div>
+
+    <span class="label label-amber">El coste de tu tiempo — la pregunta correcta</span>
+    <div class="info-box">
+      <p>La diferencia entre un robo barato (0,42%) y hacerlo tú (0,20%) es <strong>0,22%/año</strong>. Pero ese 0,22% no es una cantidad fija: <strong>crece con tu capital</strong>. Y a cambio te ahorras ~15 minutos de rebalanceo al año. Visto como "lo que pagas por hora de tu tiempo":</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Momento</th><th>Capital</th><th>Sobrecoste robo/año</th><th>Equivale a pagar por esos ~15 min</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="td-asset">Al empezar</td><td class="td-muted">~33.500€</td><td class="td-green">~74€</td><td class="td-green">~300€/hora</td></tr>
+          <tr><td class="td-asset">En ~6 años</td><td class="td-muted">~100.000€</td><td class="td-amber">~220€</td><td class="td-amber">~880€/hora</td></tr>
+          <tr><td class="td-asset">En ~16 años</td><td class="td-muted">~230.000€</td><td class="td-red">~506€</td><td class="td-red">~2.000€/hora</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:0.8rem;color:var(--text-muted);">Sobrecoste = 0,22% sobre el capital. "€/hora" = sobrecoste anual ÷ 0,25 h (los ~15 min de rebalanceo que el robo te ahorra). El montaje inicial (~2 h, una sola vez) no se incluye.</p>
+
+    <div class="note-callout">
+      <div class="nc-label">Regla práctica de decisión</div>
+      <p>El robo cobra <strong>poco en absoluto cuando tienes poco</strong> y <strong>mucho cuando ya tienes patrimonio</strong> — justo al revés de cuando lo necesitas. Por eso: tiene sentido <strong>al principio</strong> (te quita trabajo mientras aprendes y apenas cuesta) y deja de tenerlo <strong>según crece el capital</strong>. Como cambiar de robo a DIY es un traspaso entre fondos sin coste fiscal (sección 9), no es una decisión irreversible: puedes empezar cómodo y migrar cuando el ahorro empiece a pesar.</p>
+    </div>
+
+    <div class="warn-box">
+      <p><strong>El error que sí cuesta caro no es elegir robo o DIY</strong> — ambos son buenos y baratos. El error caro es: (1) pagar a un asesor el 1,3%+ por lo mismo, o (2) vender en pánico durante una caída. Si evitas esos dos, ya has ganado lo importante.</p>
+    </div>
+  </section>
+
+
+  <!-- 12. Riesgo y horizonte -->
+  <section class="card" id="riesgo-horizonte">
+    <div class="card-header">
+      <div class="card-icon">🎯</div>
+      <div class="card-title-group">
+        <h2>¿Cuánto riesgo? — 100% renta variable a largo plazo y el "glide path"</h2>
+        <div class="subtitle">Por qué arrancamos a tope de bolsa y bajamos el riesgo según se acerca el objetivo</div>
+      </div>
+    </div>
+
+    <span class="label label-blue">Por qué 100% renta variable cuando falta mucho</span>
+    <div class="def-block">
+      <p>La renta variable (acciones) es donde más crece el dinero a largo plazo, pero también la que más sube y baja a corto. La clave es el <strong>tiempo</strong>: cuando tienes 16 años por delante, tienes margen de sobra para que las caídas se recuperen. Por eso, mientras el objetivo está lejos, <strong>el 100% en bolsa es lo razonable</strong> — renunciar a ello "por seguridad" es, en realidad, renunciar a crecimiento que sí puedes permitirte.</p>
+    </div>
+
+    <span class="label label-green">"Perderlo todo" vs "caídas temporales" — no es lo mismo</span>
+    <div class="info-box">
+      <p>El miedo natural es "¿y si lo pierdo todo?". Con una cartera <strong>diversificada en el mundo entero</strong> (miles de empresas de decenas de países), perderlo <em>todo</em> es prácticamente imposible — tendría que hundirse la economía global entera y para siempre. Lo que <strong>sí</strong> ocurrirá son <strong>caídas temporales</strong> (un −20%, −35% en un mal año) que históricamente se recuperan. "Perderlo todo tontamente" es lo que pasa al apostar a <em>una</em> empresa, <em>una</em> cripto o <em>un</em> sector de moda — justo lo que NO hacemos.</p>
+    </div>
+
+    <div class="warn-box">
+      <p><strong>Matiz importante:</strong> diversificar más (p.ej. añadir emergentes) <em>no reduce</em> el riesgo de las caídas — incluso lo sube un poco, porque los emergentes son más volátiles. Lo que aporta es <strong>no depender de un solo país</strong> (China, India y otros pesan en la economía mundial). Por eso los llevamos <strong>a su peso real en el mundo (~12%)</strong>, ni más ni menos. Lo que de verdad amortigua las caídas es la <strong>renta fija</strong>, y esa la usaremos al final (ver abajo), no ahora.</p>
+    </div>
+
+    <span class="label label-amber">El "glide path" — bajar el riesgo según se acerca la fecha</span>
+    <div class="def-block">
+      <p>Un objetivo con fecha (p.ej. la universidad de un hijo dentro de 15 años) se gestiona <strong>reduciendo el riesgo a medida que se acerca</strong>: pasas poco a poco de bolsa a renta fija, para que una caída fuerte no te pille justo cuando necesitas el dinero. Es lo mismo que hacen los fondos "con fecha objetivo". Ejemplo <em>orientativo</em> (se ajusta cada año):</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Años hasta el objetivo</th><th>Fase</th><th>RV / RF (aprox.)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="td-asset">16 → 6 años (hoy → ~2036)</td><td>Crecimiento</td><td class="td-green">100% / 0%</td></tr>
+          <tr><td class="td-asset">~5 años (~2037)</td><td>Empezar a frenar</td><td class="td-green">80% / 20%</td></tr>
+          <tr><td class="td-asset">~3 años (~2039)</td><td>Proteger</td><td class="td-amber">60% / 40%</td></tr>
+          <tr><td class="td-asset">~1 año (~2041)</td><td>Asegurar</td><td class="td-red">30% / 70%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:0.8rem;color:var(--text-muted);">Cifras orientativas, no un compromiso fijo: el reparto exacto se decide en la <strong>revisión anual</strong> según cómo vaya el mercado y la vida.</p>
+
+    <div class="note-callout">
+      <div class="nc-label">En una frase (para explicarlo en casa)</div>
+      <p>"Vamos a tope de bolsa <strong>ahora</strong> porque faltan muchos años y la bolsa sube si le das tiempo. No nos pueden 'desaparecer' el dinero porque está repartido en miles de empresas de todo el mundo. Y cuando se acerque la fecha en que lo necesitamos, iremos pasándolo a algo más tranquilo, poco a poco, para no llevarnos un susto en el último momento."</p>
+    </div>
+  </section>
+
+
+  <!-- 13. Rentabilidad estimada -->
+  <section class="card" id="rentabilidad-estimada">
+    <div class="card-header">
+      <div class="card-icon">🔮</div>
+      <div class="card-title-group">
+        <h2>¿De dónde sale la rentabilidad estimada?</h2>
+        <div class="subtitle">Por qué proyectamos con un % concreto y por qué no es un número inventado</div>
+      </div>
+    </div>
+
+    <span class="label label-blue">La idea clave</span>
+    <div class="def-block">
+      <p>Cuando el simulador o el comparador dicen "tendrás 300.000€ a 16 años", usan una <strong>rentabilidad estimada</strong>. Esa cifra <strong>no es un dato real</strong>: nadie sabe qué hará la bolsa mañana. Es un <strong>escenario de planificación</strong>, no una promesa. La regla es: nunca presentarla como certeza, y que se pueda ver de dónde sale.</p>
+    </div>
+
+    <span class="label label-amber">El asterisco que va siempre</span>
+    <div class="warn-box">
+      <p><strong>Rentabilidades pasadas no garantizan rentabilidades futuras.</strong> Cualquier número a futuro es una estimación con margen de error, y depende del año en que mires. Lo usamos para comparar y planificar, no para prometer.</p>
+    </div>
+
+    <hr class="divider">
+
+    <span class="label label-green">Regla única para todo: la rentabilidad la marca tu mezcla de activos</span>
+    <div class="def-block">
+      <p>No ponemos el mismo número a todo. La rentabilidad esperada de un producto <strong>sale de lo que de verdad expone</strong> (cuánta bolsa, cuánta renta fija, cuánta liquidez), usando un supuesto por cada clase de activo:</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Clase de activo</th><th>Rentabilidad esperada (anual, prudente)</th><th>Rango de la fuente</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="td-asset">Renta variable global</td><td class="td-total">6,0%</td><td class="td-muted">5,0%–7,0%</td></tr>
+          <tr><td class="td-asset">Renta variable emergente</td><td class="td-muted">4,6%</td><td class="td-muted">3,6%–5,6%</td></tr>
+          <tr><td class="td-asset">Renta fija agregada</td><td class="td-muted">4,7%</td><td class="td-muted">4,2%–5,2%</td></tr>
+          <tr><td class="td-asset">Monetario / liquidez</td><td class="td-muted">3,4%</td><td class="td-muted">2,9%–3,9%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="info-box">
+      <p>Por eso <strong>un riesgo 1 y un riesgo 5 NO salen iguales</strong>:</p>
+      <ul>
+        <li><strong>100% RV global</strong> (largo plazo) → <strong>6,0%</strong></li>
+        <li><strong>Mixto 30% RV / 70% RF</strong> (medio plazo) → 0,30×6,0 + 0,70×4,7 = <strong>~5,1%</strong></li>
+        <li><strong>Fondo monetario</strong> (colchón, riesgo 1) → <strong>3,4%</strong></li>
+      </ul>
+      <p>Dos productos solo comparten rentabilidad esperada cuando comparten exposición. Una Cartera Metal y un DIY que replican el mismo índice mundial dan los dos 6,0% — y ahí la diferencia es <strong>solo el coste</strong> (ver sección 10).</p>
+    </div>
+
+    <hr class="divider">
+
+    <span class="label label-blue">¿De dónde salen esos números? La fuente</span>
+    <div class="def-block">
+      <p>No son inventados ni una media casera: vienen de las dos estimaciones de referencia de la industria (<em>Capital Market Assumptions</em>, publicadas cada año):</p>
+      <ul>
+        <li><strong>Vanguard Capital Markets Model (VCMM) Q1 2026</strong> — base. Mediana de 10.000 simulaciones, ajustada por las valoraciones actuales del mercado. <a href="https://www.vanguardmexico.com/en/home/insights/economic-market-outlook/vanguard-capital-markets-model-forecasts-2026" target="_blank" rel="noopener">fuente</a></li>
+        <li><strong>J.P. Morgan Long-Term Capital Market Assumptions 2026</strong> — contraste. Para RV global daba ~7% (Vanguard ~6%): <strong>coherentes</strong>. <a href="https://am.jpmorgan.com/us/en/asset-management/adv/about-us/media/press-releases/jp-morgan-releases-2026-long-term-capital-market-assumptions/" target="_blank" rel="noopener">fuente</a></li>
+      </ul>
+      <p>Tomamos el <strong>punto medio del rango de Vanguard</strong> y, cuando hay diferencia, la cifra <strong>más prudente</strong>. Son supuestos de casas independientes, pensados para planificar (no para vender un producto).</p>
+    </div>
+
+    <span class="label label-amber">¿Por qué 6% y no el ~9–11% que hizo la bolsa estos años?</span>
+    <div class="warn-box">
+      <p>La renta variable global rindió <strong>~9–11%/año</strong> la última década. Es real, pero fue una década <strong>excepcional</strong> y hoy las valoraciones (sobre todo en EEUU) están altas → las estimaciones forward son <strong>deliberadamente más bajas</strong>. Proyectar el 10% histórico hacia delante sería optimista, y es justo lo que hace que un producto caro "parezca" que no pasa nada. Planificamos con el número prudente; el histórico lo enseñamos aparte como referencia.</p>
+    </div>
+
+    <span class="label label-green">Las dos cifras que verás en las herramientas</span>
+    <div class="no-cost-grid">
+      <div class="no-cost-item">
+        <div class="nci-icon">🧭</div>
+        <div>
+          <div class="nci-title">Esperada (prudente)</div>
+          <div class="nci-desc">El supuesto forward de Vanguard VCMM, ponderado por la composición. Es la que mueve la proyección. Lleva su fuente a la vista.</div>
+        </div>
+      </div>
+      <div class="no-cost-item">
+        <div class="nci-icon">📜</div>
+        <div>
+          <div class="nci-title">Histórica (real)*</div>
+          <div class="nci-desc">Lo que de verdad rindió el índice/producto, con su fuente. Útil como referencia. *Pasado ≠ futuro.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note-callout">
+      <div class="nc-label">Lo que de verdad sostiene la decisión</div>
+      <p>Para productos del mismo índice, la rentabilidad que asumas <strong>se cancela en la comparación</strong>: pongas 6%, 8% o 9%, el más barato gana siempre por exactamente la diferencia de coste. Lo único que cambia con el supuesto es el patrimonio final en € (que es, correctamente, una estimación). <strong>La decisión descansa sobre el coste, que sí es dato real</strong> — no sobre acertar la rentabilidad.</p>
+    </div>
+  </section>
+
+
+  <!-- Footer -->
+  <footer class="page-footer">
+    <p>Referencia personal — actualizada junio 2026.<br>
+    Generada para uso personal como material educativo. No constituye asesoramiento financiero regulado.</p>
+  </footer>
+
+</div>
+</body>
+</html>

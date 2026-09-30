@@ -1,0 +1,110 @@
+/* ============================================================================
+   Tema de la app de finanzas — «la libreta de casa, a la luz de una lámpara»
+   ----------------------------------------------------------------------------
+   Propio de webapp/web: NO es styles/theme.css (ese lo comparten los reports del
+   repo y no se toca). Aquí manda una sola idea, y de ella salen todos los colores:
+
+     · PAPEL (cálido, poco azul)  = lo que la app CALCULA. Se lee, no se toca.
+     · METAL (frío, azulado)      = lo que TÚ ESCRIBES. Todo campo editable vive
+                                    sobre metal; nada más lo hace.
+     · SEMÁFORO (verde/ámbar/rojo)= en qué estado estás. Reservado: no se usa de
+                                    adorno ni para las series del gráfico.
+     · VIOLETA                    = un escenario, o sea, algo que NO es real.
+
+   El fondo es marrón-negro y no azul-negro a propósito: se mira de noche y con
+   sueño, y el requisito era que no molestara a la vista.
+   ========================================================================== */
+
+:root {
+  color-scheme: dark;
+
+  /* --- papel: lo que la app calcula --- */
+  --papel-0: #14100c;      /* fondo de la página */
+  --papel-1: #1c1713;      /* barra superior, superficies elevadas */
+  --papel-2: #262019;      /* pozos: cabecera de grupo, fila activa */
+  --papel-3: #2f271f;      /* hover */
+  --linea:   #362d24;      /* filete */
+  --linea-suave: #29221b;
+
+  /* --- tinta --- */
+  --tinta:   #f0e7da;      /* 15,5:1 sobre papel-0 */
+  --tinta-2: #b3a492;      /* secundaria, 7,8:1 */
+  --tinta-3: #9c8d7a;      /* terciaria, 5,6:1 — el mínimo que sigue siendo AA */
+
+  /* --- metal: lo que se edita --- */
+  --metal:   #1a1d24;
+  --metal-2: #232833;      /* hover */
+  --metal-linea: #333b4a;
+  --frio:    #8fb4e0;      /* foco, acento de lo interactivo */
+  --frio-2:  #5f83b0;
+
+  /* --- semáforo (reservado) --- */
+  --bien: #5fcb8a;
+  --ojo:  #f0be5a;
+  --mal:  #f4796a;
+  --bien-fondo: rgba(95, 203, 138, .13);
+  --ojo-fondo:  rgba(240, 190, 90, .13);
+  --mal-fondo:  rgba(244, 121, 106, .13);
+
+  /* --- escenario: lo que no es real --- */
+  --violeta: #b9a0f0;
+  --violeta-2: #8b72c4;
+  --violeta-fondo: rgba(185, 160, 240, .10);
+
+  /* --- tipografía --- */
+  --texto: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --titulo: 'Literata', Georgia, 'Times New Roman', serif;
+
+  --r-s: 5px;
+  --r-m: 9px;
+  --r-l: 14px;
+
+  --sombra: 0 18px 42px rgba(0, 0, 0, .55);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body, h1, h2, h3, p, ul, ol, li, figure, table, fieldset { margin: 0; padding: 0; }
+ul, ol { list-style: none; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  background: var(--papel-0);
+  color: var(--tinta);
+  font-family: var(--texto);
+  font-size: 14px;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  overflow-x: hidden;   /* I8: la página nunca se desplaza en horizontal; lo ancho se desplaza dentro */
+}
+
+h1, h2, h3 {
+  font-family: var(--titulo);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1.25;
+  color: var(--tinta);
+}
+
+b, strong { font-weight: 600; }
+
+/* Las cifras siempre alineadas en columna: mismas anchuras de dígito en toda la app. */
+input, select, textarea, button, table, .num { font-variant-numeric: tabular-nums; }
+
+a { color: var(--frio); text-decoration-color: rgba(143, 180, 224, .4); text-underline-offset: 2px; }
+a:hover { text-decoration-color: var(--frio); }
+
+::selection { background: rgba(143, 180, 224, .3); }
+
+:focus-visible {
+  outline: 2px solid var(--frio);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}

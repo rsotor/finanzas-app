@@ -1,0 +1,38 @@
+{
+  "perfil": { "topesRV": { "largo": 100 }, "gate": { "cubierto": true, "faltan": 0 } },
+  "capitalParado": 9000,
+  "dcaMeses": 9,
+  "bloques": [{
+    "id": "largo",
+    "label": "Largo plazo",
+    "importe": 20000,
+    "monthly": 300,
+    "horizon": 15,
+    "inflation": 2,
+    "criticidad": "flexible",
+    "carteras": [{
+      "label": "DIY RV+RF",
+      "esTodoEnUno": false,
+      "preset": {
+        "params": { "initial": 20000, "monthly": 300, "horizon": 15, "inflation": 2 },
+        "groupCosts": [],
+        "historicalReturns": { "source": "fixture de test (sintético)", "currency": "EUR", "annual": { "2021": 18.5, "2022": -12.3, "2023": 15.1, "2024": 9.8, "2025": 6.4 } },
+        "funds": [
+          { "id": "rv", "weight": 80, "alloc": { "equity": 100 }, "costs": [{ "type": "annual", "unit": "pct", "value": 0.15 }] },
+          { "id": "rf", "weight": 20, "alloc": { "bond": 100 }, "costs": [{ "type": "annual", "unit": "pct", "value": 0.12 }] }
+        ]
+      }
+    }],
+    "todoEnUno": [{
+      "label": "Robo",
+      "esTodoEnUno": true,
+      "preset": {
+        "mandate": "discretionary",
+        "params": { "initial": 20000, "monthly": 300, "horizon": 15, "inflation": 2 },
+        "groupCosts": [{ "type": "annual", "unit": "pct", "value": 0.40 }],
+        "historicalReturns": { "source": "fixture de test (sintético)", "currency": "EUR", "annual": { "2021": 16.2, "2022": -10.1, "2023": 13.4, "2024": 8.5, "2025": 5.9 } },
+        "funds": [{ "id": "robo", "weight": 100, "alloc": { "equity": 80, "bond": 20 }, "costs": [] }]
+      }
+    }]
+  }]
+}

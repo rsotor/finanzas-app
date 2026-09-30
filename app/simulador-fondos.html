@@ -1,0 +1,3021 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de Fondos de Inversión</title>
+<link rel="stylesheet" href="../styles/theme.css">
+<style>
+  /* Variables heredadas de theme.css — overrides locales si necesario */
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 20px 48px;
+  }
+
+  /* Header */
+  .header { margin-bottom: 16px; display: flex; align-items: baseline; gap: 12px; }
+  .header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .header p { color: var(--text-muted); font-size: 0.82rem; }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Input label */
+  .input-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  /* Input group with suffix */
+  .input-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .input-group input[type="text"] {
+    flex: 1;
+    min-width: 0;
+  }
+  .input-group .suffix {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Global params grid */
+  .params-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  @media (max-width: 900px) {
+    .params-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .params-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .param-field {
+    display: flex;
+    flex-direction: column;
+  }
+  .param-field input[type="text"] {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.875rem;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .param-field input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .param-field.full-width {
+    grid-column: 1 / -1;
+  }
+
+  select {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.85rem;
+    font-family: inherit;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a8f9a'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+  }
+  select:focus { outline: none; border-color: var(--accent); }
+  select option { background: var(--surface); color: var(--text); }
+
+  /* Tooltip */
+  .tip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    cursor: default;
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+  .tip::after {
+    content: attr(data-tip);
+    position: fixed;
+    background: #252932;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--text);
+    white-space: normal;
+    width: 240px;
+    max-width: 80vw;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    line-height: 1.5;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    left: var(--tip-x, auto);
+    top: var(--tip-y, auto);
+  }
+  .tip:hover::after { opacity: 1; }
+
+  /* Toggle */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 6px;
+    margin-bottom: 4px;
+  }
+  .toggle-label { font-size: 0.78rem; color: var(--text-muted); }
+  .toggle {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-track {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle-track::before {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    top: 3px;
+    left: 3px;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .toggle input:checked + .toggle-track { background: rgba(79,156,247,0.3); }
+  .toggle input:checked + .toggle-track::before {
+    transform: translateX(16px);
+    background: var(--accent);
+  }
+  .toggle-note {
+    font-size: 0.72rem;
+    color: var(--amber);
+    display: inline;
+    margin-left: 8px;
+  }
+
+  /* Cost fields */
+  .cost-field {
+    display: flex;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.82rem;
+    gap: 6px;
+  }
+  .cost-field:last-child { border-bottom: none; }
+  .cost-field label {
+    color: var(--text-muted);
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cost-field input[type="text"] {
+    width: 70px !important;
+    min-width: 70px;
+    text-align: right;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 4px 8px;
+    font-size: 0.82rem;
+    font-family: inherit;
+    margin-bottom: 0 !important;
+  }
+  .cost-field input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .cost-field .unit {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .cost-field .btn-remove {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 2px;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.15s;
+  }
+  .cost-field .btn-remove:hover { color: var(--red); }
+
+  /* Add cost button */
+  .btn-add-cost {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    padding: 8px 12px;
+    margin-top: 8px;
+    background: transparent;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-add-cost:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Add cost form */
+  .add-cost-form {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .add-cost-form input[type="text"] {
+    flex: 1;
+    min-width: 80px;
+    padding: 6px 10px;
+    background: var(--surface-raised);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 0.8rem;
+    font-family: inherit;
+    margin-bottom: 0 !important;
+  }
+  .add-cost-form select {
+    width: auto !important;
+    padding: 6px 8px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 0.8rem;
+    font-family: inherit;
+    margin-bottom: 0 !important;
+  }
+  .add-cost-form .btn-confirm {
+    padding: 5px 10px;
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.8rem;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .add-cost-form .btn-cancel {
+    padding: 5px 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  /* Cost type tag */
+  .cost-type-tag {
+    font-size: 0.65rem;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--surface-raised);
+    color: var(--text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface-raised);
+    color: var(--text);
+    font-size: 0.82rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .btn:hover {
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .btn-accent {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .btn-accent:hover {
+    background: #3b88e3;
+    border-color: #3b88e3;
+  }
+  .btn-danger {
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .btn-danger:hover {
+    background: var(--red);
+    color: #fff;
+  }
+
+  .actions-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  /* Funds grid */
+  .funds-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 680px) {
+    .funds-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Fund card */
+  .fund-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    transition: border-color 0.15s;
+  }
+  .fund-card:hover { border-color: #3a3e4a; }
+  .fund-card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .fund-card-title {
+    flex: 1;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    min-width: 0;
+  }
+  .fund-card .btn-remove-fund {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: color 0.15s;
+  }
+  .fund-card .btn-remove-fund:hover { color: var(--red); }
+  .fund-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .fund-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .fund-field input[type="text"],
+  .fund-field select {
+    width: 100%;
+    padding: 7px 10px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.82rem;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .fund-field input[type="text"]:focus,
+  .fund-field select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .fund-field.full-width { grid-column: 1 / -1; }
+  .fund-field input.overridden {
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+  .fund-section-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    margin-top: 4px;
+  }
+  .costs-list {
+    min-height: 4px;
+  }
+  .annual-cost-summary {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+  }
+  .annual-cost-summary .val {
+    color: var(--amber);
+    font-weight: 600;
+  }
+
+  /* Add fund button */
+  .btn-add-fund {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: transparent;
+    border: 2px dashed var(--border);
+    border-radius: 14px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+    padding: 20px;
+    min-height: 80px;
+    width: 100%;
+  }
+  .btn-add-fund:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Weight bar */
+  .weight-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    margin-bottom: 16px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+  }
+  .weight-bar.valid {
+    border-color: rgba(52,211,153,0.3);
+    background: rgba(52,211,153,0.06);
+    color: var(--green);
+  }
+  .weight-bar.warning {
+    border-color: rgba(251,191,36,0.3);
+    background: rgba(251,191,36,0.06);
+    color: var(--amber);
+  }
+  .weight-bar .weight-icon { font-size: 0.9rem; }
+  .weight-bar .weight-text { flex: 1; }
+
+  /* Cost detail table */
+  .cost-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .cost-detail-table th {
+    text-align: left;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cost-detail-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .cost-detail-table tr:last-child td { border-bottom: none; }
+  .cost-detail-table td.amount { text-align: right; font-weight: 600; }
+  .cost-detail-table tr.subtotal td {
+    border-top: 1px solid var(--border);
+    font-weight: 700;
+    color: var(--amber);
+  }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-content {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 0;
+    max-width: 720px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.6);
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-header h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.4rem;
+    line-height: 1;
+    padding: 0;
+    transition: color 0.15s;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 24px; }
+
+  /* Helper link */
+  .helper-link {
+    font-size: 0.8rem;
+    color: var(--accent);
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: rgba(79,156,247,0.4);
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    transition: color 0.15s;
+  }
+  .helper-link:hover { color: #3b88e3; }
+
+  /* Group costs section */
+  .group-costs-section {
+    border-top: 1px solid var(--border);
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 32px 20px;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+  .empty-state .icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    opacity: 0.4;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 0;
+  }
+
+  /* Hidden */
+  .hidden { display: none !important; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    padding: 32px 20px 0;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+    line-height: 1.7;
+  }
+
+  /* Results placeholder */
+  .results-placeholder {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px 24px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+  .results-placeholder .big-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    opacity: 0.35;
+  }
+  .results-placeholder p { margin-bottom: 4px; }
+  .results-placeholder .hint { font-size: 0.78rem; opacity: 0.6; }
+
+  /* Status badge */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .badge-green { background: rgba(52,211,153,0.12); color: var(--green); border: 1px solid rgba(52,211,153,0.25); }
+  .badge-amber { background: rgba(251,191,36,0.12); color: var(--amber); border: 1px solid rgba(251,191,36,0.25); }
+  .badge-blue  { background: rgba(79,156,247,0.12); color: var(--accent); border: 1px solid rgba(79,156,247,0.25); }
+
+  /* ── Result section / blocks ── */
+  .result-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .result-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .result-block-header:hover { background: var(--surface-raised); }
+  .result-block-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
+  .result-block-arrow {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+  }
+  .result-block.open .result-block-arrow { transform: rotate(180deg); }
+  .result-block-detail {
+    display: none;
+    padding: 0 20px 20px;
+  }
+  .result-block.open .result-block-detail { display: block; }
+
+  /* ── Metrics row (inside result block header area) ── */
+  .metrics-row {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px 14px;
+    overflow-x: auto;
+    flex-wrap: wrap;
+  }
+  .metric {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    min-width: 150px;
+    flex: 1;
+  }
+  .metric.positive { border-color: rgba(52,211,153,0.3); }
+  .metric.negative { border-color: rgba(248,113,113,0.3); }
+  .metric.amber    { border-color: rgba(251,191,36,0.3); }
+  .metric.clickable {
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .metric.clickable:hover {
+    border-color: var(--accent) !important;
+    background: rgba(79,156,247,0.06);
+  }
+  .metric.clickable .metric-sub { color: var(--accent); }
+  .metric-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .metric-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+  }
+  .metric-value.positive { color: var(--green); }
+  .metric-value.negative { color: var(--red); }
+  .metric-value.amber    { color: var(--amber); }
+  .metric-value.accent   { color: var(--accent); }
+  .metric-sub {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  /* ── Accordion ── */
+  .accordion-item {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .accordion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    cursor: pointer;
+    background: var(--surface-raised);
+    font-size: 0.875rem;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .accordion-header:hover { background: var(--border); }
+  .accordion-arrow {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+    display: inline-block;
+  }
+  .accordion-item.open .accordion-arrow { transform: rotate(180deg); }
+  .accordion-body {
+    display: none;
+    padding: 12px 14px;
+    font-size: 0.82rem;
+  }
+  .accordion-item.open .accordion-body { display: block; }
+
+  /* ── Breakdown table ── */
+  .breakdown-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .breakdown-table th {
+    text-align: left;
+    padding: 6px 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .breakdown-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid rgba(42,46,56,0.5);
+    vertical-align: top;
+  }
+  .breakdown-table td.num { text-align: right; }
+  .breakdown-table th.num { text-align: right; }
+  .breakdown-table tr.total-row td {
+    border-top: 1px solid var(--border);
+    border-bottom: none;
+    padding-top: 8px;
+  }
+
+  /* ── Grand total line ── */
+  .breakdown-grand-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: rgba(248,113,113,0.08);
+    border: 1px solid rgba(248,113,113,0.25);
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .breakdown-grand-total .val { color: var(--red); }
+
+  /* ── Projection table ── */
+  .projection-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .projection-table th {
+    text-align: left;
+    padding: 7px 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .projection-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(42,46,56,0.5);
+    white-space: nowrap;
+  }
+  .projection-table td.num { text-align: right; }
+  .projection-table th.num { text-align: right; }
+  .projection-table tbody tr:hover { background: var(--surface-raised); }
+
+  /* ── Helper block ── */
+  .helper-block {
+    background: rgba(79,156,247,0.08);
+    border: 1px solid rgba(79,156,247,0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.82rem;
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .helper-block strong { color: var(--accent); }
+  .helper-note {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  /* ── Preset button ── */
+  .btn-preset {
+    background: rgba(167,139,250,0.12);
+    color: var(--purple);
+    border-color: rgba(167,139,250,0.3);
+  }
+  .btn-preset:hover {
+    background: rgba(167,139,250,0.22);
+  }
+
+  /* ── Presets bar ── */
+  .presets-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .presets-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .presets-bar select {
+    width: auto;
+    min-width: 200px;
+    max-width: 320px;
+  }
+
+  /* ── Collapsible funds ── */
+  .funds-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    padding-bottom: 4px;
+  }
+  .funds-header:hover .funds-toggle-arrow { color: var(--accent); }
+  .funds-toggle-arrow {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    transition: transform 0.2s, color 0.15s;
+    flex-shrink: 0;
+  }
+  .funds-body.collapsed {
+    display: none;
+  }
+  #funds-card.expanded .funds-toggle-arrow {
+    transform: rotate(180deg);
+  }
+  .funds-summary {
+    font-size: 0.72rem;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--text-muted);
+    margin-left: 4px;
+  }
+
+  /* ── Fund Score Block ── */
+  .score-block {
+    margin-top: 24px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+  }
+  .score-block-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+  .score-block-subtitle {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .score-overview {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 16px;
+  }
+  .score-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .score-circle.score-green  { background: rgba(52,211,153,0.15); color: var(--green); }
+  .score-circle.score-amber  { background: rgba(251,191,36,0.15); color: var(--amber); }
+  .score-circle.score-red    { background: rgba(248,113,113,0.15); color: var(--red); }
+  .score-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .score-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px 4px 8px;
+    font-size: 0.78rem;
+    color: var(--text);
+  }
+  .score-pill-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .score-pill-dot.dot-green { background: var(--green); }
+  .score-pill-dot.dot-amber { background: var(--amber); }
+  .score-pill-dot.dot-red   { background: var(--red); }
+  .score-pill-dot.dot-muted { background: var(--text-muted); }
+  .score-legend {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+  .score-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .score-detail-table th {
+    text-align: left;
+    color: var(--text-muted);
+    font-weight: 600;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .score-detail-table th.num { text-align: right; }
+  .score-detail-table td {
+    padding: 7px 8px;
+    border-bottom: 1px solid rgba(42,46,56,0.5);
+  }
+  .score-detail-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .score-bar-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .score-bar-track {
+    flex: 1;
+    height: 6px;
+    background: var(--surface);
+    border-radius: 3px;
+    overflow: hidden;
+    min-width: 60px;
+  }
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+  .score-bar-fill.bar-green { background: var(--green); }
+  .score-bar-fill.bar-amber { background: var(--amber); }
+  .score-bar-fill.bar-red   { background: var(--red); }
+  .score-bar-fill.bar-muted { background: var(--text-muted); }
+  .score-bar-label {
+    min-width: 42px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  /* ── Chart (proyección por escenarios) ─ comparte estilos con el comparador ── */
+  .chart-wrap { position: relative; width: 100%; }
+  .chart-wrap canvas { width: 100%; display: block; }
+  .chart-legend { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin-top: 12px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-muted); }
+  .legend-line { width: 20px; height: 3px; border-radius: 2px; }
+  .legend-dashed { width: 20px; height: 0; border-top: 2px dashed #555; }
+  .chart-tooltip {
+    position: absolute; background: #252932; border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; font-size: 0.78rem; color: var(--text); pointer-events: none;
+    opacity: 0; transition: opacity 0.12s; z-index: 100; white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5); line-height: 1.7;
+  }
+  .chart-tooltip.visible { opacity: 1; }
+  .chart-tooltip .tt-year { font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .chart-tooltip .tt-row { display: flex; align-items: center; gap: 6px; }
+  .chart-tooltip .tt-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .chart-tooltip .tt-val { margin-left: auto; font-weight: 600; padding-left: 12px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1>Simulador de Fondos</h1>
+    <p>Compara el impacto real de los costes en tu cartera a largo plazo</p>
+  </div>
+
+  <!-- Presets bar -->
+  <div class="presets-bar">
+    <span class="presets-label">Cartera:</span>
+    <select id="preset-selector" onchange="onPresetSelected(this.value)">
+      <option value="">— Seleccionar preset —</option>
+    </select>
+    <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--text-muted);cursor:pointer;white-space:nowrap" title="Oculta los productos descartados; desmárcalo para verlos todos">
+      <input type="checkbox" id="solo-destacados-sim" checked onchange="rebuildPresetSelector()"> Solo destacados
+    </label>
+    <span style="flex:1;"></span>
+    <button class="btn btn-danger" onclick="resetAll()" style="font-size:0.75rem;padding:5px 12px;">Limpiar todo</button>
+  </div>
+
+  <!-- Global params card -->
+  <div class="card" id="params-card">
+    <div class="card-title" id="params-card-title">Parámetros globales</div>
+    <div id="params-container">
+      <!-- Rendered by renderParams() -->
+    </div>
+  </div>
+
+  <!-- Funds collapsible card -->
+  <div class="card" id="funds-card">
+    <div class="funds-header" onclick="toggleFundsPanel()">
+      <div class="card-title" style="margin-bottom:0;">
+        Fondos
+        <span id="weight-status"></span>
+        <span id="funds-summary" class="funds-summary"></span>
+      </div>
+      <span class="funds-toggle-arrow" id="funds-arrow">&#9660;</span>
+    </div>
+    <div id="funds-body" class="funds-body">
+      <div id="weight-bar-container"></div>
+      <div class="funds-grid" id="funds-grid">
+        <!-- Rendered by renderFunds() -->
+      </div>
+      <div id="add-fund-btn-container"></div>
+      <div style="margin-top:12px;display:flex;align-items:center;gap:10px;">
+        <button class="btn btn-accent" onclick="runSimulation()">Simular</button>
+        <span id="last-run-info" style="font-size:0.78rem;color:var(--text-muted);"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Projection chart (escenarios) -->
+  <div class="card" id="sim-chart-card" style="display:none">
+    <div class="card-title">
+      Proyección por escenarios
+      <span class="tip" data-tip="Escenario neutro = la rentabilidad bruta que has fijado, ya con tus costes descontados. Las líneas optimista y pesimista son un abanico (±1σ por año) a partir de la volatilidad histórica de la cartera. No es una promesa: rentabilidades pasadas no garantizan futuras.">?</span>
+    </div>
+    <div class="chart-wrap" id="sim-chart-wrap">
+      <canvas id="sim-chart-canvas" height="340"></canvas>
+      <div class="chart-tooltip" id="sim-chart-tooltip"></div>
+    </div>
+    <div class="chart-legend" id="sim-chart-legend"></div>
+    <div id="sim-chart-note" style="font-size:0.78rem;color:var(--text-muted);line-height:1.5;margin-top:12px"></div>
+  </div>
+
+  <!-- Results -->
+  <div id="results-section">
+    <div class="results-placeholder">
+      <div class="big-icon">&#128200;</div>
+      <p>Configura los parámetros y añade fondos para ver la simulación</p>
+      <p class="hint">Carga un preset o añade fondos manualmente, y pulsa <strong>Simular</strong></p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    Simulador de fondos de inversión &mdash; Herramienta de análisis personal<br>
+    No constituye asesoramiento financiero profesional regulado.
+  </div>
+
+</div>
+
+<!-- Modal overlay -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-content" id="modal-content">
+    <div class="modal-header">
+      <h2 id="modal-title">Información</h2>
+      <button class="modal-close" onclick="closeModalDirect()">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-body">
+      <!-- Dynamic content -->
+    </div>
+  </div>
+</div>
+
+<script src="simulador-engine.js?v=20260618d"></script>
+<script src="engine-fiscal.js?v=20260618d"></script>
+<script src="engine-diversificacion.js?v=20260618d"></script>
+<script src="engine-supuestos.js?v=20260618d"></script>
+<script src="engine-proyeccion.js?v=20260618d"></script>
+<script src="engine-chart.js?v=20260618d"></script>
+<script src="engine-scorecard.js?v=20260618d"></script>
+<script>
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let funds = [];
+let groupCosts = [];
+let rentByFund = false;
+let debounceTimer = null;
+let fieldCounter = 0;
+let simulationCache = null;
+let simChart = null;
+let currentHistoricalReturns = null;
+
+let globalParams = {
+  name:      'Mi cartera',
+  initial:   0,
+  monthly:   0,
+  horizon:   15,
+  rent:      7,
+  inflation: 2,
+};
+
+// ─────────────────────────────────────────────
+// HELPERS (delegated to SimEngine)
+// ─────────────────────────────────────────────
+const { fmt, fmtDec, parseNum, escHtml, COST_TYPE_LABELS, CATEGORY_LABELS,
+        _scoreInterp, _scoreColor } = SimEngine;
+
+function nextId() { return 'f' + (++fieldCounter); }
+
+function scheduleUpdate() {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(updateAll, 300);
+}
+
+function syncParamsFromDOM() {
+  globalParams.name      = document.getElementById('param-name')?.value      || globalParams.name;
+  globalParams.initial   = parseNum(document.getElementById('param-initial')?.value   ?? globalParams.initial);
+  globalParams.monthly   = parseNum(document.getElementById('param-monthly')?.value   ?? globalParams.monthly);
+  globalParams.horizon   = parseInt(document.getElementById('param-horizon')?.value)  || globalParams.horizon;
+  globalParams.rent      = parseNum(document.getElementById('param-rent')?.value      ?? globalParams.rent);
+  globalParams.inflation = parseNum(document.getElementById('param-inflation')?.value ?? globalParams.inflation);
+}
+
+function getParams() {
+  syncParamsFromDOM();
+  return { ...globalParams };
+}
+
+// ─────────────────────────────────────────────
+// RENDER: GLOBAL PARAMS
+// ─────────────────────────────────────────────
+function renderParams() {
+  const p   = globalParams;
+
+  // Update card title with portfolio name
+  const titleEl = document.getElementById('params-card-title');
+  if (titleEl) {
+    const nameDisplay = p.name && p.name !== 'Mi cartera' ? ` — ${escHtml(p.name)}` : '';
+    titleEl.innerHTML = `Parámetros globales${nameDisplay}`;
+  }
+
+  const html = `
+    <input type="hidden" id="param-name" value="${escHtml(p.name)}" />
+    <div class="params-grid">
+      <div class="param-field">
+        <label class="input-label">Aportación inicial</label>
+        <div class="input-group">
+          <input type="text" id="param-initial" value="${p.initial || ''}"
+                 placeholder="0" oninput="syncParamsFromDOM(); scheduleUpdate()" />
+          <span class="suffix">€</span>
+        </div>
+      </div>
+      <div class="param-field">
+        <label class="input-label">
+          Aportación mensual
+          <span class="tip" data-tip="Si tu aportación es trimestral/anual, divide manualmente. Ej: 900 €/trim = 300 €/mes">?</span>
+        </label>
+        <div class="input-group">
+          <input type="text" id="param-monthly" value="${p.monthly || ''}"
+                 placeholder="0" oninput="syncParamsFromDOM(); scheduleUpdate()" />
+          <span class="suffix">€/mes</span>
+        </div>
+      </div>
+      <div class="param-field">
+        <label class="input-label">Horizonte</label>
+        <div class="input-group">
+          <input type="text" id="param-horizon" value="${p.horizon}"
+                 oninput="syncParamsFromDOM(); scheduleUpdate()" />
+          <span class="suffix">años</span>
+        </div>
+      </div>
+      <div class="param-field">
+        <label class="input-label">
+          Rentabilidad anual
+          <span class="tip" data-tip="Rentabilidad bruta esperada. Puedes sobreescribirla por fondo si activas el modo avanzado.">?</span>
+        </label>
+        <div class="input-group">
+          <input type="text" id="param-rent" value="${fmtDec(p.rent)}"
+                 ${rentByFund ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''}
+                 oninput="syncParamsFromDOM(); scheduleUpdate()" />
+          <span class="suffix">%</span>
+        </div>
+      </div>
+      <div class="param-field">
+        <label class="input-label">
+          Inflación anual
+          <span class="tip" data-tip="Usada para calcular el patrimonio en euros reales de hoy.">?</span>
+        </label>
+        <div class="input-group">
+          <input type="text" id="param-inflation" value="${fmtDec(p.inflation)}"
+                 oninput="syncParamsFromDOM(); scheduleUpdate()" />
+          <span class="suffix">%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="toggle-row">
+      <label class="toggle">
+        <input type="checkbox" id="toggle-rent-by-fund"
+               ${rentByFund ? 'checked' : ''}
+               onchange="onToggleRentMode(this.checked)" />
+        <span class="toggle-track"></span>
+      </label>
+      <span class="toggle-label">Rentabilidad por fondo</span>
+      <span class="tip" data-tip="Permite asignar una rentabilidad distinta a cada fondo. Útil para comparar RV vs RF.">?</span>
+      ${rentByFund ? `<span class="toggle-note">Activo — cada fondo usa su propia rentabilidad.</span>` : ''}
+    </div>
+
+    <div class="group-costs-section">
+      <div class="fund-section-label">
+        Costes del grupo (aplicados a toda la cartera)
+        <span class="tip" data-tip="Costes a nivel cartera (gestión, custodia de un robo). Un DIY no los tiene: su coste son los TER de los fondos, ponderados por peso.">?</span>
+      </div>
+      ${(() => {
+        if (!funds.length) return '';
+        const tw = funds.reduce((s, f) => s + (f.weight || 0), 0) || 100;
+        const fTer = f => (f.costs || []).filter(c => c.type === 'annual' && c.unit === 'pct').reduce((a, c) => a + c.value, 0);
+        const fundC = funds.reduce((s, f) => s + fTer(f) * (f.weight || 0) / tw, 0);
+        const groupC = groupCosts.filter(c => c.type === 'annual' && c.unit === 'pct').reduce((s, c) => s + c.value, 0);
+        const total = fundC + groupC;
+        const partes = funds.map(f => `${fmtDec(fTer(f))}%×${fmtDec(f.weight, 0)}%`).join(' + ');
+        const desglose = groupC > 0
+          ? `${fmtDec(groupC)}% de cartera + ${fmtDec(fundC)}% de fondos (media ponderada)`
+          : `media ponderada por peso: ${partes}`;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;margin:8px 0 12px;background:var(--surface-2);border-radius:8px;border:1px solid var(--border)">
+          <span style="font-size:0.8rem;color:var(--text-muted)">Coste total anual <span style="opacity:0.7">· ${desglose}</span></span>
+          <strong style="font-size:1.1rem;color:var(--accent)">${fmtDec(total)}%</strong>
+        </div>`;
+      })()}
+      <div class="costs-list" id="group-costs-list"></div>
+      <button class="btn-add-cost" onclick="showAddCostForm('group')">
+        &#43; Añadir coste de grupo
+      </button>
+      <div id="add-cost-form-group" class="hidden"></div>
+    </div>
+  `;
+  document.getElementById('params-container').innerHTML = html;
+  renderCostList('group-costs-list', groupCosts, 'group');
+}
+
+// ─────────────────────────────────────────────
+// RENDER: COST LIST (reusable)
+// ─────────────────────────────────────────────
+function renderCostList(containerId, costsArray, scope) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+
+  if (costsArray.length === 0) {
+    el.innerHTML = '';
+    return;
+  }
+
+  const rows = costsArray.map(c => `
+    <div class="cost-field" data-cost-id="${c.id}">
+      <label title="${escHtml(c.name)}">${escHtml(c.name)}</label>
+      <input type="text" value="${fmtDec(c.value)}"
+             oninput="onCostValueChange('${scope}', '${c.id}', this.value)" />
+      <span class="unit">${c.unit === 'pct' ? '%' : '€'}</span>
+      <span class="cost-type-tag">${COST_TYPE_LABELS[c.type] || c.type}</span>
+      <button class="btn-remove" title="Eliminar coste"
+              onclick="removeCost('${scope}', '${c.id}')">&#215;</button>
+    </div>
+  `).join('');
+
+  el.innerHTML = rows;
+
+  // Annual cost summary for fund scope
+  if (scope !== 'group') {
+    const fundId = scope;
+    const fund   = funds.find(f => f.id === fundId);
+    if (fund) {
+      const annualTotal = (fund.costs || [])
+        .filter(c => c.type === 'annual')
+        .reduce((sum, c) => sum + (c.unit === 'pct' ? c.value : 0), 0);
+
+      const summaryEl = el.parentElement.querySelector('.annual-cost-summary');
+      if (summaryEl) {
+        summaryEl.innerHTML = `
+          <span>Coste anual total (% s/ patrimonio)</span>
+          <span class="val">${fmtDec(annualTotal)}%</span>
+        `;
+      }
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+// ADD / REMOVE COSTS
+// ─────────────────────────────────────────────
+function showAddCostForm(scope) {
+  const formId = `add-cost-form-${scope}`;
+  const el     = document.getElementById(formId);
+  if (!el) return;
+
+  const uid = nextId();
+  el.innerHTML = `
+    <div class="add-cost-form" id="acf-${uid}">
+      <input type="text" id="acf-name-${uid}"  placeholder="Nombre p.ej. TER" />
+      <input type="text" id="acf-value-${uid}" placeholder="0,20" style="max-width:70px;text-align:right;" />
+      <select id="acf-unit-${uid}">
+        <option value="pct">%</option>
+        <option value="eur">€</option>
+      </select>
+      <select id="acf-type-${uid}">
+        <option value="annual">Anual</option>
+        <option value="entry">Entrada</option>
+        <option value="exit">Salida</option>
+        <option value="operation">Por operación</option>
+      </select>
+      <button class="btn-confirm" onclick="confirmAddCost('${scope}', '${uid}')">✓</button>
+      <button class="btn-cancel"  onclick="cancelAddCost('${scope}')">✕</button>
+    </div>
+  `;
+  el.classList.remove('hidden');
+  document.getElementById(`acf-name-${uid}`)?.focus();
+}
+
+function confirmAddCost(scope, uid) {
+  const name  = document.getElementById(`acf-name-${uid}`)?.value?.trim();
+  const value = parseNum(document.getElementById(`acf-value-${uid}`)?.value || '0');
+  const unit  = document.getElementById(`acf-unit-${uid}`)?.value || 'pct';
+  const type  = document.getElementById(`acf-type-${uid}`)?.value || 'annual';
+
+  if (!name) {
+    document.getElementById(`acf-name-${uid}`)?.focus();
+    return;
+  }
+
+  const cost = { id: nextId(), name, value, unit, type };
+
+  if (scope === 'group') {
+    groupCosts.push(cost);
+    renderCostList('group-costs-list', groupCosts, 'group');
+  } else {
+    const fund = funds.find(f => f.id === scope);
+    if (fund) {
+      fund.costs = fund.costs || [];
+      fund.costs.push(cost);
+      renderCostList(`costs-list-${scope}`, fund.costs, scope);
+    }
+  }
+
+  cancelAddCost(scope);
+  scheduleUpdate();
+}
+
+function cancelAddCost(scope) {
+  const formId = `add-cost-form-${scope}`;
+  const el     = document.getElementById(formId);
+  if (el) {
+    el.innerHTML = '';
+    el.classList.add('hidden');
+  }
+}
+
+function removeCost(scope, costId) {
+  if (scope === 'group') {
+    groupCosts = groupCosts.filter(c => c.id !== costId);
+    renderCostList('group-costs-list', groupCosts, 'group');
+  } else {
+    const fund = funds.find(f => f.id === scope);
+    if (fund) {
+      fund.costs = (fund.costs || []).filter(c => c.id !== costId);
+      renderCostList(`costs-list-${scope}`, fund.costs, scope);
+    }
+  }
+  scheduleUpdate();
+}
+
+function onCostValueChange(scope, costId, rawVal) {
+  const val = parseNum(rawVal);
+  if (scope === 'group') {
+    const cost = groupCosts.find(c => c.id === costId);
+    if (cost) cost.value = val;
+  } else {
+    const fund = funds.find(f => f.id === scope);
+    if (fund) {
+      const cost = (fund.costs || []).find(c => c.id === costId);
+      if (cost) cost.value = val;
+    }
+  }
+  // Update annual summary
+  if (scope !== 'group') {
+    const fund = funds.find(f => f.id === scope);
+    if (fund) {
+      const annualTotal = (fund.costs || [])
+        .filter(c => c.type === 'annual')
+        .reduce((sum, c) => sum + (c.unit === 'pct' ? c.value : 0), 0);
+      const summaryEl = document.querySelector(`#costs-list-${scope}`)?.parentElement?.querySelector('.annual-cost-summary .val');
+      if (summaryEl) summaryEl.textContent = fmtDec(annualTotal) + '%';
+    }
+  }
+  scheduleUpdate();
+}
+
+// ─────────────────────────────────────────────
+// FUNDS PANEL (COLLAPSIBLE)
+// ─────────────────────────────────────────────
+let fundsExpanded = true;
+
+function toggleFundsPanel() {
+  fundsExpanded = !fundsExpanded;
+  applyFundsPanelState();
+}
+
+function applyFundsPanelState() {
+  const card = document.getElementById('funds-card');
+  const body = document.getElementById('funds-body');
+  if (!card || !body) return;
+
+  if (fundsExpanded) {
+    card.classList.add('expanded');
+    body.classList.remove('collapsed');
+  } else {
+    card.classList.remove('expanded');
+    body.classList.add('collapsed');
+  }
+  updateFundsSummary();
+}
+
+function updateFundsSummary() {
+  const el = document.getElementById('funds-summary');
+  if (!el) return;
+
+  if (funds.length === 0) {
+    el.textContent = '— sin fondos';
+    return;
+  }
+
+  const totalWeight = funds.reduce((s, f) => s + (f.weight || 0), 0);
+  const totalAnnualCost = funds.reduce((s, f) => {
+    const cost = (f.costs || [])
+      .filter(c => c.type === 'annual' && c.unit === 'pct')
+      .reduce((a, c) => a + c.value, 0);
+    return s + (f.weight / 100) * cost;
+  }, 0);
+  const groupAnnualCost = groupCosts
+    .filter(c => c.type === 'annual' && c.unit === 'pct')
+    .reduce((s, c) => s + c.value, 0);
+
+  const names = funds.map(f => f.name || 'Sin nombre').join(', ');
+  const truncated = names.length > 60 ? names.substring(0, 57) + '...' : names;
+
+  el.textContent = `— ${funds.length} fondos · Peso: ${fmtDec(totalWeight, 0)}% · Coste: ${fmtDec(totalAnnualCost + groupAnnualCost)}%`;
+  if (!fundsExpanded) {
+    el.textContent += ` · ${truncated}`;
+  }
+}
+
+// ─────────────────────────────────────────────
+// FUND CARDS
+// ─────────────────────────────────────────────
+function addFund() {
+  const fund = {
+    id:       nextId(),
+    name:     'Fondo ' + (funds.length + 1),
+    isin:     '',
+    weight:   funds.length === 0 ? 100 : 0,
+    category: 'rv',
+    rent:     globalParams.rent,
+    costs:    [],
+  };
+  funds.push(fund);
+  currentHistoricalReturns = null;
+  fundsExpanded = true;
+  applyFundsPanelState();
+  renderFunds();
+  renderWeightBar();
+  scheduleUpdate();
+}
+
+function removeFund(fundId) {
+  const fund = funds.find(f => f.id === fundId);
+  if (!fund) return;
+
+  const hasData = (fund.name && fund.name !== 'Fondo ' + (funds.indexOf(fund) + 1))
+               || fund.isin
+               || (fund.costs && fund.costs.length > 0);
+
+  if (hasData && !confirm(`¿Eliminar "${fund.name || 'Sin nombre'}"? Se perderán sus costes y configuración.`)) {
+    return;
+  }
+
+  funds = funds.filter(f => f.id !== fundId);
+  currentHistoricalReturns = null;
+  renderFunds();
+  renderWeightBar();
+  scheduleUpdate();
+}
+
+function onFundFieldChange(fundId, field, value) {
+  const fund = funds.find(f => f.id === fundId);
+  if (!fund) return;
+
+  if (field === 'weight' || field === 'rent') {
+    fund[field] = parseNum(value);
+  } else {
+    fund[field] = value;
+  }
+
+  if (field === 'weight') renderWeightBar();
+  if (field === 'name') {
+    // Update card title live
+    const titleEl = document.getElementById(`fund-title-${fundId}`);
+    if (titleEl) titleEl.textContent = value || 'Sin nombre';
+  }
+  scheduleUpdate();
+}
+
+function onToggleRentMode(checked) {
+  rentByFund = checked;
+  // Re-render params to update toggle note
+  syncParamsFromDOM();
+  renderParams();
+  renderFunds();
+}
+
+function renderWeightBar() {
+  const container = document.getElementById('weight-bar-container');
+  if (!container) return;
+
+  if (funds.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  const total = funds.reduce((s, f) => s + (parseNum(f.weight) || 0), 0);
+  const diff  = 100 - total;
+  const isOk  = Math.abs(diff) < 0.01;
+
+  let text, cls;
+  if (isOk) {
+    text = '&#10003; Peso total: 100%';
+    cls  = 'valid';
+  } else if (diff > 0) {
+    text = `&#9888; Peso total: ${fmtDec(total, 1)}% &mdash; faltan ${fmtDec(diff, 1)}%`;
+    cls  = 'warning';
+  } else {
+    text = `&#9888; Peso total: ${fmtDec(total, 1)}% &mdash; excede en ${fmtDec(-diff, 1)}%`;
+    cls  = 'warning';
+  }
+
+  container.innerHTML = `
+    <div class="weight-bar ${cls}">
+      <span class="weight-text">${text}</span>
+    </div>
+  `;
+  updateFundsSummary();
+}
+
+function renderFunds() {
+  const grid = document.getElementById('funds-grid');
+  const btnContainer = document.getElementById('add-fund-btn-container');
+  if (!grid) return;
+
+  if (funds.length === 0) {
+    grid.innerHTML = '';
+  } else {
+    grid.innerHTML = funds.map(f => renderFundCard(f)).join('');
+  }
+
+  // Add fund button
+  if (btnContainer) {
+    btnContainer.innerHTML = `
+      <button class="btn-add-fund" onclick="addFund()">
+        &#43; Añadir fondo
+      </button>
+    `;
+  }
+
+  // Re-attach cost lists
+  funds.forEach(f => {
+    renderCostList(`costs-list-${f.id}`, f.costs || [], f.id);
+  });
+}
+
+function renderFundCard(fund) {
+  const rentField = rentByFund ? `
+    <div class="fund-field full-width">
+      <label class="input-label">
+        Rentabilidad estimada
+        <span class="tip" data-tip="Sobreescribe la rentabilidad global para este fondo.">?</span>
+      </label>
+      <div class="input-group">
+        <input type="text" value="${fmtDec(fund.rent)}"
+               class="overridden"
+               oninput="onFundFieldChange('${fund.id}', 'rent', this.value)" />
+        <span class="suffix">%</span>
+      </div>
+    </div>
+  ` : '';
+
+  // Coste anual del fondo (TER + costes %), visible en el título aunque la tarjeta esté plegada
+  const fundCostPct = (fund.costs || [])
+    .filter(c => c.type === 'annual' && c.unit === 'pct')
+    .reduce((s, c) => s + c.value, 0);
+  const costTag = fundCostPct > 0
+    ? ` <span style="color:var(--text-muted);font-weight:400;font-size:0.82rem">· ${fmtDec(fundCostPct)}%</span>`
+    : '';
+
+  return `
+    <div class="fund-card" id="fund-card-${fund.id}">
+      <div class="fund-card-header">
+        <div class="fund-card-title" id="fund-title-${fund.id}">${escHtml(fund.name || 'Sin nombre')}${costTag}</div>
+        <button class="btn-remove-fund" title="Eliminar fondo"
+                onclick="removeFund('${fund.id}')">&#215;</button>
+      </div>
+
+      <div class="fund-fields">
+        <div class="fund-field full-width">
+          <label class="input-label">Nombre del fondo</label>
+          <input type="text" value="${escHtml(fund.name)}" placeholder="Nombre"
+                 oninput="onFundFieldChange('${fund.id}', 'name', this.value)" />
+        </div>
+        <div class="fund-field full-width">
+          <label class="input-label">ISIN (opcional)</label>
+          <input type="text" value="${escHtml(fund.isin)}" placeholder="ES0000000000"
+                 oninput="onFundFieldChange('${fund.id}', 'isin', this.value)" />
+        </div>
+        <div class="fund-field">
+          <label class="input-label">Peso en cartera</label>
+          <div class="input-group">
+            <input type="text" value="${fmtDec(fund.weight, 0)}" placeholder="0"
+                   oninput="onFundFieldChange('${fund.id}', 'weight', this.value)" />
+            <span class="suffix">%</span>
+          </div>
+        </div>
+        <div class="fund-field">
+          <label class="input-label">Categoría</label>
+          <select onchange="onFundFieldChange('${fund.id}', 'category', this.value)">
+            ${Object.entries(CATEGORY_LABELS).map(([val, lbl]) =>
+              `<option value="${val}" ${fund.category === val ? 'selected' : ''}>${lbl}</option>`
+            ).join('')}
+          </select>
+        </div>
+        ${rentField}
+      </div>
+
+      <div class="fund-section-label">Costes del fondo</div>
+      <div class="costs-list" id="costs-list-${fund.id}"></div>
+      <div class="annual-cost-summary">
+        <span>Coste anual total (% s/ patrimonio)</span>
+        <span class="val">0,00%</span>
+      </div>
+      <button class="btn-add-cost" onclick="showAddCostForm('${fund.id}')">
+        &#43; Añadir coste
+      </button>
+      <div id="add-cost-form-${fund.id}" class="hidden"></div>
+    </div>
+  `;
+}
+
+// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────
+// SIMULATION RUNNER
+// ─────────────────────────────────────────────
+function runSimulation() {
+  syncParamsFromDOM();
+  const p = getParams();
+
+  if (funds.length === 0) {
+    showResults('empty-funds');
+    return;
+  }
+
+  // Weight warning (never blocks calculation per spec)
+  const totalWeight = funds.reduce((s, f) => s + (parseNum(f.weight) || 0), 0);
+
+  const fundsSnap      = JSON.parse(JSON.stringify(funds));
+  const groupCostsSnap = JSON.parse(JSON.stringify(groupCosts));
+  const result         = SimEngine.simulate(p, fundsSnap, groupCostsSnap, rentByFund);
+
+  simulationCache = {
+    params:     p,
+    funds:      fundsSnap,
+    groupCosts: groupCostsSnap,
+    result,
+  };
+
+  showResults('ok');
+
+  const info = document.getElementById('last-run-info');
+  if (info) {
+    const now = new Date();
+    info.textContent = `Última simulación: ${now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}`;
+  }
+}
+
+function showResults(mode, extra) {
+  const section = document.getElementById('results-section');
+  if (!section) return;
+
+  if (mode === 'empty-funds') {
+    hideScenarioChart();
+    section.innerHTML = `
+      <div class="results-placeholder">
+        <div class="big-icon">&#128270;</div>
+        <p>No hay fondos configurados</p>
+        <p class="hint">Añade al menos un fondo en la sección superior</p>
+      </div>
+    `;
+    return;
+  }
+
+  if (mode === 'ok') {
+    const p = simulationCache.params;
+    const nameDisplay = p.name && p.name !== 'Mi cartera' ? ` — ${escHtml(p.name)}` : '';
+    section.innerHTML = `
+      <!-- Bloque: Tu inversión -->
+      <div class="result-block" id="block-inversion">
+        <div class="result-block-header" onclick="toggleResultBlock('block-inversion')">
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <span class="result-block-title">Tu inversión${nameDisplay}</span>
+            <div id="entity-badge" style="display:none; align-items:center; gap:6px; font-size:0.72rem;">
+              <span id="entity-name" style="color:var(--text-muted);"></span>
+              <span id="entity-score-pill" style="padding:1px 7px; border-radius:8px; font-weight:700; font-size:0.68rem;"></span>
+            </div>
+          </div>
+          <span class="result-block-arrow">&#9660;</span>
+        </div>
+        <div class="metrics-row" id="metrics-inversion"></div>
+        <div class="result-block-detail" id="detail-inversion"></div>
+      </div>
+
+      <!-- Bloque: Costes -->
+      <div class="result-block" id="block-costes">
+        <div class="result-block-header" onclick="toggleResultBlock('block-costes')">
+          <span class="result-block-title">Costes</span>
+          <span class="result-block-arrow">&#9660;</span>
+        </div>
+        <div class="metrics-row" id="metrics-costes"></div>
+        <div class="result-block-detail" id="detail-costes"></div>
+      </div>
+
+      <!-- Bloque: Rendimiento -->
+      <div class="result-block" id="block-rendimiento">
+        <div class="result-block-header" onclick="toggleResultBlock('block-rendimiento')">
+          <span class="result-block-title">Rendimiento</span>
+          <span class="result-block-arrow">&#9660;</span>
+        </div>
+        <div class="metrics-row" id="metrics-rendimiento"></div>
+        <div class="result-block-detail" id="detail-rendimiento"></div>
+      </div>
+    `;
+    renderMetrics();
+    renderCostBreakdown();
+    renderProjection();
+    renderScoreBlock();
+    renderEntityBadge(currentEntity);
+    renderScenarioChart();
+  }
+}
+
+// ─────────────────────────────────────────────
+// PROYECCIÓN POR ESCENARIOS (gráfico)
+// ─────────────────────────────────────────────
+// Volatilidad de la cartera. Mismo criterio que el comparador: primero la serie
+// histórica anual del preset; si no hay, media ponderada de la vol por fondo.
+// Si no hay ningún dato → null (no se inventa) → gráfico sin banda.
+function carteraVol(fundsList) {
+  if (currentHistoricalReturns && currentHistoricalReturns.annual) {
+    const v = SimEngine.diversificacion.volAnualDesdeRetornos(currentHistoricalReturns.annual);
+    if (v != null) return { vol: v, fuente: 'serie histórica anual' };
+  }
+  let num = 0, den = 0;
+  (fundsList || funds).forEach(f => { if (f.vol != null) { num += f.vol * (f.weight || 0); den += (f.weight || 0); } });
+  if (den > 0) return { vol: num / den, fuente: 'volatilidad media de los fondos' };
+  return { vol: null, fuente: null };
+}
+
+// Banda optimista/pesimista CON costes: reutiliza SimEngine.simulate y la SIGMA de
+// engine-proyeccion, pero (a diferencia de rangoProyeccion) pasa los costes de grupo y
+// el rentByFund reales → el escenario neutro queda centrado en la banda y cuadra con la tabla.
+function bandaEscenarios(params, fundsList, groupList, vol) {
+  const h = Math.max(1, params.horizon || 1);
+  const banda = SimEngine.proyeccion.SIGMA * (vol || 0) / Math.sqrt(h);
+  const sim = (delta) => {
+    if (rentByFund) {
+      const shifted = fundsList.map(f => ({ ...f, rent: (f.rent || 0) + delta }));
+      return SimEngine.simulate({ ...params }, shifted, groupList, true);
+    }
+    return SimEngine.simulate({ ...params, rent: Math.max((params.rent || 0) + delta, -99.9) }, fundsList, groupList, false);
+  };
+  return { pesimista: sim(-banda), optimista: sim(banda), banda };
+}
+
+function hideScenarioChart() {
+  const card = document.getElementById('sim-chart-card');
+  if (card) card.style.display = 'none';
+}
+
+function renderScenarioChart() {
+  const card = document.getElementById('sim-chart-card');
+  if (!card || !simChart) return;
+  if (!simulationCache || !simulationCache.result || funds.length === 0) { hideScenarioChart(); return; }
+
+  const p         = simulationCache.params;
+  const horizon   = Math.max(1, p.horizon || 1);
+  const fundsSnap = simulationCache.funds;
+  const groupSnap = simulationCache.groupCosts;
+  const r         = simulationCache.result;
+
+  const series = [];
+
+  // Puntos del escenario neutro (= simulación base, con costes)
+  const neutroPoints = [{ year: 0, value: p.initial || 0 }];
+  (r.yearlySnapshots || []).forEach(s => neutroPoints.push({ year: s.year, value: s.patrimonio }));
+
+  // Capital aportado (línea base punteada)
+  const aportadoPoints = [];
+  for (let y = 0; y <= horizon; y++) aportadoPoints.push({ year: y, value: (p.initial || 0) + (p.monthly || 0) * 12 * y });
+
+  const neutroSeries   = { label: 'Escenario neutro', color: '#34d399', dashed: false, width: 2.5, points: neutroPoints };
+  const aportadoSeries = { label: 'Capital aportado', color: '#666', dashed: true, points: aportadoPoints };
+
+  const { vol, fuente } = carteraVol(fundsSnap);
+  let note;
+  if (vol != null && vol > 0) {
+    const pes = [{ year: 0, value: p.initial || 0 }];
+    const opt = [{ year: 0, value: p.initial || 0 }];
+    for (let y = 1; y <= horizon; y++) {
+      const b = bandaEscenarios({ ...p, horizon: y }, fundsSnap, groupSnap, vol);
+      pes.push({ year: y, value: b.pesimista.patrimonioFinal });
+      opt.push({ year: y, value: b.optimista.patrimonioFinal });
+    }
+    // Leyenda/tooltip en orden visual (de arriba a abajo). Optimista/pesimista
+    // atenuados (alpha 0.6) para que el escenario neutro sea el protagonista.
+    series.push({ label: 'Optimista', color: 'rgba(56,189,248,0.6)', dashed: false, width: 1.75, points: opt });
+    series.push(neutroSeries);
+    series.push({ label: 'Pesimista', color: 'rgba(167,139,250,0.6)', dashed: false, width: 1.75, points: pes });
+    series.push(aportadoSeries);
+    note = `Líneas optimista/pesimista = abanico ±1σ por año a partir de la volatilidad de la cartera (${fmtDec(vol)}%, ${fuente}). El escenario neutro usa tu rentabilidad bruta (${fmtDec(p.rent)}%) ya con los costes descontados. *Rentabilidades pasadas no garantizan futuras.`;
+  } else {
+    series.push(neutroSeries);
+    series.push(aportadoSeries);
+    note = `Sin abanico de escenarios: esta cartera no tiene serie histórica de rentabilidades para estimar su volatilidad (no se inventa). Se muestra solo el escenario neutro (${fmtDec(p.rent)}% bruto, con costes).`;
+  }
+
+  // Mostrar la tarjeta ANTES de dibujar: el canvas necesita el ancho real del contenedor.
+  card.style.display = '';
+  simChart.render(series, horizon);
+  const noteEl = document.getElementById('sim-chart-note');
+  if (noteEl) noteEl.textContent = note;
+}
+
+function toggleResultBlock(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+function openResultBlock(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add('open');
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function updateAll() {
+  syncParamsFromDOM();
+  if (simulationCache) {
+    // Re-run simulation with current state
+    runSimulation();
+  }
+}
+
+// ─────────────────────────────────────────────
+// TASK 6: METRICS DASHBOARD
+// ─────────────────────────────────────────────
+function renderMetrics() {
+  if (!simulationCache || !simulationCache.result) return;
+
+  const r = simulationCache.result;
+  const p = simulationCache.params;
+
+  // Break-even formatting
+  let breakEvenStr;
+  if (r.breakEvenMonth <= 0) {
+    breakEvenStr = 'N/A';
+  } else {
+    const beYear  = Math.ceil(r.breakEvenMonth / 12);
+    const beMes   = r.breakEvenMonth % 12 || 12;
+    breakEvenStr  = `Año ${beYear}, mes ${beMes}`;
+  }
+
+  const grossPct  = p.rent || 0;
+  // Coste NOMINAL anual (suma de tasas %): cuadra con el desglose de costes. El "efectivo" del engine sale
+  // un pelín menor porque las comisiones se cobran sobre saldos que de media son menores que el patrimonio final.
+  const _twCost = funds.reduce((s, f) => s + (f.weight || 0), 0) || 100;
+  const nominalCost = groupCosts.filter(c => c.type === 'annual' && c.unit === 'pct').reduce((s, c) => s + c.value, 0)
+    + funds.reduce((s, f) => s + ((f.costs || []).filter(c => c.type === 'annual' && c.unit === 'pct').reduce((a, c) => a + c.value, 0)) * (f.weight || 0) / _twCost, 0);
+  const netPct    = fmtDec(grossPct - nominalCost);
+  const scoreVal  = SimEngine.computeOverallScore(simulationCache.params, funds, groupCosts, rentByFund);
+  const scoreCol  = _scoreColor(scoreVal);
+
+  // ── Inversión metrics ──
+  const invEl = document.getElementById('metrics-inversion');
+  if (invEl) invEl.innerHTML = `
+    <div class="metric">
+      <div class="metric-label">Total aportado</div>
+      <div class="metric-value">${fmt(r.totalAportado)}</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Neto invertido</div>
+      <div class="metric-value">${fmt(r.netoInvertido)}</div>
+    </div>
+    <div class="metric clickable positive" onclick="openResultBlock('block-inversion')">
+      <div class="metric-label">Patrimonio final &#8599;</div>
+      <div class="metric-value positive">${fmt(r.patrimonioFinal)}</div>
+      <div class="metric-sub">Real: ${fmt(r.patrimonioReal)} (inflación ${fmtDec(p.inflation)}%)</div>
+    </div>
+    <div class="metric positive">
+      <div class="metric-label">Rentabilidad</div>
+      <div class="metric-value positive">${fmt(r.rentabilidadEur)}</div>
+      <div class="metric-sub">${fmtDec(r.rentabilidadPct)}%</div>
+    </div>
+  `;
+
+  // ── Costes metrics ──
+  // Costes sobre rentabilidad
+  const costeSobreRent = r.rentabilidadEur > 0
+    ? (r.totalCostes / (r.rentabilidadEur + r.totalCostes)) * 100
+    : 0;
+
+  const costEl = document.getElementById('metrics-costes');
+  if (costEl) costEl.innerHTML = `
+    <div class="metric clickable negative" onclick="openResultBlock('block-costes')">
+      <div class="metric-label">Total comisiones &#8599;</div>
+      <div class="metric-value negative">${fmt(r.totalCostes)}</div>
+      <div class="metric-sub">${fmtDec(nominalCost)}% anual</div>
+    </div>
+    <div class="metric amber">
+      <div class="metric-label">Por cada 100 €</div>
+      <div class="metric-value amber">${fmtDec(r.costPer100)} €</div>
+    </div>
+    <div class="metric negative">
+      <div class="metric-label">Impacto total <span class="tip" data-tip="Diferencia vs. invertir sin comisiones. Incluye el efecto compuesto: pierdes las comisiones + la rentabilidad que habrían generado.">?</span></div>
+      <div class="metric-value negative">${fmt(r.lostVsNoCost)}</div>
+    </div>
+    <div class="metric amber">
+      <div class="metric-label">Costes / rentabilidad <span class="tip" data-tip="De cada euro que ganas, cuánto se llevan las comisiones. Incluye costes de entrada, anuales y de salida.">?</span></div>
+      <div class="metric-value amber">${fmtDec(costeSobreRent, 1)}%</div>
+      <div class="metric-sub">De tu ganancia total</div>
+    </div>
+  `;
+
+  // ── Rendimiento metrics ──
+  const rendEl = document.getElementById('metrics-rendimiento');
+  if (rendEl) rendEl.innerHTML = `
+    <div class="metric">
+      <div class="metric-label">Rentabilidad neta</div>
+      <div class="metric-value accent">${netPct}%</div>
+      <div class="metric-sub">Bruta ${fmtDec(grossPct)}% − costes ${fmtDec(nominalCost)}%</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Break-even</div>
+      <div class="metric-value">${breakEvenStr}</div>
+      <div class="metric-sub">Rentabilidad supera comisiones</div>
+    </div>
+    <div class="metric clickable" onclick="openResultBlock('block-rendimiento')" style="border-color: rgba(${scoreCol === 'green' ? '52,211,153' : scoreCol === 'amber' ? '251,191,36' : '248,113,113'},0.3);">
+      <div class="metric-label">Score &#8599;</div>
+      <div class="metric-value" style="color: var(--${scoreCol});">${scoreVal}/100</div>
+      <div class="metric-sub">Ver detalle</div>
+    </div>
+    ${currentEntity && currentEntity.score != null ? (() => {
+      const es = currentEntity.score;
+      const ec = es >= 80 ? 'green' : es >= 60 ? 'amber' : 'red';
+      return `<div class="metric clickable" onclick="openResultBlock('block-rendimiento')" style="border-color: rgba(${ec === 'green' ? '52,211,153' : ec === 'amber' ? '251,191,36' : '248,113,113'},0.3);">
+        <div class="metric-label">Entidad &#8599;</div>
+        <div class="metric-value" style="color: var(--${ec});">${es}/100</div>
+        <div class="metric-sub">${escHtml(currentEntity.name)}</div>
+      </div>`;
+    })() : ''}
+  `;
+}
+
+// ─────────────────────────────────────────────
+// TASK 7: COST BREAKDOWN ACCORDION
+// ─────────────────────────────────────────────
+function renderCostBreakdown() {
+  const el = document.getElementById('detail-costes');
+  if (!el) return;
+
+  if (!simulationCache || !simulationCache.result) {
+    el.innerHTML = '';
+    return;
+  }
+
+  const r          = simulationCache.result;
+  const fundsSnap  = simulationCache.funds;
+  const groupSnap  = simulationCache.groupCosts;
+
+  let html = '';
+
+  // Per-fund accordion items
+  fundsSnap.forEach(fund => {
+    const total    = r.fundCostAccum[fund.id] || 0;
+    const details  = r.fundCostDetails[fund.id] || {};
+    const itemId   = `acc-fund-${fund.id}`;
+
+    const tableRows = Object.entries(details).map(([costId, d]) => `
+      <tr>
+        <td>${escHtml(d.name)}</td>
+        <td>${COST_TYPE_LABELS[d.type] || d.type} &mdash; ${fmtDec(d.value)}${d.unit === 'pct' ? '%' : ' €'}</td>
+        <td class="num">${fmt(d.total)}</td>
+      </tr>
+    `).join('');
+
+    html += `
+      <div class="accordion-item" id="${itemId}">
+        <div class="accordion-header" onclick="toggleAccordion('${itemId}')">
+          <span>
+            <strong>${escHtml(fund.name)}</strong>
+            <span style="color:var(--text-muted);font-size:0.8rem;margin-left:8px;">${fmtDec(fund.weight, 0)}%</span>
+          </span>
+          <span>
+            <span style="color:var(--red);font-size:0.88rem;margin-right:8px;">${fmt(total)}</span>
+            <span class="accordion-arrow">&#9660;</span>
+          </span>
+        </div>
+        <div class="accordion-body">
+          ${tableRows ? `
+            <table class="breakdown-table">
+              <thead><tr><th>Coste</th><th>Tipo &amp; Valor</th><th class="num">Acumulado</th></tr></thead>
+              <tbody>
+                ${tableRows}
+                <tr class="total-row"><td colspan="2"><strong>Total ${escHtml(fund.name)}</strong></td><td class="num"><strong>${fmt(total)}</strong></td></tr>
+              </tbody>
+            </table>
+          ` : `<p style="color:var(--text-muted);font-size:0.82rem;">Sin costes configurados para este fondo.</p>`}
+        </div>
+      </div>
+    `;
+  });
+
+  // Group costs accordion
+  if (groupSnap.length > 0) {
+    const groupTotal    = Object.values(r.groupCostAccum).reduce((s, v) => s + v, 0);
+    const groupDetails  = r.groupCostDetails || {};
+    const groupItemId   = 'acc-group-costs';
+
+    const groupRows = groupSnap.map(c => {
+      const d = groupDetails[c.id] || { name: c.name, type: c.type, unit: c.unit, value: c.value, total: 0 };
+      return `
+        <tr>
+          <td>${escHtml(d.name)}</td>
+          <td>${COST_TYPE_LABELS[d.type] || d.type} &mdash; ${fmtDec(d.value)}${d.unit === 'pct' ? '%' : ' €'}</td>
+          <td class="num">${fmt(d.total)}</td>
+        </tr>
+      `;
+    }).join('');
+
+    html += `
+      <div class="accordion-item" id="${groupItemId}">
+        <div class="accordion-header" onclick="toggleAccordion('${groupItemId}')">
+          <span><strong>Costes de grupo</strong></span>
+          <span>
+            <span style="color:var(--red);font-size:0.88rem;margin-right:8px;">${fmt(groupTotal)}</span>
+            <span class="accordion-arrow">&#9660;</span>
+          </span>
+        </div>
+        <div class="accordion-body">
+          <table class="breakdown-table">
+            <thead><tr><th>Coste</th><th>Tipo &amp; Valor</th><th class="num">Acumulado</th></tr></thead>
+            <tbody>
+              ${groupRows}
+              <tr class="total-row"><td colspan="2"><strong>Total grupo</strong></td><td class="num"><strong>${fmt(groupTotal)}</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // Grand total
+  html += `
+    <div class="breakdown-grand-total">
+      <span>Coste total acumulado</span>
+      <span class="val">${fmt(r.totalCostes)}</span>
+    </div>
+  `;
+
+  el.innerHTML = html;
+}
+
+// ─────────────────────────────────────────────
+// TASK 8: PROJECTION TABLE + YEAR-BY-YEAR MODAL
+// ─────────────────────────────────────────────
+function renderProjection() {
+  const el = document.getElementById('detail-inversion');
+  if (!el) return;
+
+  if (!simulationCache || !simulationCache.result) {
+    el.innerHTML = '';
+    return;
+  }
+
+  const r        = simulationCache.result;
+  const p        = simulationCache.params;
+  const horizon  = p.horizon;
+  const snaps    = r.yearlySnapshots;
+
+  // Fixed horizon years to show
+  const checkpoints = [5, 10, 15, 20].filter(y => y <= horizon);
+  // Add user's horizon if not already included
+  if (!checkpoints.includes(horizon)) checkpoints.push(horizon);
+
+  const rows = checkpoints.map(yr => {
+    const snap = snaps.find(s => s.year === yr);
+    if (!snap) return '';
+
+    const vsSinCostes = (snaps.find(s => s.year === yr) ? r.patrimonioNoCost : 0);
+    // Recompute no-cost patrimonio at that year: use snapshot + approximation
+    // We track patrimonioNoCost only at end; for intermediate, approximate from yearlySnapshots
+    const noCostAtYr = SimEngine.approxNoCostAtYear(yr, p, simulationCache.funds, rentByFund);
+
+    return `
+      <tr onclick="openYearModal(${yr})" style="cursor:pointer;" title="Ver detalle año ${yr}">
+        <td>${yr} años</td>
+        <td>${fmt(snap.aportado)}</td>
+        <td class="num" style="color:var(--red);">${fmt(snap.costes)}</td>
+        <td class="num" style="color:var(--green);">${fmt(snap.patrimonio)}</td>
+        <td class="num" style="color:var(--amber);">&minus;${fmt(noCostAtYr - snap.patrimonio)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  el.innerHTML = `
+    <p style="color:var(--text-muted);font-size:0.78rem;margin-bottom:10px;">Haz clic en una fila para ver el detalle año a año.</p>
+    <div style="overflow-x:auto;">
+      <table class="projection-table">
+        <thead>
+          <tr>
+            <th>Horizonte</th>
+            <th>Aportado</th>
+            <th class="num">Costes acum.</th>
+            <th class="num">Patrimonio</th>
+            <th class="num">vs sin costes</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function openYearModal(upToYear) {
+  if (!simulationCache || !simulationCache.result) return;
+
+  const allSnaps = simulationCache.result.yearlySnapshots;
+  const snaps = allSnaps.filter(s => s.year <= upToYear);
+
+  const rows = snaps.map((s, i) => {
+    const prev = i > 0 ? snaps[i - 1] : null;
+    const yearAportado  = s.aportado - (prev ? prev.aportado : 0);
+    const yearCostes    = s.costes - (prev ? prev.costes : 0);
+    return `
+    <tr>
+      <td>${s.year}</td>
+      <td>${fmt(yearAportado)}</td>
+      <td class="num" style="color:var(--red);">${fmt(yearCostes)}</td>
+      <td class="num">${fmt(s.netoInvertido)}</td>
+      <td class="num">${fmt(s.aportado)}</td>
+      <td class="num" style="color:${s.rentabilidad >= 0 ? 'var(--green)' : 'var(--red)'};">${fmtDec(s.rentabilidad)}%</td>
+      <td class="num" style="color:var(--green);">${fmt(s.patrimonio)}</td>
+    </tr>
+    `;
+  }).join('');
+
+  const bodyHtml = `
+    <div style="overflow-x:auto;">
+      <table class="projection-table">
+        <thead>
+          <tr>
+            <th>Año</th>
+            <th>Aportación</th>
+            <th class="num">Comisiones</th>
+            <th class="num">Neto invertido</th>
+            <th class="num">Aportado acum.</th>
+            <th class="num">Rentabilidad</th>
+            <th class="num">Patrimonio</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+
+  openModal(`Detalle año a año — hasta año ${upToYear}`, bodyHtml);
+}
+
+// ─────────────────────────────────────────────
+// TASK 9: RENTABILITY HELPER + PRESET LOADER
+// ─────────────────────────────────────────────
+
+function toggleHelper() {
+  const block = document.getElementById('helper-inline-block');
+  if (!block) {
+    renderHelperBlock();
+    return;
+  }
+  block.classList.toggle('hidden');
+}
+
+function renderHelperBlock() {
+  const el = document.getElementById('helper-block-section');
+  if (!el) return;
+
+  if (!simulationCache) {
+    el.innerHTML = '';
+    return;
+  }
+
+  const p         = simulationCache.params;
+  const fundsSnap = simulationCache.funds;
+  const groupSnap = simulationCache.groupCosts;
+
+  // Compute weighted annual pct from fund costs
+  const fundAnnualRows = fundsSnap.map(f => {
+    const annual = (f.costs || [])
+      .filter(c => c.type === 'annual' && c.unit === 'pct')
+      .reduce((s, c) => s + c.value, 0);
+    const weighted = (f.weight / 100) * annual;
+    return { name: f.name, weight: f.weight, annual, weighted };
+  });
+
+  const groupAnnualPct = groupSnap
+    .filter(c => c.type === 'annual' && c.unit === 'pct')
+    .reduce((s, c) => s + c.value, 0);
+
+  const totalWeightedFund = fundAnnualRows.reduce((s, r) => s + r.weighted, 0);
+  const totalCostPct      = totalWeightedFund + groupAnnualPct;
+
+  const fundRows = fundAnnualRows.map(r => `
+    <tr>
+      <td>${escHtml(r.name)}</td>
+      <td>${fmtDec(r.weight, 0)}%</td>
+      <td>${fmtDec(r.annual)}%</td>
+      <td>${fmtDec(r.weighted)}%</td>
+    </tr>
+  `).join('');
+
+  const groupRows = groupSnap.filter(c => c.type === 'annual' && c.unit === 'pct').map(c => `
+    <tr>
+      <td colspan="3">${escHtml(c.name)} (grupo)</td>
+      <td>${fmtDec(c.value)}%</td>
+    </tr>
+  `).join('');
+
+  el.innerHTML = `
+    <div class="divider"></div>
+    <div class="card-title" style="margin-bottom:8px;">
+      Calculadora de rentabilidad bruta
+      <button class="btn" style="font-size:0.72rem;padding:2px 10px;margin-left:8px;" onclick="toggleHelperInline()">Mostrar / ocultar</button>
+    </div>
+    <div id="helper-inline-block">
+      <p class="helper-note">
+        Usa esto si el banco te da una rentabilidad que ya tiene descontados los costes internos
+        y quieres saber cuál es la rentabilidad bruta real para introducirla en el simulador.
+      </p>
+      <div class="param-field" style="max-width:260px;margin-bottom:12px;">
+        <label class="input-label">Rentabilidad neta que te han dado</label>
+        <div class="input-group">
+          <input type="text" id="helper-net-rent" placeholder="5,00" oninput="recalcHelper()" />
+          <span class="suffix">%</span>
+        </div>
+      </div>
+      <table class="breakdown-table" style="margin-bottom:10px;">
+        <thead>
+          <tr><th>Fondo</th><th>Peso</th><th>Coste anual</th><th>Contribución pond.</th></tr>
+        </thead>
+        <tbody>
+          ${fundRows}
+          ${groupRows}
+          <tr class="total-row">
+            <td colspan="3"><strong>Costes anuales ponderados totales</strong></td>
+            <td><strong>${fmtDec(totalCostPct)}%</strong></td>
+          </tr>
+        </tbody>
+      </table>
+      <div id="helper-result" class="helper-block" style="margin-top:8px;">
+        Introduce una rentabilidad neta para calcular la bruta.
+      </div>
+    </div>
+  `;
+}
+
+function toggleHelperInline() {
+  const container = document.getElementById('helper-inline-container');
+  if (!container) return;
+  if (container.classList.contains('hidden')) {
+    renderInlineHelper();
+    container.classList.remove('hidden');
+  } else {
+    container.classList.add('hidden');
+  }
+}
+
+function renderInlineHelper() {
+  const container = document.getElementById('helper-inline-container');
+  if (!container) return;
+
+  // Compute weighted annual pct from current fund costs (live, no simulation needed)
+  const fundAnnualRows = funds.map(f => {
+    const annual = (f.costs || [])
+      .filter(c => c.type === 'annual' && c.unit === 'pct')
+      .reduce((s, c) => s + c.value, 0);
+    const weighted = (f.weight / 100) * annual;
+    return { name: f.name, weight: f.weight, annual, weighted };
+  });
+
+  const groupAnnualPct = groupCosts
+    .filter(c => c.type === 'annual' && c.unit === 'pct')
+    .reduce((s, c) => s + c.value, 0);
+
+  const totalWeightedFund = fundAnnualRows.reduce((s, r) => s + r.weighted, 0);
+  const totalCostPct = totalWeightedFund + groupAnnualPct;
+
+  const fundRows = fundAnnualRows.map(r => `
+    <tr>
+      <td>${escHtml(r.name)}</td>
+      <td>${fmtDec(r.weight, 0)}%</td>
+      <td>${fmtDec(r.annual)}%</td>
+      <td>${fmtDec(r.weighted)}%</td>
+    </tr>
+  `).join('');
+
+  const groupRows = groupCosts.filter(c => c.type === 'annual' && c.unit === 'pct').map(c => `
+    <tr>
+      <td colspan="3">${escHtml(c.name)} (grupo)</td>
+      <td>${fmtDec(c.value)}%</td>
+    </tr>
+  `).join('');
+
+  const fundsTable = funds.length > 0 ? `
+    <table class="breakdown-table" style="margin-bottom:10px;">
+      <thead>
+        <tr><th>Fondo</th><th>Peso</th><th>Coste anual</th><th>Contribución pond.</th></tr>
+      </thead>
+      <tbody>
+        ${fundRows}
+        ${groupRows}
+        <tr class="total-row">
+          <td colspan="3"><strong>Costes anuales ponderados totales</strong></td>
+          <td><strong>${fmtDec(totalCostPct)}%</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  ` : '<p style="color:var(--text-muted);font-size:0.82rem;margin-bottom:10px;">Añade fondos con costes para ver el desglose.</p>';
+
+  container.innerHTML = `
+    <div class="helper-block">
+      <p class="helper-note">
+        Usa esto si el banco te da una rentabilidad que ya tiene descontados los costes internos
+        y quieres saber la rentabilidad bruta real para introducirla en el simulador.
+      </p>
+      <div class="param-field" style="max-width:260px;margin-bottom:12px;">
+        <label class="input-label">Rentabilidad neta que te han dado</label>
+        <div class="input-group">
+          <input type="text" id="helper-net-rent-inline" placeholder="5,00" oninput="recalcHelperInline()" />
+          <span class="suffix">%</span>
+        </div>
+      </div>
+      ${fundsTable}
+      <div id="helper-result-inline" style="margin-top:8px;color:var(--text-muted);font-size:0.82rem;">
+        Introduce una rentabilidad neta para calcular la bruta.
+      </div>
+    </div>
+  `;
+}
+
+function recalcHelperInline() {
+  const netRentInput = parseNum(document.getElementById('helper-net-rent-inline')?.value || '0');
+
+  const fundWeightedCost = funds.reduce((s, f) => {
+    const annual = (f.costs || [])
+      .filter(c => c.type === 'annual' && c.unit === 'pct')
+      .reduce((a, c) => a + c.value, 0);
+    return s + (f.weight / 100) * annual;
+  }, 0);
+
+  const groupAnnualPct = groupCosts
+    .filter(c => c.type === 'annual' && c.unit === 'pct')
+    .reduce((s, c) => s + c.value, 0);
+
+  const totalCostPct = fundWeightedCost + groupAnnualPct;
+  const brutaPct = netRentInput + totalCostPct;
+
+  const resultEl = document.getElementById('helper-result-inline');
+  if (resultEl) {
+    resultEl.innerHTML = `
+      <strong>Costes anuales ponderados:</strong> ${fmtDec(totalCostPct)}%<br>
+      <strong>Rentabilidad bruta real:</strong>
+      <span style="color:var(--green);font-size:1.1em;"> ${fmtDec(brutaPct)}%</span>
+      <br><span style="color:var(--text-muted);font-size:0.8rem;">(${fmtDec(netRentInput)}% neta + ${fmtDec(totalCostPct)}% costes)</span>
+    `;
+  }
+}
+
+function recalcHelper() {
+  const netRentInput = parseNum(document.getElementById('helper-net-rent')?.value || '0');
+  if (!simulationCache) return;
+
+  const fundsSnap = simulationCache.funds;
+  const groupSnap = simulationCache.groupCosts;
+
+  const fundWeightedCost = fundsSnap.reduce((s, f) => {
+    const annual = (f.costs || [])
+      .filter(c => c.type === 'annual' && c.unit === 'pct')
+      .reduce((a, c) => a + c.value, 0);
+    return s + (f.weight / 100) * annual;
+  }, 0);
+
+  const groupAnnualPct = groupSnap
+    .filter(c => c.type === 'annual' && c.unit === 'pct')
+    .reduce((s, c) => s + c.value, 0);
+
+  const totalCostPct = fundWeightedCost + groupAnnualPct;
+  const brutaPct     = netRentInput + totalCostPct;
+
+  const resultEl = document.getElementById('helper-result');
+  if (resultEl) {
+    resultEl.innerHTML = `
+      <strong>Costes anuales ponderados:</strong> ${fmtDec(totalCostPct)}%<br>
+      <strong>Rentabilidad bruta real:</strong>
+      <span style="color:var(--green);font-size:1.1em;"> ${fmtDec(brutaPct)}%</span>
+      <br><span style="color:var(--text-muted);font-size:0.8rem;">(${fmtDec(netRentInput)}% neta + ${fmtDec(totalCostPct)}% costes)</span>
+    `;
+  }
+}
+
+// ─────────────────────────────────────────────
+// PRESET LOADER (from JSON files)
+// ─────────────────────────────────────────────
+const PRESETS_PATH = 'presets/';
+let presetsIndex = [];
+const presetsCache = {};
+let currentEntity = null;
+
+async function loadPresetsIndex() {
+  const select = document.getElementById('preset-selector');
+  if (!select) return;
+
+  // 1. Try loading index.json (works on http server AND most browsers with file://)
+  try {
+    const resp = await fetch(PRESETS_PATH + 'index.json?v=' + Date.now());
+    presetsIndex = await resp.json();
+  } catch (e) {
+    console.warn('No se pudo cargar index.json, usando presets inline');
+  }
+
+  // 2. If fetch worked, eagerly load all preset files so they're cached
+  if (presetsIndex.length > 0) {
+    await Promise.allSettled(presetsIndex.map(async (p) => {
+      try {
+        const r = await fetch(PRESETS_PATH + p.file + '?v=' + Date.now());
+        presetsCache[p.file] = await r.json();
+      } catch (_) {}
+    }));
+  }
+
+  // 3. Fallback: if fetch failed completely (strict file://), use inline presets
+  if (presetsIndex.length === 0) {
+    presetsIndex = INLINE_PRESETS_INDEX;
+    INLINE_PRESETS.forEach(p => { presetsCache[p._file] = p; });
+  }
+
+  // 4. Populate dropdown (agrupado por objetivo, con filtro "solo destacados")
+  rebuildPresetSelector();
+
+  // 5. Deep-link: si la URL trae ?preset=<file>, selecci\u00F3nalo y c\u00E1rgalo autom\u00E1ticamente
+  try {
+    const wanted = new URLSearchParams(window.location.search).get('preset');
+    if (wanted && presetsIndex.some(p => p.file === wanted)) {
+      select.value = wanted;
+      onPresetSelected(wanted);
+    }
+  } catch (_) {}
+}
+
+const OBJ_LABELS_SIM = { largo: 'Largo plazo', medio: 'Medio plazo', referencia: 'Referencia', asesor: 'Asesores evaluados', otro: 'Otros' };
+const OBJ_ORDER_SIM = ['largo', 'medio', 'referencia', 'asesor', 'otro'];
+
+function rebuildPresetSelector() {
+  const select = document.getElementById('preset-selector');
+  if (!select) return;
+  const soloDest = !!(document.getElementById('solo-destacados-sim') || {}).checked;
+  const current = select.value;
+  select.innerHTML = '<option value="">— Seleccionar preset —</option>';
+  const groups = {};
+  presetsIndex.forEach(p => {
+    if (soloDest && p.relevante === false) return;
+    const obj = p.objetivo || 'otro';
+    (groups[obj] = groups[obj] || []).push(p);
+  });
+  OBJ_ORDER_SIM.forEach(obj => {
+    if (!groups[obj] || !groups[obj].length) return;
+    const og = document.createElement('optgroup');
+    og.label = OBJ_LABELS_SIM[obj] || obj;
+    groups[obj].forEach(p => {
+      const opt = document.createElement('option');
+      opt.value = p.file;
+      const prefix = p.type === 'benchmark' ? '📊 ' : (p.relevante === false ? '· ' : '');
+      opt.textContent = prefix + p.label;
+      og.appendChild(opt);
+    });
+    select.appendChild(og);
+  });
+  if (current && presetsIndex.some(p => p.file === current)) select.value = current;
+}
+
+async function onPresetSelected(file) {
+  if (!file) return;
+
+  // Check cache first
+  if (presetsCache[file]) {
+    applyPreset(presetsCache[file]);
+    return;
+  }
+
+  try {
+    const resp = await fetch(PRESETS_PATH + file + '?v=' + Date.now());
+    const data = await resp.json();
+    presetsCache[file] = data;
+    applyPreset(data);
+  } catch (e) {
+    console.error('Error cargando preset:', e);
+  }
+}
+
+// ── Inline fallback for file:// protocol ──
+const INLINE_PRESETS_INDEX = [
+  { file: 'benchmark-iwda.json', label: 'Fondo indexado MSCI World (Benchmark)', type: 'benchmark', entity: null },
+  { file: 'metal-myinvestor.json', label: 'Cartera Metal (MyInvestor)', type: 'product', entity: { name: 'MyInvestor', score: null, category: null } }
+];
+const INLINE_PRESETS = [
+  {
+    _file: 'benchmark-iwda.json',
+    name: 'Fondo indexado MSCI World (Benchmark)',
+    entity: null,
+    params: { initial: 10000, monthly: 300, horizon: 15, rent: 11.9, inflation: 2 },
+    rentByFund: false,
+    groupCosts: [],
+    funds: [
+      { name: 'MSCI World (23 paises desarrollados)', isin: 'IE00B4L5Y983', weight: 100, category: 'rv', rent: 11.9, vol: 14.35, maxDD: -13.54, numHoldings: 1319, structure: 'passive-index', costs: [{ name: 'TER', value: 0.20, unit: 'pct', type: 'annual' }] }
+    ]
+  },
+  {
+    _file: 'metal-myinvestor.json',
+    name: 'Cartera Metal (MyInvestor)',
+    entity: { name: 'MyInvestor', score: null, category: null },
+    params: { initial: 10000, monthly: 300, horizon: 15, rent: 12, inflation: 2 },
+    rentByFund: true,
+    groupCosts: [
+      { name: 'Comisión de gestión', value: 0.15, unit: 'pct', type: 'annual' },
+      { name: 'Comisión de custodia', value: 0.15, unit: 'pct', type: 'annual' }
+    ],
+    funds: [
+      { name: 'Acciones EEUU (S&P 500)', isin: 'IE00BYX5MX67', weight: 39, category: 'rv', rent: 15, vol: 15.5, maxDD: -13.3, numHoldings: 503, structure: 'passive-index', costs: [{ name: 'TER', value: 0.06, unit: 'pct', type: 'annual' }] },
+      { name: 'Acciones Globales ESG', isin: 'LU2349459045', weight: 20, category: 'rv', rent: 12, vol: 14.0, maxDD: -13.0, numHoldings: 1500, structure: 'passive-index', costs: [{ name: 'TER', value: 0.17, unit: 'pct', type: 'annual' }] },
+      { name: 'Acciones Emergentes', isin: 'IE00BYWYCC39', weight: 14, category: 'rv', rent: 7, vol: 15.0, maxDD: -14.9, numHoldings: 1800, structure: 'passive-index', costs: [{ name: 'TER', value: 0.22, unit: 'pct', type: 'annual' }] },
+      { name: 'Acciones Japón', isin: 'IE00BYX5N771', weight: 12, category: 'rv', rent: 10, vol: 14.5, maxDD: -10.7, numHoldings: 500, structure: 'passive-index', costs: [{ name: 'TER', value: 0.10, unit: 'pct', type: 'annual' }] },
+      { name: 'Acciones Europa', isin: 'IE00BYX5MD61', weight: 8, category: 'rv', rent: 10, vol: 14.0, maxDD: -9.5, numHoldings: 450, structure: 'passive-index', costs: [{ name: 'TER', value: 0.10, unit: 'pct', type: 'annual' }] },
+      { name: 'Acciones EEUU (divisa cubierta)', isin: 'IE00B1G3DH73', weight: 4, category: 'rv', rent: 14, vol: 15.0, maxDD: -18.0, numHoldings: 503, structure: 'passive-index', costs: [{ name: 'TER', value: 0.12, unit: 'pct', type: 'annual' }] },
+      { name: 'Acciones Asia ex-Japón', isin: 'IE00BDZVHT63', weight: 3, category: 'rv', rent: 6, vol: 14.0, maxDD: -15.0, numHoldings: 400, structure: 'passive-index', costs: [{ name: 'TER', value: 0.10, unit: 'pct', type: 'annual' }] }
+    ]
+  }
+];
+
+function applyPreset(data) {
+  funds           = [];
+  groupCosts      = [];
+  simulationCache = null;
+  rentByFund      = data.rentByFund || false;
+
+  globalParams = {
+    name:      data.name || 'Mi cartera',
+    initial:   data.params?.initial || 0,
+    monthly:   data.params?.monthly || 0,
+    horizon:   data.params?.horizon || 16,
+    rent:      data.params?.rent || 6,
+    inflation: data.params?.inflation || 2,
+  };
+
+  (data.groupCosts || []).forEach(c => {
+    groupCosts.push({
+      id:    nextId(),
+      name:  c.name,
+      value: c.value,
+      unit:  c.unit || 'pct',
+      type:  c.type || 'annual',
+    });
+  });
+
+  (data.funds || []).forEach(f => {
+    funds.push({
+      id:          nextId(),
+      name:        f.name,
+      isin:        f.isin || '',
+      weight:      f.weight || 0,
+      category:    f.category || 'rv',
+      rent:        f.rent || globalParams.rent,
+      vol:         f.vol ?? null,
+      maxDD:       f.maxDD ?? null,
+      numHoldings: f.numHoldings ?? null,
+      structure:   f.structure || null,
+      costs: (f.costs || []).map(c => ({
+        id:    nextId(),
+        name:  c.name,
+        value: c.value,
+        unit:  c.unit || 'pct',
+        type:  c.type || 'annual',
+      })),
+    });
+  });
+
+  currentEntity = data.entity || null;
+  currentHistoricalReturns = data.historicalReturns || null;
+  renderParams();
+  renderFunds();
+  renderWeightBar();
+
+  fundsExpanded = false;
+  applyFundsPanelState();
+  runSimulation();
+}
+
+function renderEntityBadge(entity) {
+  const badge = document.getElementById('entity-badge');
+  if (!badge) return;
+  if (!entity || entity.score == null) { badge.style.display = 'none'; return; }
+
+  const score = entity.score;
+  let color, bg;
+  if (score >= 80) { color = '#34d399'; bg = 'rgba(52,211,153,0.15)'; }
+  else if (score >= 60) { color = '#fbbf24'; bg = 'rgba(251,191,36,0.15)'; }
+  else if (score >= 40) { color = '#fb923c'; bg = 'rgba(251,146,60,0.15)'; }
+  else { color = '#f87171'; bg = 'rgba(248,113,113,0.15)'; }
+
+  document.getElementById('entity-name').textContent = entity.name + ' ·';
+  const pill = document.getElementById('entity-score-pill');
+  pill.textContent = score + '/100';
+  pill.style.background = bg;
+  pill.style.color = color;
+  badge.style.display = 'flex';
+}
+
+// ─────────────────────────────────────────────
+// FUND SCORE (delegated to SimEngine)
+// ─────────────────────────────────────────────
+
+function renderScoreBlock() {
+  const el = document.getElementById('detail-rendimiento');
+  if (!el) return;
+  if (!simulationCache || funds.length === 0) { el.innerHTML = ''; return; }
+
+  const { overall, metrics } = SimEngine.computeScoreMetrics(simulationCache.params, funds, groupCosts);
+  const overallColor = _scoreColor(overall);
+
+  // ── Render HTML ──
+  const pillsHtml = metrics.filter(m => m.available).map(m => {
+    const dotClass = 'dot-' + _scoreColor(m.score);
+    return `<span class="score-pill"><span class="score-pill-dot ${dotClass}"></span>${m.label}: <strong>${m.score}</strong></span>`;
+  }).join('');
+
+  const detailRows = metrics.filter(m => m.available).map(m => {
+    const barColor = m.available ? 'bar-' + _scoreColor(m.score) : 'bar-muted';
+    const barWidth = m.available ? m.score : 0;
+    const scoreLabel = m.available ? m.score + '/100' : 'N/D';
+    const labelColor = m.available ? _scoreColor(m.score) : 'muted';
+    const colorVar = labelColor === 'green' ? 'var(--green)' : labelColor === 'amber' ? 'var(--amber)' : labelColor === 'red' ? 'var(--red)' : 'var(--text-muted)';
+    return `
+      <tr>
+        <td>${m.label}</td>
+        <td class="num">${m.value}</td>
+        <td>
+          <div class="score-bar-cell">
+            <div class="score-bar-track"><div class="score-bar-fill ${barColor}" style="width:${barWidth}%"></div></div>
+            <span class="score-bar-label" style="color:${colorVar}">${scoreLabel}</span>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  // Entity detail section (separate from score)
+  let entityDetailHtml = '';
+  if (currentEntity && currentEntity.score != null) {
+    const es = currentEntity.score;
+    const eColor = es >= 80 ? 'green' : es >= 60 ? 'amber' : 'red';
+    let breakdownHtml = '';
+    if (currentEntity.breakdown && currentEntity.breakdown.length > 0) {
+      const rows = currentEntity.breakdown.map(b => {
+        const bc = b.score >= 70 ? 'green' : b.score >= 40 ? 'amber' : 'red';
+        const bcVar = bc === 'green' ? 'var(--green)' : bc === 'amber' ? 'var(--amber)' : 'var(--red)';
+        return `<tr>
+          <td>${escHtml(b.label)}</td>
+          <td class="num">${b.weight}%</td>
+          <td><div class="score-bar-cell">
+            <div class="score-bar-track"><div class="score-bar-fill bar-${bc}" style="width:${b.score}%"></div></div>
+            <span class="score-bar-label" style="color:${bcVar}">${b.score}/100</span>
+          </div></td>
+        </tr>`;
+      }).join('');
+      breakdownHtml = `
+        <table class="score-detail-table" style="margin-top:12px;">
+          <thead><tr><th>Métrica</th><th class="num">Peso</th><th>Score</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+    entityDetailHtml = `
+      <div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">
+        <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); margin-bottom:10px;">
+          Entidad: ${escHtml(currentEntity.name)}
+        </div>
+        <div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">
+          <div class="score-circle score-${eColor}" style="width:56px; height:56px; font-size:1.8rem;">${es}</div>
+          <div>
+            <div style="font-size:0.85rem; color:#fff; font-weight:600;">${escHtml(currentEntity.name)}</div>
+            <div style="font-size:0.78rem; color:var(--text-muted);">${escHtml(currentEntity.category || '')}</div>
+          </div>
+        </div>
+        ${breakdownHtml}
+        <div style="font-size:0.78rem; color:var(--text-muted); line-height:1.5; margin-top:10px;">
+          Score objetivo de la entidad/servicio (0-100). Mide coste del servicio, transparencia, independencia y libertad de salida.
+          Independiente del score del producto.
+        </div>
+      </div>
+    `;
+  }
+
+  const availCount = metrics.filter(m => m.available).length;
+  const ndCount = metrics.length - availCount;
+  const ndNote = ndCount > 0
+    ? `<div style="font-size:0.78rem;color:var(--text-muted);line-height:1.5;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+        ⚠ <strong>Score orientativo</strong> (${availCount} de ${metrics.length} ejes con dato). ${ndCount} eje(s) sin dato:
+        tamaño (AUM no disponible) y/o encaje (sin tope de RV del perfil). El overall se renormaliza sobre los ejes disponibles.
+        <strong>No se inventa nada</strong>: lo que manda es el <strong>coste</strong> y la composición.
+      </div>`
+    : '';
+
+  el.innerHTML = `
+    <div class="score-overview">
+      <div class="score-circle score-${overallColor}">${overall}</div>
+      <div class="score-pills">${pillsHtml}</div>
+    </div>
+    <div class="score-legend">Score 0-100 · ${availCount}/${metrics.length} ejes con dato. Mayor = mejor, pero es orientativo.</div>
+    <table class="score-detail-table">
+      <thead><tr><th>Métrica</th><th class="num">Valor</th><th>Score</th></tr></thead>
+      <tbody>${detailRows}</tbody>
+    </table>
+    ${ndNote}
+    ${entityDetailHtml}
+  `;
+}
+
+// ─────────────────────────────────────────────
+// MODAL
+// ─────────────────────────────────────────────
+function openModal(title, bodyHtml) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML    = bodyHtml;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-overlay')) return;
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+function closeModalDirect() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// ─────────────────────────────────────────────
+// ACCORDION
+// ─────────────────────────────────────────────
+function toggleAccordion(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+// ─────────────────────────────────────────────
+// RESET
+// ─────────────────────────────────────────────
+function resetAll() {
+  funds           = [];
+  groupCosts      = [];
+  rentByFund      = false;
+  simulationCache = null;
+  currentHistoricalReturns = null;
+  const sel = document.getElementById('preset-selector');
+  if (sel) sel.value = '';
+  globalParams    = { name: 'Mi cartera', initial: 0, monthly: 0, horizon: 16, rent: 6, inflation: 2 };
+
+  fundsExpanded = true;
+  applyFundsPanelState();
+  currentEntity = null;
+  renderParams();
+  renderFunds();
+  renderWeightBar();
+
+  const section = document.getElementById('results-section');
+  if (section) {
+    section.innerHTML = `
+      <div class="results-placeholder">
+        <div class="big-icon">&#128200;</div>
+        <p>Configura los parámetros y añade fondos para ver la simulación</p>
+        <p class="hint">Carga un preset o añade fondos manualmente, y pulsa <strong>Simular</strong></p>
+      </div>
+    `;
+  }
+  hideScenarioChart();
+  document.getElementById('last-run-info').textContent = '';
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  renderParams();
+  renderFunds();
+  renderWeightBar();
+  applyFundsPanelState();
+  loadPresetsIndex();
+
+  // Gráfico de escenarios (instancia única; el canvas es persistente)
+  if (window.SimEngine && SimEngine.chart) {
+    simChart = SimEngine.chart.create({
+      canvas:  document.getElementById('sim-chart-canvas'),
+      tooltip: document.getElementById('sim-chart-tooltip'),
+      legend:  document.getElementById('sim-chart-legend'),
+      fmt, escHtml, height: 340,
+    });
+  }
+
+  // Escape key closes modal
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModalDirect();
+  });
+
+  // Position tooltips dynamically to avoid overflow
+  document.addEventListener('mouseenter', (e) => {
+    const tip = e.target.closest('.tip');
+    if (!tip) return;
+    const rect = tip.getBoundingClientRect();
+    let x = rect.right + 8;
+    let y = rect.top + rect.height / 2 - 30;
+    // If tooltip would overflow right, show on left
+    if (x + 250 > window.innerWidth) {
+      x = Math.max(8, rect.left - 250);
+    }
+    // Clamp vertically
+    y = Math.max(8, Math.min(y, window.innerHeight - 120));
+    tip.style.setProperty('--tip-x', x + 'px');
+    tip.style.setProperty('--tip-y', y + 'px');
+  }, true);
+});
+</script>
+</body>
+</html>

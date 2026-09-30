@@ -1,0 +1,172 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Preset de producto/cartera",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["name", "type", "dataAsOf"],
+  "properties": {
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "type": { "enum": ["benchmark", "product", "advisory"] },
+    "provider": { "type": "string" },
+    "mandate": { "enum": ["discretionary", "self-directed"] },
+    "dataAsOf": { "type": "string", "format": "date" },
+    "composition": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["asset", "percentage"],
+        "properties": {
+          "type": { "type": "string" },
+          "asset": { "type": "string" },
+          "percentage": { "type": "number" }
+        }
+      }
+    },
+    "scorecardData": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "status": { "enum": ["ok", "no-data"] },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string" },
+        "score": { "type": ["number", "null"] },
+        "category": { "type": ["string", "null"] },
+        "ficha": { "type": ["string", "null"] },
+        "breakdown": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["label", "weight", "score"],
+            "properties": {
+              "label": { "type": "string" },
+              "weight": { "type": "number" },
+              "score": { "type": "number" }
+            }
+          }
+        }
+      }
+    },
+    "params": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "initial": { "type": "number" },
+        "monthly": { "type": "number" },
+        "horizon": { "type": "number" },
+        "rent": { "type": "number" },
+        "inflation": { "type": "number" }
+      }
+    },
+    "rentByFund": { "type": "boolean" },
+    "groupCosts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "value"],
+        "properties": {
+          "name": { "type": "string" },
+          "value": { "type": "number" },
+          "unit": { "type": "string" },
+          "type": { "type": "string" }
+        }
+      }
+    },
+    "funds": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["name", "weight"],
+        "properties": {
+          "name": { "type": "string" },
+          "isin": { "type": "string" },
+          "weight": { "type": "number" },
+          "category": { "type": "string" },
+          "categoryMorningstar": { "type": "string" },
+          "ter": { "type": "number" },
+          "dataSource": { "type": "string" },
+          "alloc": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "equity": { "type": "number" },
+              "bond": { "type": "number" },
+              "cash": { "type": "number" },
+              "other": { "type": "number" }
+            }
+          },
+          "topSectors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["name", "pct"],
+              "properties": {
+                "name": { "type": "string" },
+                "pct": { "type": "number" }
+              }
+            }
+          },
+          "priceSeries": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["start", "currency", "points"],
+            "properties": {
+              "start": { "type": "string" },
+              "currency": { "type": "string" },
+              "points": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["off", "px"],
+                "properties": {
+                  "off": { "type": "array", "items": { "type": "integer" } },
+                  "px": { "type": "array", "items": { "type": "number" } }
+                }
+              }
+            }
+          },
+          "costs": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "value"],
+              "properties": {
+                "name": { "type": "string" },
+                "value": { "type": "number" },
+                "unit": { "type": "string" },
+                "type": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "historicalReturns": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "source": { "type": "string" },
+        "currency": { "type": "string" },
+        "annual": { "type": "object" }
+      }
+    },
+    "verdict": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "semaforo": { "enum": ["green", "amber", "red"] },
+        "resumen": { "type": "string" },
+        "report": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

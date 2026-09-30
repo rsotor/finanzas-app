@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparador de Fondos</title>
+<link rel="stylesheet" href="../styles/theme.css">
+<style>
+  /* Local overrides — same pattern as simulador-fondos.html */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 20px 48px;
+  }
+
+  /* Header */
+  .header { margin-bottom: 16px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .header p { color: var(--text-muted); font-size: 0.82rem; }
+  .header .link-sim {
+    margin-left: auto;
+    color: var(--accent);
+    font-size: 0.82rem;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .header .link-sim:hover { text-decoration: underline; }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Input label */
+  .input-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  /* Input group with suffix */
+  .input-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .input-group input[type="text"] {
+    flex: 1;
+    min-width: 0;
+  }
+  .input-group .suffix {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Global params grid */
+  .params-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  @media (max-width: 700px) {
+    .params-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .param-field {
+    display: flex;
+    flex-direction: column;
+  }
+  .param-field input[type="text"] {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.875rem;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+  .param-field input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  select {
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.85rem;
+    font-family: inherit;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238a8f9a'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+  }
+  select:focus { outline: none; border-color: var(--accent); }
+  select option { background: var(--surface); color: var(--text); }
+
+  /* Tooltip */
+  .tip {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    cursor: default;
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+  .tip::after {
+    content: attr(data-tip);
+    position: fixed;
+    background: #252932;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+    color: var(--text);
+    white-space: normal;
+    width: 240px;
+    max-width: 80vw;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s;
+    line-height: 1.5;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    left: var(--tip-x, auto);
+    top: var(--tip-y, auto);
+  }
+  .tip:hover::after { opacity: 1; }
+
+  /* Buttons */
+  .btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface-raised);
+    color: var(--text);
+    font-size: 0.82rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+  .btn:hover {
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .btn-accent {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .btn-accent:hover {
+    background: #3b88e3;
+    border-color: #3b88e3;
+  }
+
+  /* Preset chips area */
+  .chips-area {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .chip .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .chip .remove {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.15s;
+  }
+  .chip .remove:hover { color: var(--red); }
+  .chip.chip-error {
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .placeholder-text {
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-style: italic;
+  }
+
+  .selector-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .selector-row select { max-width: 300px; }
+
+  /* Chart */
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+  }
+  .chart-wrap canvas {
+    width: 100%;
+    display: block;
+  }
+  .chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+  .legend-line {
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+  }
+  .legend-dashed {
+    width: 20px;
+    height: 0;
+    border-top: 2px dashed #555;
+  }
+
+  /* Chart tooltip */
+  .chart-tooltip {
+    position: absolute;
+    background: #252932;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.78rem;
+    color: var(--text);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.12s;
+    z-index: 100;
+    white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    line-height: 1.7;
+  }
+  .chart-tooltip.visible { opacity: 1; }
+  .chart-tooltip .tt-year { font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .chart-tooltip .tt-row { display: flex; align-items: center; gap: 6px; }
+  .chart-tooltip .tt-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .chart-tooltip .tt-val { margin-left: auto; font-weight: 600; padding-left: 12px; }
+
+  /* Comparison table */
+  .cmp-table-wrap { overflow-x: auto; }
+  .cmp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  .cmp-table thead th {
+    text-align: center;
+    padding: 0.65rem 1rem;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .cmp-table thead th:first-child { text-align: left; }
+  .cmp-table thead .th-product {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+  }
+  .cmp-table thead .th-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .cmp-table tbody td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid rgba(42, 46, 56, 0.5);
+    vertical-align: middle;
+    text-align: center;
+  }
+  .cmp-table tbody td:first-child {
+    text-align: left;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+  .cmp-table tbody tr:last-child td { border-bottom: none; }
+  .cmp-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+  .cmp-table .metric-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Accordion */
+  .accordion { margin-bottom: 16px; }
+  .accordion-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    user-select: none;
+  }
+  .accordion-header:hover { border-color: rgba(79,156,247,0.3); }
+  .accordion-header .acc-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .accordion-header .acc-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    flex: 1;
+  }
+  .accordion-header .acc-score {
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .accordion-header .acc-arrow {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+  }
+  .accordion.open .acc-arrow { transform: rotate(180deg); }
+  .accordion-body {
+    display: none;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 14px 14px;
+  }
+  .accordion.open .accordion-header {
+    border-radius: 14px 14px 0 0;
+    border-bottom-color: transparent;
+  }
+  .accordion.open .accordion-body { display: block; }
+
+  /* ── Result blocks (same as simulator) ── */
+  .result-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .result-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .result-block-header:hover { background: var(--surface-raised); }
+  .result-block-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
+  .result-block-arrow {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+  }
+  .result-block.open .result-block-arrow { transform: rotate(180deg); }
+  .result-block-detail {
+    display: none;
+    padding: 0 20px 20px;
+  }
+  .result-block.open .result-block-detail { display: block; }
+
+  /* Metrics row */
+  .metrics-row {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px 14px;
+    overflow-x: auto;
+    flex-wrap: wrap;
+  }
+  .metric {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    min-width: 150px;
+    flex: 1;
+  }
+  .metric.positive { border-color: rgba(52,211,153,0.3); }
+  .metric.negative { border-color: rgba(248,113,113,0.3); }
+  .metric.amber    { border-color: rgba(251,191,36,0.3); }
+  .metric-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .metric-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+  }
+  .metric-value.positive { color: var(--green); }
+  .metric-value.negative { color: var(--red); }
+  .metric-value.amber    { color: var(--amber); }
+  .metric-value.accent   { color: var(--accent); }
+  .metric-sub {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 3px;
+  }
+
+  /* Accordion items (cost breakdown) */
+  .accordion-item {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .accordion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    cursor: pointer;
+    background: var(--surface-raised);
+    font-size: 0.875rem;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .accordion-header:hover { background: var(--border); }
+  .accordion-arrow {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+    display: inline-block;
+  }
+  .accordion-item.open .accordion-arrow { transform: rotate(180deg); }
+  .accordion-body {
+    display: none;
+    padding: 12px 14px;
+    font-size: 0.82rem;
+  }
+  .accordion-item.open .accordion-body { display: block; }
+
+  /* Breakdown table */
+  .breakdown-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .breakdown-table th {
+    text-align: left;
+    padding: 6px 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .breakdown-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid rgba(42,46,56,0.5);
+    vertical-align: top;
+  }
+  .breakdown-table td.num { text-align: right; }
+  .breakdown-table th.num { text-align: right; }
+  .breakdown-table tr.total-row td {
+    border-top: 1px solid var(--border);
+    border-bottom: none;
+    padding-top: 8px;
+  }
+
+  /* Grand total */
+  .breakdown-grand-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: rgba(248,113,113,0.08);
+    border: 1px solid rgba(248,113,113,0.25);
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  .breakdown-grand-total .val { color: var(--red); }
+
+  /* Projection table */
+  .projection-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .projection-table th {
+    text-align: left;
+    padding: 7px 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .projection-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(42,46,56,0.5);
+    white-space: nowrap;
+  }
+  .projection-table td.num { text-align: right; }
+  .projection-table th.num { text-align: right; }
+
+  /* Score */
+  .score-overview {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 16px;
+  }
+  .score-circle {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .score-circle.score-green  { background: rgba(52,211,153,0.15); color: var(--green); }
+  .score-circle.score-amber  { background: rgba(251,191,36,0.15); color: var(--amber); }
+  .score-circle.score-red    { background: rgba(248,113,113,0.15); color: var(--red); }
+  .score-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .score-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px 4px 8px;
+    font-size: 0.78rem;
+    color: var(--text);
+  }
+  .score-pill-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .score-pill-dot.dot-green { background: var(--green); }
+  .score-pill-dot.dot-amber { background: var(--amber); }
+  .score-pill-dot.dot-red   { background: var(--red); }
+  .score-pill-dot.dot-muted { background: var(--text-muted); }
+  .score-legend { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; }
+  .score-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .score-detail-table th {
+    text-align: left;
+    color: var(--text-muted);
+    font-weight: 600;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .score-detail-table th.num { text-align: right; }
+  .score-detail-table td {
+    padding: 7px 8px;
+    border-bottom: 1px solid rgba(42,46,56,0.5);
+  }
+  .score-detail-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .score-bar-cell { display: flex; align-items: center; gap: 8px; }
+  .score-bar-track {
+    flex: 1;
+    height: 6px;
+    background: var(--surface);
+    border-radius: 3px;
+    overflow: hidden;
+    min-width: 60px;
+  }
+  .score-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+  .score-bar-fill.bar-green { background: var(--green); }
+  .score-bar-fill.bar-amber { background: var(--amber); }
+  .score-bar-fill.bar-red   { background: var(--red); }
+  .score-bar-fill.bar-muted { background: var(--text-muted); }
+  .score-bar-label {
+    min-width: 42px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  /* Fund composition table */
+  .detail-section { margin-bottom: 16px; }
+  .detail-section h4 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .detail-table th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .detail-table th:not(:first-child) { text-align: right; }
+  .detail-table td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid rgba(42,46,56,0.5);
+    vertical-align: middle;
+  }
+  .detail-table td:not(:first-child) { text-align: right; }
+  .detail-table tr:last-child td { border-bottom: none; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+<div class="container wide">
+
+  <!-- 1. Header -->
+  <div class="header">
+    <h1>Comparador de Fondos</h1>
+    <p>Mismos parámetros, diferentes productos</p>
+    <a href="simulador-fondos.html" class="link-sim">Ir al simulador &rarr;</a>
+  </div>
+
+  <!-- 2. Global Parameters -->
+  <div class="card">
+    <div class="card-title">Parámetros globales</div>
+    <div class="params-grid">
+      <div class="param-field">
+        <label class="input-label">Inversión inicial</label>
+        <div class="input-group">
+          <input type="text" id="g-initial" value="10.000">
+          <span class="suffix">&euro;</span>
+        </div>
+      </div>
+      <div class="param-field">
+        <label class="input-label">Aportación mensual</label>
+        <div class="input-group">
+          <input type="text" id="g-monthly" value="300">
+          <span class="suffix">&euro;</span>
+        </div>
+      </div>
+      <div class="param-field">
+        <label class="input-label">Horizonte</label>
+        <div class="input-group">
+          <input type="text" id="g-horizon" value="15">
+          <span class="suffix">años</span>
+        </div>
+      </div>
+      <div class="param-field">
+        <label class="input-label">Inflación</label>
+        <div class="input-group">
+          <input type="text" id="g-inflation" value="2">
+          <span class="suffix">%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Preset Selector -->
+  <div class="card">
+    <div class="card-title">Productos a comparar</div>
+    <div id="chips-container" class="chips-area">
+      <span class="placeholder-text" id="chips-placeholder">Selecciona productos para comparar</span>
+    </div>
+    <div class="selector-row">
+      <select id="preset-select">
+        <option value="">+ Añadir producto</option>
+      </select>
+      <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--text-muted);cursor:pointer;white-space:nowrap" title="Oculta los productos descartados; desmárcalo para verlos todos">
+        <input type="checkbox" id="solo-destacados" checked> Solo destacados
+      </label>
+      <button class="btn" id="btn-build-cartera">Crear cartera</button>
+      <button class="btn btn-accent" id="btn-compare">Comparar</button>
+    </div>
+  </div>
+
+  <!-- Constructor de cartera (hazlo-tú-mismo) -->
+  <div class="card" id="cartera-builder" style="display:none">
+    <div class="card-title">Construir cartera (hazlo-tú-mismo)</div>
+    <p class="placeholder-text">Elige 2 o más productos y reparte el peso. Por defecto, a partes iguales.</p>
+    <div id="cartera-rows"></div>
+    <div id="cartera-suma" class="chart-legend"></div>
+    <div class="selector-row">
+      <input id="cartera-nombre" class="num-input" placeholder="Nombre de la cartera" style="flex:1">
+      <button class="btn btn-accent" id="btn-save-cartera">Guardar cartera</button>
+    </div>
+  </div>
+
+  <!-- 4. Projection Chart -->
+  <div class="card" id="chart-card" style="display:none">
+    <div class="card-title">Proyección de patrimonio</div>
+    <div class="chart-wrap" id="chart-wrap">
+      <canvas id="chart-canvas" height="360"></canvas>
+      <div class="chart-tooltip" id="chart-tooltip"></div>
+    </div>
+    <div class="chart-legend" id="chart-legend"></div>
+  </div>
+
+  <!-- 5. Comparison Table -->
+  <div class="card" id="table-card" style="display:none">
+    <div class="card-title">Tabla comparativa</div>
+    <div class="cmp-table-wrap">
+      <table class="cmp-table" id="cmp-table"></table>
+    </div>
+    <p style="font-size:0.78rem;color:var(--text-muted);line-height:1.5;margin-top:12px">
+      La <strong>rentabilidad esperada</strong> es un supuesto prudente por composición (Vanguard VCMM 2026),
+      igual para productos de la misma exposición — la diferencia la marca el coste.
+      <a href="../referencia/guia-costes-inversion.html#rentabilidad-estimada" target="_blank" rel="noopener" style="color:var(--accent)">Cómo se calcula la rentabilidad &rarr;</a>
+      · *Rentabilidades pasadas no garantizan rentabilidades futuras.
+    </p>
+  </div>
+
+  <!-- 5b. A+B+C vs todo-en-uno (eje por eje) -->
+  <div class="card" id="cartera-vs-card" style="display:none">
+    <div class="card-title">A+B+C vs todo-en-uno</div>
+    <div id="cartera-vs-verdict" style="margin-bottom:12px"></div>
+    <div class="cmp-table-wrap"><table class="cmp-table" id="cartera-vs-table"></table></div>
+  </div>
+
+  <!-- 6. Detail Accordions -->
+  <div id="details-container"></div>
+
+  <div class="footer">Comparador de Fondos &mdash; Herramienta de analisis personal</div>
+</div>
+
+<script src="simulador-engine.js?v=20260618d"></script>
+<script src="engine-fiscal.js?v=20260618d"></script>
+<script src="engine-diversificacion.js?v=20260618d"></script>
+<script src="engine-supuestos.js?v=20260618d"></script>
+<script src="engine-proyeccion.js?v=20260618d"></script>
+<script src="engine-chart.js?v=20260618d"></script>
+<script src="engine-scorecard.js?v=20260618d"></script>
+<script>
+(function () {
+  'use strict';
+
+  const SE = window.SimEngine;
+  const COLOR_POOL = ['#4f9cf7','#34d399','#fbbf24','#a78bfa','#f87171','#fb923c','#38bdf8','#e879f9','#818cf8','#2dd4bf'];
+
+
+  // State
+  let presetsIndex = [];        // from index.json
+  let selectedPresets = [];     // [{file, label, type, color, idx}]
+  let presetCache = {};         // file -> parsed JSON
+  let results = [];             // [{preset, simResult, scoreResult, params, funds, groupCosts, color}]
+  let benchmarkPatrimonio = null; // patrimonio final del benchmark (siempre calculado)
+
+  // DOM refs
+  const $chipsContainer = document.getElementById('chips-container');
+  const $placeholder = document.getElementById('chips-placeholder');
+  const $presetSelect = document.getElementById('preset-select');
+  const $soloDestacados = document.getElementById('solo-destacados');
+  const $btnCompare = document.getElementById('btn-compare');
+
+  // Objetivos: agrupan los productos por bloque/propósito en el selector
+  const OBJ_LABELS = { largo: 'Largo plazo', medio: 'Medio plazo', referencia: 'Referencia', asesor: 'Asesores evaluados', otro: 'Otros' };
+  const OBJ_ORDER = ['largo', 'medio', 'referencia', 'asesor', 'otro'];
+  const $chartCard = document.getElementById('chart-card');
+  const $chartWrap = document.getElementById('chart-wrap');
+  const $canvas = document.getElementById('chart-canvas');
+  const $tooltip = document.getElementById('chart-tooltip');
+  const $legend = document.getElementById('chart-legend');
+  const $tableCard = document.getElementById('table-card');
+  const $cmpTable = document.getElementById('cmp-table');
+  const $detailsContainer = document.getElementById('details-container');
+
+  // ─────────────────────────────────────────
+  // INIT
+  // ─────────────────────────────────────────
+  loadPresetsIndex();
+  $btnCompare.addEventListener('click', runComparison);
+  setupTipPositioning();
+
+  async function loadPresetsIndex() {
+    try {
+      const resp = await fetch('presets/index.json?v=' + Date.now());
+      presetsIndex = await resp.json();
+      // Eagerly load all preset files so they're cached
+      await Promise.allSettled(presetsIndex.map(async (p) => {
+        try {
+          const r = await fetch('presets/' + p.file + '?v=' + Date.now());
+          presetCache[p.file] = await r.json();
+        } catch (_) {}
+      }));
+    } catch (e) {
+      presetsIndex = [];
+    }
+    // Server-only: si el fetch falla (sin servidor), no hay presets. Avisamos en vez de cargar datos viejos.
+    if (presetsIndex.length === 0) {
+      $presetSelect.innerHTML = '<option value="">⚠ Arranca el servidor local para cargar los productos</option>';
+      return;
+    }
+    rebuildDropdown();
+  }
+
+  function rebuildDropdown() {
+    const selectedFiles = new Set(selectedPresets.map(s => s.file));
+    const soloDestacados = $soloDestacados ? $soloDestacados.checked : false;
+    $presetSelect.innerHTML = '<option value="">+ Añadir producto</option>';
+    // Agrupar por objetivo, respetando el filtro "solo destacados"
+    const groups = {};
+    presetsIndex.forEach((p, i) => {
+      if (selectedFiles.has(p.file)) return;
+      if (soloDestacados && p.relevante === false) return;
+      const obj = p.objetivo || 'otro';
+      (groups[obj] = groups[obj] || []).push({ p, i });
+    });
+    OBJ_ORDER.forEach(obj => {
+      if (!groups[obj] || !groups[obj].length) return;
+      const og = document.createElement('optgroup');
+      og.label = OBJ_LABELS[obj] || obj;
+      groups[obj].forEach(({ p, i }) => {
+        const opt = document.createElement('option');
+        opt.value = i;
+        // Prefijo "·" marca los no-destacados cuando se muestran (toggle off)
+        opt.textContent = (p.relevante === false ? '· ' : '') + p.label;
+        og.appendChild(opt);
+      });
+      $presetSelect.appendChild(og);
+    });
+  }
+
+  if ($soloDestacados) $soloDestacados.addEventListener('change', rebuildDropdown);
+
+  $presetSelect.addEventListener('change', function () {
+    const idx = parseInt(this.value);
+    if (isNaN(idx)) return;
+    const p = presetsIndex[idx];
+    if (!p) return;
+    const color = p.color || COLOR_POOL[selectedPresets.length % COLOR_POOL.length];
+    selectedPresets.push({ file: p.file, label: p.label, type: p.type, color, idx, objetivo: p.objetivo });
+    this.value = '';
+    renderChips();
+    rebuildDropdown();
+  });
+
+  function renderChips() {
+    // Remove old chips
+    $chipsContainer.querySelectorAll('.chip').forEach(el => el.remove());
+    $placeholder.style.display = selectedPresets.length ? 'none' : '';
+    selectedPresets.forEach((sp, i) => {
+      const chip = document.createElement('span');
+      // Show error state if this preset failed to load
+      const hasError = results.length > 0 && results[i] && results[i].error;
+      chip.className = 'chip' + (hasError ? ' chip-error' : '');
+      chip.title = hasError ? 'Error al cargar este preset' : '';
+      const objTag = sp.objetivo ? ' <span style="font-size:0.7rem;opacity:0.6">· ' + SE.escHtml(OBJ_LABELS[sp.objetivo] || sp.objetivo) + '</span>' : '';
+      chip.innerHTML = '<span class="dot" style="background:' + (hasError ? 'var(--red)' : sp.color) + '"></span>' +
+        SE.escHtml(sp.label) + objTag +
+        '<button class="remove" data-idx="' + i + '">&times;</button>';
+      chip.querySelector('.remove').addEventListener('click', function () {
+        selectedPresets.splice(i, 1);
+        renderChips();
+        rebuildDropdown();
+      });
+      $chipsContainer.appendChild(chip);
+    });
+  }
+
+  // ─────────────────────────────────────────
+  // RENTABILIDAD ESPERADA (supuesto de proyección)
+  // ─────────────────────────────────────────
+  // Mismo criterio para TODOS los productos: la rentabilidad esperada sale de la
+  // composición real (clase de activo), con supuestos forward de Vanguard VCMM. No se
+  // usan rentabilidades por fondo ni params.rent optimistas: así, a mismo índice, la
+  // diferencia la marca el coste. Explicado en referencia/guia-costes-inversion.html#rentabilidad-estimada
+  function rentEsperadaPreset(preset, fundsList) {
+    const ER = (SE.supuestos && SE.supuestos.EXPECTED_RETURNS) || {};
+    const SRC = (SE.supuestos && SE.supuestos.SOURCE) || '';
+    // 1) Derivar de la composición por fondo (alloc equity/bond/cash)
+    if (SE.supuestos) {
+      const cs = SE.supuestos.carteraSupuestos(fundsList || []);
+      if (cs && cs.rentBase != null && !cs.faltaInfo) return { rent: cs.rentBase, source: cs.source, modo: 'composicion-fondos' };
+      if (cs && cs.rentBase != null) return { rent: cs.rentBase, source: cs.source, modo: 'composicion-fondos-parcial' };
+    }
+    // 2) Derivar de composition[] a nivel cartera (RV/RF/liquidez)
+    const comp = (preset && preset.composition) || [];
+    if (comp.length) {
+      let num = 0, den = 0;
+      comp.forEach(c => {
+        const t = (c.type || '').toUpperCase();
+        const cls = t === 'RV' ? 'rv-global' : (t === 'RF' ? 'rf-agregada' : 'monetario');
+        const r = ER[cls];
+        if (r == null) return;
+        num += r * (c.percentage || 0); den += (c.percentage || 0);
+      });
+      if (den > 0) return { rent: num / den, source: SRC, modo: 'composicion-cartera' };
+    }
+    // 3) Fallback prudente: RV global (con aviso)
+    const fb = ER['rv-global'] != null ? ER['rv-global'] : 6;
+    return { rent: fb, source: SRC, modo: 'fallback-rv-global' };
+  }
+
+  // ─────────────────────────────────────────
+  // RUN COMPARISON
+  // ─────────────────────────────────────────
+  async function runComparison() {
+    if (selectedPresets.length === 0) return;
+
+    const globalParams = {
+      initial: SE.parseNum(document.getElementById('g-initial').value),
+      monthly: SE.parseNum(document.getElementById('g-monthly').value),
+      horizon: SE.parseNum(document.getElementById('g-horizon').value),
+      inflation: SE.parseNum(document.getElementById('g-inflation').value),
+    };
+
+    results = [];
+
+    // Always simulate benchmark internally for "vs Benchmark" row
+    benchmarkPatrimonio = null;
+    try {
+      const bmFile = 'benchmark-iwda.json';
+      let bmPreset = presetCache[bmFile];
+      if (!bmPreset) {
+        try {
+          const resp = await fetch('presets/' + bmFile + '?v=' + Date.now());
+          bmPreset = await resp.json();
+          presetCache[bmFile] = bmPreset;
+        } catch (_) {}
+      }
+      if (bmPreset) {
+        const bmParams = {
+          initial: globalParams.initial,
+          monthly: globalParams.monthly,
+          horizon: globalParams.horizon,
+          inflation: globalParams.inflation,
+          rent: rentEsperadaPreset(bmPreset, bmPreset.funds || []).rent,
+        };
+        const bmFunds = JSON.parse(JSON.stringify(bmPreset.funds || []));
+        let bIdx = 0;
+        bmFunds.forEach(f => { f.id = f.id || ('bf' + bIdx++); (f.costs || []).forEach(c => { c.id = c.id || ('bc' + bIdx++); }); });
+        const bmGroupCosts = JSON.parse(JSON.stringify(bmPreset.groupCosts || []));
+        const bmResult = SE.simulate(bmParams, bmFunds, bmGroupCosts, false);
+        benchmarkPatrimonio = bmResult.patrimonioFinal;
+      }
+    } catch (_) {}
+
+    for (const sp of selectedPresets) {
+      try {
+        let preset = presetCache[sp.file];
+        if (!preset) {
+          const resp = await fetch('presets/' + sp.file + '?v=' + Date.now());
+          preset = await resp.json();
+          presetCache[sp.file] = preset;
+        }
+
+        // Rentabilidad esperada por composición (mismo criterio para todos; ver guía #rentabilidad-estimada)
+        const rentInfo = rentEsperadaPreset(preset, preset.funds || []);
+
+        // Build params: global overrides + rentabilidad esperada consistente
+        const params = {
+          initial: globalParams.initial,
+          monthly: globalParams.monthly,
+          horizon: globalParams.horizon,
+          inflation: globalParams.inflation,
+          rent: rentInfo.rent,
+        };
+
+        // Deep-clone funds, assign IDs
+        const funds = JSON.parse(JSON.stringify(preset.funds || []));
+        let fIdx = 0;
+        funds.forEach(f => {
+          f.id = f.id || ('f' + fIdx++);
+          let cIdx = 0;
+          (f.costs || []).forEach(c => { c.id = c.id || ('c' + cIdx++); });
+        });
+
+        // Deep-clone groupCosts, assign IDs
+        const groupCosts = JSON.parse(JSON.stringify(preset.groupCosts || []));
+        let gIdx = 0;
+        groupCosts.forEach(c => { c.id = c.id || ('g' + gIdx++); });
+
+        // Proyección consistente: NUNCA per-fund rent. La rentabilidad esperada es la de la composición.
+        const rentByFund = false;
+
+        const simResult = SE.simulate(params, funds, groupCosts, rentByFund);
+        const scorePreset = Object.assign({}, preset, { funds: funds, groupCosts: groupCosts });
+        const scoreResult = SE.computeCarteraScore(scorePreset);
+
+        results.push({
+          preset,
+          simResult,
+          scoreResult,
+          params,
+          funds,
+          groupCosts,
+          rentByFund,
+          rentInfo,
+          file: sp.file,
+          color: sp.color,
+          label: sp.label,
+          error: false,
+        });
+      } catch (e) {
+        results.push({
+          preset: null,
+          simResult: null,
+          scoreResult: null,
+          params: null,
+          funds: [],
+          groupCosts: [],
+          rentByFund: false,
+          color: sp.color,
+          label: sp.label,
+          error: true,
+        });
+      }
+    }
+
+    renderChips(); // Re-render to show error states
+    renderResults();
+  }
+
+  // ─────────────────────────────────────────
+  // Constructor de cartera (hazlo-tú-mismo)
+  // ─────────────────────────────────────────
+  function abrirBuilder() {
+    const cont = document.getElementById('cartera-rows');
+    const disponibles = presetsIndex.filter(p => p.type === 'product' && presetCache[p.file]);
+    const n = disponibles.length || 1;
+    const pesoEq = Math.floor(100 / n);
+    cont.innerHTML = disponibles.map(p =>
+      '<label style="display:flex;gap:10px;align-items:center;margin:6px 0">' +
+      '<input type="checkbox" class="cart-pick" data-file="' + SE.escHtml(p.file) + '"> ' +
+      '<span style="flex:1">' + SE.escHtml(p.label) + '</span>' +
+      '<input type="number" class="cart-weight num-input" data-file="' + SE.escHtml(p.file) + '" value="' + pesoEq + '" min="0" max="100" style="width:70px"> %</label>'
+    ).join('');
+    document.getElementById('cartera-builder').style.display = '';
+    cont.querySelectorAll('.cart-weight, .cart-pick').forEach(el => el.addEventListener('input', actualizarSuma));
+    actualizarSuma();
+  }
+
+  function pesosSeleccionados() {
+    return [...document.querySelectorAll('.cart-pick:checked')].map(c => {
+      const file = c.dataset.file;
+      return { file, weight: SE.parseNum(document.querySelector('.cart-weight[data-file="' + file + '"]').value) };
+    });
+  }
+
+  function actualizarSuma() {
+    const suma = pesosSeleccionados().reduce((s, p) => s + p.weight, 0);
+    const el = document.getElementById('cartera-suma');
+    el.textContent = 'Suma de pesos: ' + suma + '%' + (suma === 100 ? ' ✓' : ' (debe sumar 100)');
+    el.style.color = suma === 100 ? 'var(--green)' : 'var(--amber)';
+  }
+
+  function guardarCartera() {
+    const picks = pesosSeleccionados();
+    const suma = picks.reduce((s, p) => s + p.weight, 0);
+    if (picks.length < 2) { alert('Elige al menos 2 productos para combinar.'); return; }
+    if (suma !== 100) { alert('Los pesos deben sumar 100% (ahora ' + suma + '%).'); return; }
+    const funds = [];
+    picks.forEach(p => {
+      const preset = presetCache[p.file];
+      const base = (preset.funds && preset.funds.length) ? preset.funds
+        : [{ name: preset.name, weight: 100, costs: preset.groupCosts || [] }];
+      base.forEach(f => {
+        const clon = JSON.parse(JSON.stringify(f));
+        clon.weight = (f.weight || 100) * p.weight / 100;
+        funds.push(clon);
+      });
+    });
+    const nombre = (document.getElementById('cartera-nombre').value || 'Mi cartera').trim();
+    const file = '__cartera_' + funds.length + '_' + nombre.replace(/\s+/g, '_');
+    presetCache[file] = { name: nombre, type: 'product', mandate: 'self-directed', params: {}, funds: funds };
+    const color = COLOR_POOL[selectedPresets.length % COLOR_POOL.length];
+    selectedPresets.push({ file, label: nombre + ' (cartera)', type: 'product', color, idx: -1 });
+    renderChips();
+    rebuildDropdown();
+    document.getElementById('cartera-builder').style.display = 'none';
+    document.getElementById('cartera-nombre').value = '';
+  }
+
+  document.getElementById('btn-build-cartera').addEventListener('click', abrirBuilder);
+  document.getElementById('btn-save-cartera').addEventListener('click', guardarCartera);
+
+  // ─────────────────────────────────────────
+  // RENDER RESULTS
+  // ─────────────────────────────────────────
+  function renderResults() {
+    const valid = results.filter(r => !r.error && r.simResult);
+    if (valid.length === 0) {
+      $chartCard.style.display = 'none';
+      $tableCard.style.display = 'none';
+      $detailsContainer.innerHTML = '';
+      return;
+    }
+
+    renderChart(valid);
+    renderTable(valid);
+    renderDetails(valid);
+    renderCarteraVs(valid);
+  }
+
+  // ─────────────────────────────────────────
+  // A+B+C vs todo-en-uno (tabla eje por eje)
+  // ─────────────────────────────────────────
+  function renderCarteraVs(valid) {
+    const card = document.getElementById('cartera-vs-card');
+    if (!card) return;
+    if (valid.length !== 2) { card.style.display = 'none'; return; }
+    card.style.display = '';
+    const [A, B] = valid;
+    const byKey = arr => Object.fromEntries((arr || []).map(e => [e.key, e]));
+    const ma = byKey(A.scoreResult.ejes), mb = byKey(B.scoreResult.ejes);
+    const keys = ['coste', 'eficienciaFiscal', 'estructura', 'diversificacion', 'tamano', 'encaje'];
+    const cell = (e, otro) => {
+      if (!e || !e.available) return '<td class="num" style="opacity:.45">s/d</td>';
+      const gana = otro && otro.available && e.score > otro.score;
+      const col = 'var(--' + SE._scoreColor(e.score) + ')';
+      return '<td class="num"' + (gana ? ' style="font-weight:700;background:rgba(52,211,153,0.14)"' : '') +
+        '><span style="color:' + col + '">' + e.score + '</span></td>';
+    };
+    let rows = keys.map(k => '<tr><td>' + (ma[k] ? ma[k].label : mb[k] ? mb[k].label : k) + '</td>' + cell(ma[k], mb[k]) + cell(mb[k], ma[k]) + '</tr>').join('');
+    rows += '<tr><td><b>Global</b></td><td class="num"><b>' + A.scoreResult.overall + '</b></td><td class="num"><b>' + B.scoreResult.overall + '</b></td></tr>';
+    document.getElementById('cartera-vs-table').innerHTML =
+      '<thead><tr><th>Eje</th><th class="num">' + SE.escHtml(A.label) + '</th><th class="num">' + SE.escHtml(B.label) + '</th></tr></thead><tbody>' + rows + '</tbody>';
+    const cA = ma.coste, cB = mb.coste;
+    let verdict = 'Compara los ejes disponibles. Encaje con objetivo y tamaño pueden estar N/D si faltan datos del bloque/AUM.';
+    if (cA && cB && cA.available && cB.available && cA.score !== cB.score) {
+      const barata = cA.score > cB.score ? A.label : B.label;
+      verdict = 'Por coste, la opción más eficiente es <b>' + SE.escHtml(barata) + '</b>. Cuanto más largo el plazo, más pesa esa diferencia de coste.';
+    }
+    document.getElementById('cartera-vs-verdict').innerHTML =
+      '<div class="score-legend" style="background:rgba(79,156,247,0.12);border:1px solid rgba(79,156,247,0.3);padding:10px;border-radius:8px;color:var(--text)">' + verdict + '</div>';
+  }
+
+  // ─────────────────────────────────────────
+  // CHART — proyección de patrimonio (módulo compartido SimEngine.chart)
+  // ─────────────────────────────────────────
+  // Comparador = solo líneas centrales (sin banda): a igual rentabilidad esperada
+  // por composición, lo que separa a los productos es el coste. El abanico/banda
+  // vive en el simulador (una sola cartera), donde el eje no se descentra.
+  const chart = SE.chart.create({ canvas: $canvas, tooltip: $tooltip, legend: $legend, fmt: SE.fmt, escHtml: SE.escHtml });
+
+  function renderChart(valid) {
+    $chartCard.style.display = '';
+    const horizon = SE.parseNum(document.getElementById('g-horizon').value);
+    const initial = SE.parseNum(document.getElementById('g-initial').value);
+    const monthly = SE.parseNum(document.getElementById('g-monthly').value);
+
+    const series = [];
+
+    // "Total aportado" (línea base punteada)
+    const aportadoPoints = [];
+    for (let y = 0; y <= horizon; y++) {
+      aportadoPoints.push({ year: y, value: initial + monthly * 12 * y });
+    }
+    series.push({ label: 'Total aportado', color: '#555', dashed: true, points: aportadoPoints });
+
+    // Una línea por producto (sin banda)
+    valid.forEach(r => {
+      const points = [{ year: 0, value: initial }];
+      (r.simResult.yearlySnapshots || []).forEach(s => {
+        points.push({ year: s.year, value: s.patrimonio });
+      });
+      series.push({ label: r.label, color: r.color, dashed: false, points, band: null });
+    });
+
+    chart.render(series, horizon);
+  }
+
+  // ─────────────────────────────────────────
+  // COMPARISON TABLE
+  // ─────────────────────────────────────────
+  function renderTable(valid) {
+    $tableCard.style.display = '';
+    const totalAportado = valid[0].simResult.totalAportado;
+
+    // Header
+    let headHtml = '<thead><tr><th>Total aportado: ' + SE.fmt(Math.round(totalAportado)) + '</th>';
+    valid.forEach(r => {
+      const simLink = r.file
+        ? '<div style="margin-top:4px"><a href="simulador-fondos.html?preset=' + encodeURIComponent(r.file) + '" target="_blank" rel="noopener" style="font-size:0.72rem;color:var(--accent);text-decoration:none">↗ Ver en el simulador</a></div>'
+        : '';
+      headHtml += '<th><div class="th-product"><span class="th-dot" style="background:' + r.color + '"></span>' +
+        SE.escHtml(r.label) + '</div>' + simLink + '</th>';
+    });
+    headHtml += '</tr></thead>';
+
+    // Rows
+    const metrics = [
+      {
+        label: 'Patrimonio final',
+        tip: null,
+        fn: r => '<strong style="color:#fff">' + SE.fmt(Math.round(r.simResult.patrimonioFinal)) + '</strong>',
+      },
+      {
+        label: 'Patrimonio real',
+        tip: 'Patrimonio ajustado por inflacion. Refleja el poder adquisitivo real de tu inversion.',
+        fn: r => SE.fmt(Math.round(r.simResult.patrimonioReal)),
+      },
+      {
+        label: 'Costes totales',
+        tip: 'Suma de todas las comisiones pagadas durante el horizonte de inversion.',
+        fn: r => '<span style="color:var(--red)">' + SE.fmt(Math.round(r.simResult.totalCostes)) + '</span>',
+      },
+      {
+        label: 'Coste anual',
+        tip: 'Coste anual nominal: TER de los fondos (ponderado por peso) + comisiones de cartera. Es el mismo número que el desglose de costes.',
+        fn: r => {
+          const v = SE.costeTotalAnual(r.funds, r.groupCosts);
+          const color = v > 2 ? 'var(--red)' : v > 1 ? 'var(--amber)' : 'var(--green)';
+          return '<span style="color:' + color + '">' + SE.fmtDec(v, 2) + '%</span>';
+        },
+      },
+      {
+        label: 'Rentabilidad esperada',
+        tip: 'Rentabilidad BRUTA anual estimada a partir de la composición (clase de activo), con supuestos forward de Vanguard VCMM 2026. Mismo criterio para todos: a igual exposición, igual rentabilidad esperada — es un escenario prudente, no una promesa. Ver guía, sección 13.',
+        fn: r => {
+          const ri = r.rentInfo || {};
+          if (ri.rent == null) return '<span style="color:var(--text-muted)">—</span>';
+          const warn = (ri.modo === 'fallback-rv-global')
+            ? ' <span style="color:var(--amber)" title="Sin datos de composición; se asume RV global">⚠</span>' : '';
+          return '<span style="color:var(--text-muted)">' + SE.fmtDec(ri.rent, 1) + '%</span>' + warn;
+        },
+      },
+      {
+        label: 'Rentabilidad neta',
+        tip: 'Rentabilidad esperada menos el coste anual. Aquí es donde el coste marca la diferencia entre productos de la misma exposición.',
+        fn: r => {
+          const grossRent = r.params.rent;
+          const netRent = grossRent - SE.costeTotalAnual(r.funds, r.groupCosts);
+          return '<span style="color:var(--green)">' + SE.fmtDec(netRent, 2) + '%</span>';
+        },
+      },
+      {
+        label: 'vs Benchmark',
+        tip: 'Diferencia de patrimonio final respecto al fondo indexado MSCI World (~0,20% TER). Negativo = pierdes respecto al benchmark.',
+        fn: r => {
+          if (benchmarkPatrimonio == null) return '<span style="color:var(--text-muted)">—</span>';
+          if (r.preset && r.preset.type === 'benchmark') return '<span style="color:var(--text-muted)">Benchmark</span>';
+          const diff = r.simResult.patrimonioFinal - benchmarkPatrimonio;
+          const sign = diff >= 0 ? '+' : '−';
+          const color = diff >= 0 ? 'var(--green)' : 'var(--red)';
+          return '<span style="font-weight:700;color:' + color + '">' + sign + ' ' + SE.fmt(Math.abs(diff)) + '</span>';
+        },
+      },
+      {
+        label: 'Costes / rentabilidad',
+        tip: 'Porcentaje de tu rentabilidad bruta que se lo llevan las comisiones.',
+        fn: r => {
+          const rentBruta = r.simResult.patrimonioFinal - r.simResult.netoInvertido;
+          const ratio = rentBruta > 0 ? (r.simResult.totalCostes / rentBruta) * 100 : 0;
+          const color = ratio > 20 ? 'var(--red)' : ratio > 10 ? 'var(--amber)' : 'var(--green)';
+          return '<span style="color:' + color + '">' + SE.fmtDec(ratio, 1) + '%</span>';
+        },
+      },
+      {
+        label: 'Break-even',
+        tip: 'Momento en que la rentabilidad acumulada supera las comisiones pagadas.',
+        fn: r => {
+          const m = r.simResult.breakEvenMonth;
+          if (m <= 0) return '<span style="color:var(--text-muted)">N/A</span>';
+          const y = Math.ceil(m / 12);
+          const mo = m % 12 || 12;
+          return 'Año ' + y + ', mes ' + mo;
+        },
+      },
+      {
+        label: 'Score',
+        tip: null,
+        fn: r => {
+          const s = r.scoreResult.overall;
+          const c = SE._scoreColor(s);
+          return '<span class="pill pill-' + c + '">' + s + '/100</span>';
+        },
+      },
+      {
+        label: 'Entidad',
+        tip: 'Score objetivo de la entidad/servicio (0-100). Mide coste, transparencia, independencia y libertad de salida.',
+        fn: r => {
+          const e = r.preset && r.preset.entity;
+          if (!e || e.score == null) return '<span style="color:var(--text-muted)">—</span>';
+          const s = e.score;
+          let color;
+          if (s >= 80) color = 'var(--green)';
+          else if (s >= 60) color = 'var(--amber)';
+          else color = 'var(--red)';
+          return '<span style="font-weight:700;color:' + color + '">' + s + '/100</span> <span style="font-size:0.75rem;color:var(--text-muted)">' + SE.escHtml(e.name) + '</span>';
+        },
+      },
+    ];
+
+    let bodyHtml = '<tbody>';
+    metrics.forEach(m => {
+      bodyHtml += '<tr><td><span class="metric-label">' + m.label;
+      if (m.tip) {
+        bodyHtml += ' <span class="tip" data-tip="' + SE.escHtml(m.tip) + '">?</span>';
+      }
+      bodyHtml += '</span></td>';
+      valid.forEach(r => {
+        bodyHtml += '<td>' + m.fn(r) + '</td>';
+      });
+      bodyHtml += '</tr>';
+    });
+    bodyHtml += '</tbody>';
+
+    $cmpTable.innerHTML = headHtml + bodyHtml;
+  }
+
+  // ─────────────────────────────────────────
+  // DETAIL ACCORDIONS
+  // ─────────────────────────────────────────
+  function renderDetails(valid) {
+    $detailsContainer.innerHTML = '';
+    valid.forEach((r, i) => {
+      const acc = document.createElement('div');
+      acc.className = 'accordion';
+
+      const scoreColor = SE._scoreColor(r.scoreResult.overall);
+
+      // Header
+      const header = document.createElement('div');
+      header.className = 'accordion-header';
+      header.innerHTML =
+        '<span class="acc-dot" style="background:' + r.color + '"></span>' +
+        '<span class="acc-title">' + SE.escHtml(r.label) + '</span>' +
+        '<span class="acc-score pill pill-' + scoreColor + '">' + r.scoreResult.overall + '/100</span>' +
+        '<span class="acc-arrow">&#9660;</span>';
+      header.addEventListener('click', function () { acc.classList.toggle('open'); });
+
+      // Body
+      const body = document.createElement('div');
+      body.className = 'accordion-body';
+      body.innerHTML = buildDetailContent(r);
+
+      acc.appendChild(header);
+      acc.appendChild(body);
+      $detailsContainer.appendChild(acc);
+    });
+  }
+
+  function buildDetailContent(r) {
+    const res = r.simResult;
+    const p = r.params;
+    const uid = 'p' + Math.random().toString(36).slice(2, 8);
+
+    const grossPct = p.rent || 0;
+    const nominalCost = SE.costeTotalAnual(r.funds, r.groupCosts);
+    const netPct = SE.fmtDec(grossPct - nominalCost);
+    const scoreVal = r.scoreResult.overall;
+    const scoreCol = SE._scoreColor(scoreVal);
+    const costeSobreRent = res.rentabilidadEur > 0
+      ? (res.totalCostes / (res.rentabilidadEur + res.totalCostes)) * 100 : 0;
+
+    let breakEvenStr;
+    if (res.breakEvenMonth <= 0) breakEvenStr = 'N/A';
+    else {
+      const beY = Math.ceil(res.breakEvenMonth / 12);
+      const beM = res.breakEvenMonth % 12 || 12;
+      breakEvenStr = 'Año ' + beY + ', mes ' + beM;
+    }
+
+    let html = '';
+
+    // ── Block: Inversión ──
+    const invId = uid + '-inv';
+    html += '<div class="result-block" id="' + invId + '">';
+    html += '<div class="result-block-header" onclick="document.getElementById(\'' + invId + '\').classList.toggle(\'open\')">';
+    html += '<span class="result-block-title">Tu inversión</span>';
+    html += '<span class="result-block-arrow">&#9660;</span></div>';
+    html += '<div class="metrics-row">';
+    html += '<div class="metric"><div class="metric-label">Total aportado</div><div class="metric-value">' + SE.fmt(res.totalAportado) + '</div></div>';
+    html += '<div class="metric"><div class="metric-label">Neto invertido</div><div class="metric-value">' + SE.fmt(res.netoInvertido) + '</div></div>';
+    html += '<div class="metric positive"><div class="metric-label">Patrimonio final</div><div class="metric-value positive">' + SE.fmt(res.patrimonioFinal) + '</div>';
+    html += '<div class="metric-sub">Real: ' + SE.fmt(res.patrimonioReal) + ' (inflación ' + SE.fmtDec(p.inflation) + '%)</div></div>';
+    html += '<div class="metric positive"><div class="metric-label">Rentabilidad</div><div class="metric-value positive">' + SE.fmt(res.rentabilidadEur) + '</div>';
+    html += '<div class="metric-sub">' + SE.fmtDec(res.rentabilidadPct) + '%</div></div>';
+    html += '</div>';
+    // Detail: projection table
+    html += '<div class="result-block-detail">';
+    const horizon = p.horizon;
+    const snaps = res.yearlySnapshots;
+    const checkpoints = [5, 10, 15, 20].filter(y => y <= horizon);
+    if (!checkpoints.includes(horizon)) checkpoints.push(horizon);
+    html += '<div style="overflow-x:auto"><table class="projection-table"><thead><tr>';
+    html += '<th>Horizonte</th><th>Aportado</th><th class="num">Costes acum.</th><th class="num">Patrimonio</th><th class="num">vs sin costes</th>';
+    html += '</tr></thead><tbody>';
+    checkpoints.forEach(yr => {
+      const snap = snaps.find(s => s.year === yr);
+      if (!snap) return;
+      const noCostAtYr = SE.approxNoCostAtYear(yr, p, r.funds, r.rentByFund);
+      html += '<tr><td>' + yr + ' años</td>';
+      html += '<td>' + SE.fmt(snap.aportado) + '</td>';
+      html += '<td class="num" style="color:var(--red)">' + SE.fmt(snap.costes) + '</td>';
+      html += '<td class="num" style="color:var(--green)">' + SE.fmt(snap.patrimonio) + '</td>';
+      html += '<td class="num" style="color:var(--amber)">&minus;' + SE.fmt(noCostAtYr - snap.patrimonio) + '</td></tr>';
+    });
+    html += '</tbody></table></div></div></div>';
+
+    // ── Block: Costes ──
+    const costId = uid + '-cost';
+    html += '<div class="result-block" id="' + costId + '">';
+    html += '<div class="result-block-header" onclick="document.getElementById(\'' + costId + '\').classList.toggle(\'open\')">';
+    html += '<span class="result-block-title">Costes</span>';
+    html += '<span class="result-block-arrow">&#9660;</span></div>';
+    html += '<div class="metrics-row">';
+    html += '<div class="metric negative"><div class="metric-label">Total comisiones</div><div class="metric-value negative">' + SE.fmt(res.totalCostes) + '</div>';
+    html += '<div class="metric-sub">' + SE.fmtDec(nominalCost) + '% anual</div></div>';
+    html += '<div class="metric amber"><div class="metric-label">Por cada 100 €</div><div class="metric-value amber">' + SE.fmtDec(res.costPer100) + ' €</div></div>';
+    html += '<div class="metric negative"><div class="metric-label">Impacto total</div><div class="metric-value negative">' + SE.fmt(res.lostVsNoCost) + '</div></div>';
+    html += '<div class="metric amber"><div class="metric-label">Costes / rentabilidad</div><div class="metric-value amber">' + SE.fmtDec(costeSobreRent, 1) + '%</div>';
+    html += '<div class="metric-sub">De tu ganancia total</div></div>';
+    html += '</div>';
+    // Detail: cost breakdown accordion
+    html += '<div class="result-block-detail">';
+    r.funds.forEach(f => {
+      const total = res.fundCostAccum[f.id] || 0;
+      const details = res.fundCostDetails[f.id] || {};
+      const aId = uid + '-f-' + f.id;
+      const tableRows = Object.values(details).map(d =>
+        '<tr><td>' + SE.escHtml(d.name) + '</td>' +
+        '<td>' + (SE.COST_TYPE_LABELS[d.type] || d.type) + ' &mdash; ' + SE.fmtDec(d.value) + (d.unit === 'pct' ? '%' : ' €') + '</td>' +
+        '<td class="num">' + SE.fmt(d.total) + '</td></tr>'
+      ).join('');
+      html += '<div class="accordion-item" id="' + aId + '">';
+      html += '<div class="accordion-header" onclick="document.getElementById(\'' + aId + '\').classList.toggle(\'open\')">';
+      html += '<span><strong>' + SE.escHtml(f.name) + '</strong>';
+      html += '<span style="color:var(--text-muted);font-size:0.8rem;margin-left:8px">' + SE.fmtDec(f.weight, 0) + '%</span></span>';
+      html += '<span><span style="color:var(--red);font-size:0.88rem;margin-right:8px">' + SE.fmt(total) + '</span>';
+      html += '<span class="accordion-arrow">&#9660;</span></span></div>';
+      html += '<div class="accordion-body">';
+      if (tableRows) {
+        html += '<table class="breakdown-table"><thead><tr><th>Coste</th><th>Tipo &amp; Valor</th><th class="num">Acumulado</th></tr></thead><tbody>';
+        html += tableRows;
+        html += '<tr class="total-row"><td colspan="2"><strong>Total ' + SE.escHtml(f.name) + '</strong></td><td class="num"><strong>' + SE.fmt(total) + '</strong></td></tr>';
+        html += '</tbody></table>';
+      } else {
+        html += '<p style="color:var(--text-muted);font-size:0.82rem">Sin costes configurados.</p>';
+      }
+      html += '</div></div>';
+    });
+    // Group costs
+    if (r.groupCosts.length > 0) {
+      const groupTotal = Object.values(res.groupCostAccum).reduce((s, v) => s + v, 0);
+      const gd = res.groupCostDetails || {};
+      const gId = uid + '-grp';
+      html += '<div class="accordion-item" id="' + gId + '">';
+      html += '<div class="accordion-header" onclick="document.getElementById(\'' + gId + '\').classList.toggle(\'open\')">';
+      html += '<span><strong>Costes de grupo</strong></span>';
+      html += '<span><span style="color:var(--red);font-size:0.88rem;margin-right:8px">' + SE.fmt(groupTotal) + '</span>';
+      html += '<span class="accordion-arrow">&#9660;</span></span></div>';
+      html += '<div class="accordion-body"><table class="breakdown-table"><thead><tr><th>Coste</th><th>Tipo &amp; Valor</th><th class="num">Acumulado</th></tr></thead><tbody>';
+      r.groupCosts.forEach(c => {
+        const d = gd[c.id] || { name: c.name, type: c.type, unit: c.unit, value: c.value, total: 0 };
+        html += '<tr><td>' + SE.escHtml(d.name) + '</td>';
+        html += '<td>' + (SE.COST_TYPE_LABELS[d.type] || d.type) + ' &mdash; ' + SE.fmtDec(d.value) + (d.unit === 'pct' ? '%' : ' €') + '</td>';
+        html += '<td class="num">' + SE.fmt(d.total) + '</td></tr>';
+      });
+      html += '<tr class="total-row"><td colspan="2"><strong>Total grupo</strong></td><td class="num"><strong>' + SE.fmt(groupTotal) + '</strong></td></tr>';
+      html += '</tbody></table></div></div>';
+    }
+    html += '<div class="breakdown-grand-total"><span>Coste total acumulado</span><span class="val">' + SE.fmt(res.totalCostes) + '</span></div>';
+    html += '</div></div>';
+
+    // ── Block: Rendimiento ──
+    const rendId = uid + '-rend';
+    html += '<div class="result-block" id="' + rendId + '">';
+    html += '<div class="result-block-header" onclick="document.getElementById(\'' + rendId + '\').classList.toggle(\'open\')">';
+    html += '<span class="result-block-title">Rendimiento</span>';
+    html += '<span class="result-block-arrow">&#9660;</span></div>';
+    html += '<div class="metrics-row">';
+    html += '<div class="metric"><div class="metric-label">Rentabilidad neta</div><div class="metric-value accent">' + netPct + '%</div>';
+    html += '<div class="metric-sub">Bruta ' + SE.fmtDec(grossPct) + '% − costes ' + SE.fmtDec(nominalCost) + '%</div></div>';
+    html += '<div class="metric"><div class="metric-label">Break-even</div><div class="metric-value">' + breakEvenStr + '</div>';
+    html += '<div class="metric-sub">Rentabilidad supera comisiones</div></div>';
+    html += '<div class="metric" style="border-color:rgba(' + (scoreCol === 'green' ? '52,211,153' : scoreCol === 'amber' ? '251,191,36' : '248,113,113') + ',0.3)">';
+    html += '<div class="metric-label">Score</div>';
+    html += '<div class="metric-value" style="color:var(--' + scoreCol + ')">' + scoreVal + '/100</div></div>';
+    // Entity metric card
+    const entity = r.preset && r.preset.entity;
+    if (entity && entity.score != null) {
+      const ec = entity.score >= 80 ? 'green' : entity.score >= 60 ? 'amber' : 'red';
+      html += '<div class="metric" style="border-color:rgba(' + (ec === 'green' ? '52,211,153' : ec === 'amber' ? '251,191,36' : '248,113,113') + ',0.3)">';
+      html += '<div class="metric-label">Entidad</div>';
+      html += '<div class="metric-value" style="color:var(--' + ec + ')">' + entity.score + '/100</div>';
+      html += '<div class="metric-sub">' + SE.escHtml(entity.name) + '</div></div>';
+    }
+    html += '</div>';
+    // Detail: score overview + table + entity detail
+    html += '<div class="result-block-detail">';
+    if (r.scoreResult && r.scoreResult.ejes && r.scoreResult.ejes.length > 0) {
+      const { overall, ejes, cobertura } = r.scoreResult;
+      const metrics = ejes; // mismo shape: { label, value, score, available }
+      const overallColor = SE._scoreColor(overall);
+      const pillsHtml = metrics.map(m => {
+        const dotClass = m.available ? 'dot-' + SE._scoreColor(m.score) : 'dot-muted';
+        const label = m.available ? m.score : 'N/D';
+        return '<span class="score-pill"><span class="score-pill-dot ' + dotClass + '"></span>' + m.label + ': <strong>' + label + '</strong></span>';
+      }).join('');
+      const detailRows = metrics.map(m => {
+        const barColor = m.available ? 'bar-' + SE._scoreColor(m.score) : 'bar-muted';
+        const barWidth = m.available ? m.score : 0;
+        const scoreLabel = m.available ? m.score + '/100' : 'N/D';
+        const labelColor = m.available ? SE._scoreColor(m.score) : 'muted';
+        const colorVar = labelColor === 'green' ? 'var(--green)' : labelColor === 'amber' ? 'var(--amber)' : labelColor === 'red' ? 'var(--red)' : 'var(--text-muted)';
+        return '<tr><td>' + m.label + '</td><td class="num">' + m.value + '</td><td>' +
+          '<div class="score-bar-cell"><div class="score-bar-track"><div class="score-bar-fill ' + barColor + '" style="width:' + barWidth + '%"></div></div>' +
+          '<span class="score-bar-label" style="color:' + colorVar + '">' + scoreLabel + '</span></div></td></tr>';
+      }).join('');
+      html += '<div class="score-overview"><div class="score-circle score-' + overallColor + '">' + overall + '</div>';
+      html += '<div class="score-pills">' + pillsHtml + '</div></div>';
+      html += '<div class="score-legend">Score 0-100. Mayor = mejor. Basado en datos cuantitativos.</div>';
+      html += '<table class="score-detail-table"><thead><tr><th>Métrica</th><th class="num">Valor</th><th>Score</th></tr></thead>';
+      html += '<tbody>' + detailRows + '</tbody></table>';
+      if (cobertura && cobertura.pendientes && cobertura.pendientes.length > 0) {
+        const nombres = { rentabilidadVsIwda: 'rentabilidad vs IWDA', fitObjetivo: 'fit con objetivo' };
+        const lista = cobertura.pendientes.map(k => nombres[k] || k).join(', ');
+        html += '<div class="score-legend" style="color:var(--amber)">⚠ ' + cobertura.pendientes.length +
+          ' de ' + cobertura.total + ' ejes sin datos aún: ' + lista + '. La nota se calcula sobre los disponibles.</div>';
+      }
+    }
+    // Entity detail section
+    if (entity && entity.score != null) {
+      const ec = entity.score >= 80 ? 'green' : entity.score >= 60 ? 'amber' : 'red';
+      html += '<div style="margin-top:20px; padding-top:16px; border-top:1px solid var(--border);">';
+      html += '<div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-muted); margin-bottom:10px;">Entidad: ' + SE.escHtml(entity.name) + '</div>';
+      html += '<div style="display:flex; align-items:center; gap:16px; margin-bottom:10px;">';
+      html += '<div class="score-circle score-' + ec + '" style="width:56px; height:56px; font-size:1.8rem;">' + entity.score + '</div>';
+      html += '<div><div style="font-size:0.85rem; color:#fff; font-weight:600;">' + SE.escHtml(entity.name) + '</div>';
+      html += '<div style="font-size:0.78rem; color:var(--text-muted);">' + SE.escHtml(entity.category || '') + '</div></div></div>';
+      // Breakdown table
+      if (entity.breakdown && entity.breakdown.length > 0) {
+        html += '<table class="score-detail-table" style="margin-top:12px;"><thead><tr><th>Métrica</th><th class="num">Peso</th><th>Score</th></tr></thead><tbody>';
+        entity.breakdown.forEach(b => {
+          const bc = b.score >= 70 ? 'green' : b.score >= 40 ? 'amber' : 'red';
+          const bcVar = bc === 'green' ? 'var(--green)' : bc === 'amber' ? 'var(--amber)' : bc === 'red' ? 'var(--red)' : 'var(--text-muted)';
+          html += '<tr><td>' + SE.escHtml(b.label) + '</td><td class="num">' + b.weight + '%</td><td>';
+          html += '<div class="score-bar-cell"><div class="score-bar-track"><div class="score-bar-fill bar-' + bc + '" style="width:' + b.score + '%"></div></div>';
+          html += '<span class="score-bar-label" style="color:' + bcVar + '">' + b.score + '/100</span></div></td></tr>';
+        });
+        html += '</tbody></table>';
+      }
+      html += '<div style="font-size:0.78rem; color:var(--text-muted); line-height:1.5; margin-top:10px;">Score objetivo de la entidad/servicio (0-100). Independiente del score del producto.</div>';
+      html += '</div>';
+    }
+    html += '</div></div>';
+
+    // ── Composición de fondos (extra, not in simulator) ──
+    if (r.funds.length > 1) {
+      html += '<div class="detail-section"><h4>Composición de fondos</h4>';
+      html += '<table class="detail-table"><thead><tr><th>Fondo</th><th>ISIN</th><th>Peso</th><th>Categoría</th><th>Rent.</th></tr></thead><tbody>';
+      r.funds.forEach(f => {
+        html += '<tr><td>' + SE.escHtml(f.name) + '</td>';
+        html += '<td style="font-size:0.75rem;color:var(--text-muted)">' + SE.escHtml(f.isin || '-') + '</td>';
+        html += '<td>' + f.weight + '%</td>';
+        html += '<td>' + (SE.CATEGORY_LABELS[f.category] || f.category || '-') + '</td>';
+        html += '<td>' + SE.fmtDec(f.rent || 0, 1) + '%</td></tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+
+    return html;
+  }
+
+  // ─────────────────────────────────────────
+  // TOOLTIP POSITIONING
+  // ─────────────────────────────────────────
+  function setupTipPositioning() {
+    document.addEventListener('mouseenter', function (e) {
+      if (!e.target.classList || !e.target.classList.contains('tip')) return;
+      const rect = e.target.getBoundingClientRect();
+      e.target.style.setProperty('--tip-x', Math.min(rect.left, window.innerWidth - 260) + 'px');
+      e.target.style.setProperty('--tip-y', (rect.bottom + 8) + 'px');
+    }, true);
+  }
+
+})();
+</script>
+</body>
+</html>

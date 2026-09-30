@@ -1,0 +1,59 @@
+{
+  "name": "Vanguard FTSE All-World UCITS ETF (Acc) vía Trade Republic",
+  "description": "ETF de RV global (incluye emergentes) contratable en Trade Republic con plan de ahorro gratuito. Coste explícito muy bajo, pero es un ETF: en España NO se acoge al régimen de traspaso sin tributar (art. 94 LIRPF excluye ETFs).",
+  "type": "product",
+  "vehiculo": "etf",
+  "provider": "Trade Republic / Vanguard",
+  "mandate": "self-directed",
+  "dataAsOf": "2026-06-18",
+  "entity": {
+    "name": "Trade Republic",
+    "score": null,
+    "category": null
+  },
+  "params": {
+    "initial": 10000,
+    "monthly": 300,
+    "horizon": 16,
+    "inflation": 2
+  },
+  "groupCosts": [
+    {
+      "name": "Custodia / mantenimiento (Trade Republic)",
+      "value": 0,
+      "unit": "pct",
+      "type": "annual"
+    }
+  ],
+  "funds": [
+    {
+      "name": "Vanguard FTSE All-World UCITS ETF (USD) Accumulating",
+      "isin": "IE00BK5BQT80",
+      "weight": 100,
+      "category": "rv",
+      "structure": "passive-index",
+      "categoryMorningstar": "RV Global Cap. Grande Blend",
+      "ter": 0.19,
+      "dataSource": "JustETF + Vanguard UK oficial (jun-2026). TER 0,19% no confirmado por fetch directo en vanguard.es (403); verificar en el KID oficial. Índice FTSE All-World (desarrollados + emergentes). Plan de ahorro en Trade Republic 0€, custodia 0€ (lista de precios oficial TR).",
+      "costs": [
+        {
+          "name": "TER",
+          "value": 0.19,
+          "unit": "pct",
+          "type": "annual"
+        }
+      ]
+    }
+  ],
+  "historicalReturns": {
+    "source": "⚠ FALTA INFO: no se recogió serie ni rentabilidad anual del ETF en esta búsqueda. Índice FTSE All-World, comparable al MSCI ACWI.",
+    "currency": "EUR",
+    "annual": {}
+  },
+  "scorecardData": {
+    "volatilidadCorrelacion": {
+      "status": "no-data",
+      "reason": "ETF fuera del MCP MyInvestor; sin serie de NAV recogida. Índice FTSE All-World, equivalente al ACWI."
+    }
+  }
+}

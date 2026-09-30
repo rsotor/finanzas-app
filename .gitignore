@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.DS_Store
+__pycache__/
+test-results/
+playwright-report/
+
+# Tus datos NO se suben nunca (ni siquiera a tu fork)
+.env
+webapp/server/datos/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+input/situation.md
+outputs/

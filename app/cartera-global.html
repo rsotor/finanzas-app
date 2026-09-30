@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cartera global</title>
+<link rel="stylesheet" href="../styles/theme.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 20px 20px 48px; }
+  .header { margin-bottom: 16px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .header h1 { font-size: 1.5rem; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+  .header p { color: var(--text-muted); font-size: 0.82rem; }
+  .header .link-cmp { margin-left: auto; color: var(--accent); font-size: 0.82rem; text-decoration: none; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .card .k { color: var(--text-muted); font-size: 0.78rem; }
+  .card .v { font-size: 1.4rem; font-weight: 700; color: #fff; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.88rem; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-muted); font-weight: 600; }
+  .aviso { background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.4); border-radius: 8px; padding: 10px 12px; margin: 8px 0; font-size: 0.82rem; }
+  .bar { height: 8px; background: var(--accent); border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Cartera global</h1>
+    <p>Composición de las carteras seleccionadas por bloque</p>
+    <p style="font-size:0.78rem;color:var(--text-muted)">Datos a fecha: (la de tu payload) · Fuente de verdad: <code>input/situation.md</code> + <code>app/presets/*.json</code> · <a href="../../referencia/guia-costes-inversion.html#rentabilidad-estimada" style="color:var(--accent)">cómo se calcula la rentabilidad</a></p>
+    <a class="link-cmp" href="comparador-fondos.html">→ Comparador por bloque</a>
+  </div>
+  <div id="root"></div>
+</div>
+
+<script>
+  // El skill inyecta el payload del CLI reemplazando el marcador siguiente. Sin inyección queda null.
+  window.PAYLOAD = /* __PAYLOAD__ */ null;
+
+  function eur(n) { return n == null ? '—' : Math.round(n).toLocaleString('es-ES') + ' €'; }
+  function pct(n) { return n == null ? '—' : (Math.round(n * 100) / 100) + ' %'; }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+  function render(p) {
+    const root = document.getElementById('root');
+    if (!p || !p.global) { root.innerHTML = '<div class="aviso">No hay payload. Genera la vista desde el comando /cartera.</div>'; return; }
+    const g = p.global;
+    const div = g.diversificacion || {};
+    let html = '';
+    html += '<div class="cards">';
+    html += '<div class="card"><div class="k">Patrimonio total</div><div class="v">' + eur(g.totalImporte) + '</div></div>';
+    html += '<div class="card"><div class="k">Coste medio anual</div><div class="v">' + pct(g.costeAnualPctPond) + '</div><div class="k">' + eur(g.costeAnualEur) + '/año</div></div>';
+    html += '<div class="card"><div class="k">Score global</div><div class="v">' + (g.scorePond == null ? '—' : g.scorePond) + '</div></div>';
+    html += '<div class="card"><div class="k">Solapamiento</div><div class="v">' + pct(div.solapamiento) + '</div><div class="k">' + (div.degradado ? 'sin correlación' : (div.correlacion != null ? 'correlación: ' + (Math.round(div.correlacion * 100) / 100) : '—')) + '</div></div>';
+    html += '</div>';
+
+    html += '<table><thead><tr><th>Bloque</th><th>Importe</th><th>Peso</th><th>Composición</th><th></th></tr></thead><tbody>';
+    (g.bloques || []).forEach(b => {
+      const comp = b.composicion && b.composicion.length
+        ? b.composicion.map(f => esc(f.name || '—') + ' (' + (f.weight != null ? f.weight : '—') + ' %)').join('<br>')
+        : '<span style="color:var(--text-muted)">composición no disponible</span>';
+      const enlace = b.id
+        ? '<a href="../../md-viewer.html?file=outputs/cartera/' + esc(b.id) + '.md" style="color:var(--accent);white-space:nowrap">→ detalle del bloque</a>'
+        : '';
+      html += '<tr>';
+      html += '<td>' + esc(b.label) + '</td>';
+      html += '<td>' + eur(b.importe) + '</td>';
+      html += '<td><div class="bar" style="width:' + b.peso + '%"></div>' + b.peso + ' %</td>';
+      html += '<td style="font-size:0.82rem;line-height:1.6">' + comp + '</td>';
+      html += '<td>' + enlace + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+
+    if (p.dca && p.dca.calendario && p.dca.calendario.length) {
+      html += '<h2 style="margin-top:24px;font-size:1.05rem;color:#fff">Despliegue del capital parado</h2>';
+      html += '<p style="color:var(--text-muted);font-size:0.82rem">' + eur(p.dca.total) + ' en ' + p.dca.meses + ' meses (' + eur(p.dca.importeMensual) + '/mes)' + (p.dca.fueraDeRango ? ' — fuera del rango recomendado 6-12 meses' : '') + '</p>';
+    }
+
+    (p.avisos || []).forEach(a => { html += '<div class="aviso">⚠ ' + esc(a) + '</div>'; });
+    root.innerHTML = html;
+  }
+
+  render(window.PAYLOAD);
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finanzas</title>
+  <!-- La app tiene su propio tema (src/tema.css). styles/theme.css es el de los reports del repo
+       y no se importa aquí: lo comparten otras páginas y no debe cambiar por esta. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400..700&family=Literata:opsz,wght@7..72,400..700&display=swap" />
+  <!-- El motor: los mismos engines UMD de app/ que corren en Node. Orden: las dependencias antes. -->
+  <script src="/motor/engine-fiscal.js"></script>
+  <script src="/motor/engine-supuestos.js"></script>
+  <script src="/motor/engine-diversificacion.js"></script>
+  <script src="/motor/engine-proyeccion.js"></script>
+  <script src="/motor/engine-finanzas.js"></script>
+  <script src="/motor/engine-fuente-rentabilidad.js"></script>
+  <script src="/motor/engine-plan.js"></script>
+  <script src="/motor/engine-escenario.js"></script>
+  <script src="/motor/engine-chart.js"></script>
+</head>
+<body>
+  <div id="raiz"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>

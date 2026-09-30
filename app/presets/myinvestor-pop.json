@@ -1,0 +1,63 @@
+{
+  "name": "MyInvestor Cartera Pop (Roboadvisor)",
+  "description": "Cartera automatizada indexada de MyInvestor con perfil moderado: 39% RV / 61% RF. Compuesta por ~7-10 fondos indexados de Vanguard, iShares y Fidelity con rebalanceo automatico.",
+  "isin_ref": "N/A (cartera multi-fondo)",
+  "type": "product",
+  "dataAsOf": "2026-03-31",
+  "provider": "MyInvestor",
+  "entity": {
+    "name": "MyInvestor",
+    "score": null,
+    "category": null
+  },
+  "params": {
+    "initial": 10000,
+    "monthly": 300,
+    "horizon": 5,
+    "rent": 4.5,
+    "inflation": 2
+  },
+  "rentByFund": false,
+  "groupCosts": [
+    {
+      "name": "Comision de gestion",
+      "value": 0.15,
+      "unit": "pct",
+      "type": "annual"
+    },
+    {
+      "name": "Comision de custodia",
+      "value": 0.15,
+      "unit": "pct",
+      "type": "annual"
+    }
+  ],
+  "funds": [
+    {
+      "name": "Cartera Pop (39% RV / 61% RF)",
+      "isin": "multi-fondo",
+      "weight": 100,
+      "category": "mixto-moderado",
+      "rent": 4.5,
+      "vol": null,
+      "maxDD": null,
+      "numHoldings": null,
+      "structure": "passive-index",
+      "costs": [
+        {
+          "name": "TER medio fondos subyacentes",
+          "value": 0.15,
+          "unit": "pct",
+          "type": "annual"
+        }
+      ]
+    }
+  ],
+  "historicalReturns": {
+    "source": "MyInvestor (marzo 2026). ADVERTENCIA: rentabilidad no verificada de forma independiente",
+    "currency": "EUR",
+    "annual": {},
+    "annualized_5y": null,
+    "annualized_3y": null
+  }
+}
