@@ -23,6 +23,11 @@ jobs:
           node-version-file: .nvmrc
       - name: Instalar (igual que en docs/instalacion.md)
         run: npm install
+      - name: Los lockfiles cuadran con los package.json
+        # npm ci falla si no coinciden (npm install los habría arreglado en silencio).
+        run: |
+          node scripts/npm-en.js webapp/server ci --no-audit --no-fund
+          node scripts/npm-en.js webapp/web ci --no-audit --no-fund
       - name: Tests del motor y del servidor
         run: npm test
       - name: Compilar la interfaz
