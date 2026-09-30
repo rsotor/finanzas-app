@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Lo lanza versiones.yml sobre el PR de versión (un PR creado por Actions no dispara la CI solo).
+  workflow_dispatch:
 
 permissions:
   contents: read

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "3426680ba259e359bf180b9454692a779178ea11",
+  "include-v-in-tag": true,
+  "pull-request-title-pattern": "chore: versión ${version}",
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "package-name": "finanzas-app",
+      "changelog-path": "CHANGELOG.md",
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": false,
+      "changelog-sections": [
+        { "type": "feat", "section": "Mejoras" },
+        { "type": "fix", "section": "Arreglos" },
+        { "type": "perf", "section": "Rendimiento" },
+        { "type": "build", "section": "Dependencias y mantenimiento" },
+        { "type": "docs", "section": "Documentación" },
+        { "type": "revert", "section": "Deshecho" },
+        { "type": "ci", "section": "CI", "hidden": true },
+        { "type": "test", "section": "Tests", "hidden": true },
+        { "type": "refactor", "section": "Reorganización interna", "hidden": true },
+        { "type": "chore", "section": "Varios", "hidden": true }
+      ]
+    }
+  }
+}

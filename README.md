@@ -78,6 +78,11 @@ sabe, lo dice.
 Se configura copiando `input/situation.example.md` a `input/situation.md` (que no se sube) y rellenándolo con
 tu situación. Detalles en [CLAUDE.md](CLAUDE.md).
 
+## Novedades
+
+Qué cambia en cada versión: [CHANGELOG.md](CHANGELOG.md), o la pestaña **Releases** del repo. Antes de
+actualizar (`git pull`), echa un vistazo.
+
 ## Colabora
 
 ¿Te has atascado instalando? ¿Echas algo en falta? ¿Un cálculo no te cuadra?
