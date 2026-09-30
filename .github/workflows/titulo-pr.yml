@@ -5,6 +5,9 @@ name: Título del PR
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
+  # Lo lanza versiones.yml sobre el PR de versión: un PR creado por Actions no dispara pull_request, y si esta
+  # comprobación es obligatoria el PR se quedaría bloqueado. Su título lo genera release-please y siempre cumple.
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -15,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Comprobar el formato
+        if: github.event_name == 'pull_request'
         env:
           TITULO: ${{ github.event.pull_request.title }}
         run: |
@@ -24,3 +28,6 @@ jobs:
             echo "::error::El título debe empezar por un tipo: feat, fix, perf, docs, build, ci, test, refactor, chore o revert. Ej.: «fix(instalación): npm install en Windows». Ver CONTRIBUTING.md"
             exit 1
           fi
+      - name: PR de versión (título generado por release-please)
+        if: github.event_name != 'pull_request'
+        run: echo "✔ Lanzado sobre la rama del PR de versión; su título lo genera release-please"

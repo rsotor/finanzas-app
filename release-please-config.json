@@ -11,17 +11,52 @@
       "bump-minor-pre-major": true,
       "bump-patch-for-minor-pre-major": false,
       "changelog-sections": [
-        { "type": "feat", "section": "Mejoras" },
-        { "type": "fix", "section": "Arreglos" },
-        { "type": "perf", "section": "Rendimiento" },
-        { "type": "build", "section": "Dependencias y mantenimiento" },
-        { "type": "docs", "section": "Documentación" },
-        { "type": "revert", "section": "Deshecho" },
-        { "type": "ci", "section": "CI", "hidden": true },
-        { "type": "test", "section": "Tests", "hidden": true },
-        { "type": "refactor", "section": "Reorganización interna", "hidden": true },
-        { "type": "chore", "section": "Varios", "hidden": true }
+        {
+          "type": "feat",
+          "section": "Mejoras"
+        },
+        {
+          "type": "fix",
+          "section": "Arreglos"
+        },
+        {
+          "type": "perf",
+          "section": "Rendimiento"
+        },
+        {
+          "type": "build",
+          "section": "Dependencias y mantenimiento"
+        },
+        {
+          "type": "docs",
+          "section": "Documentación"
+        },
+        {
+          "type": "revert",
+          "section": "Deshecho"
+        },
+        {
+          "type": "ci",
+          "section": "CI",
+          "hidden": true
+        },
+        {
+          "type": "test",
+          "section": "Tests",
+          "hidden": true
+        },
+        {
+          "type": "refactor",
+          "section": "Reorganización interna",
+          "hidden": true
+        },
+        {
+          "type": "chore",
+          "section": "Varios",
+          "hidden": true
+        }
       ]
     }
-  }
+  },
+  "include-component-in-tag": false
 }

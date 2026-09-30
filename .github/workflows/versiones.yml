@@ -21,7 +21,7 @@ jobs:
           manifest-file: .release-please-manifest.json
       # Un PR creado con el token de Actions no lanza la CI por sí solo, y la protección de main la exige.
       # workflow_dispatch sí se puede lanzar con ese token: se pasa la CI a mano a la rama del PR de versión.
-      - name: Pasar la CI al PR de versión
+      - name: Pasar la CI (y la comprobación del título) al PR de versión
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -29,4 +29,5 @@ jobs:
           for rama in $(gh api "repos/$REPO/branches?per_page=100" --jq '.[].name | select(startswith("release-please--"))'); do
             echo "CI para $rama"
             gh workflow run ci.yml --repo "$REPO" --ref "$rama"
+            gh workflow run titulo-pr.yml --repo "$REPO" --ref "$rama"
           done
